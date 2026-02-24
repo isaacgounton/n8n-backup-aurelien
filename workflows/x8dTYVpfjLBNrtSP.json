@@ -1,0 +1,932 @@
+{
+  "active": false,
+  "activeVersion": null,
+  "activeVersionId": null,
+  "connections": {
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create a tenant": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update a tenant": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "List tenants": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "Add tenant",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Add tenant": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Over Items": {
+      "main": [
+        [],
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Add tenant1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Add tenant1": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "createdAt": "2026-02-09T02:31:14.303Z",
+  "id": "x8dTYVpfjLBNrtSP",
+  "isArchived": false,
+  "meta": null,
+  "name": "Add Tenants (Isaac)",
+  "nodes": [
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1Sd-2cvtC9l0IAsN4ze2s22bvYbRphnG_ARSLWiZJcZM",
+          "mode": "list",
+          "cachedResultName": "Rent payment",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1Sd-2cvtC9l0IAsN4ze2s22bvYbRphnG_ARSLWiZJcZM/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1613306859,
+          "mode": "list",
+          "cachedResultName": "TenantsList",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1Sd-2cvtC9l0IAsN4ze2s22bvYbRphnG_ARSLWiZJcZM/edit#gid=1613306859"
+        },
+        "filtersUI": {
+          "values": [
+            {
+              "lookupColumn": "Status",
+              "lookupValue": "ACTIVE"
+            }
+          ]
+        },
+        "options": {
+          "returnFirstMatch": false
+        }
+      },
+      "id": "82e12d3b-c39e-469e-8148-1b6f379c0738",
+      "name": "Add tenant",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        -64,
+        272
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "aTGWDwc4d28BUxCQ",
+          "name": "Google Sheets (Isaac)"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json }}",
+        "options": {
+          "systemMessage": "=You are a tenant management assistant for Jules AI. Add the tenant from the informations you received.\n\n**Database Schema:**\n- **name**: String (max 255 chars)\n- **phone_number**: String (max 20 chars) - Format: +1XXXXXXXXXX\n- **email**: String (max 255 chars)\n- **unit_address**: String (max 255 chars)\n- **unit_type**: String (max 100 chars) - 'Studio', '1 Bedroom', '2 Bedroom'\n- **rent_amount**: Decimal/float\n- **lease_start_date**: String (ISO: YYYY-MM-DD)\n- **lease_end_date**: String (ISO: YYYY-MM-DD)\n- **status**: String (max 50 chars) - 'ACTIVE', 'INACTIVE', 'PENDING'\n- **preferred_language**: String (max 10 chars) - 'en', 'fr', 'es'\n\n**Phone Number Normalization:**\nAlways normalize to +1XXXXXXXXXX format:\n- \"(555) 123-4567\" → \"+15551234567\"\n- \"555-123-4567\" → \"+15551234567\"\n- \"5551234567\" → \"+15551234567\"\n\n**Operations Protocol:**\n1. **CREATE**: Normalize phone → Validate fields → Create → Confirm\n2. **UPDATE**: Normalize lookup phone → Normalize new phone → Update → Confirm\n3. **GET/SEARCH**: Normalize phone → Execute search → Return results\n\n**Response Format:**\nExecute the function immediately, then respond with results only:\n- \"Tenant found: John Doe, Unit 4B, +14384541235\"\n- \"Tenant created successfully: Jane Smith, +15551234567\"\n- \"Tenant updated: Rent changed to $1500\"\n- \"Error: Tenant not found for +15559876543\"\n\nAlways show normalized phone numbers in confirmations."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        384,
+        288
+      ],
+      "id": "d13bfc9e-b99e-4da1-98eb-4b6d5f582183",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4.1-mini"
+        },
+        "responsesApiEnabled": false,
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        256,
+        544
+      ],
+      "id": "0471efa8-fa6e-4c3f-9822-db03f884681d",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "vofRqqG7VEHTXxTs",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "descriptionType": "manual",
+        "toolDescription": "Creates a new tenant record in the database with all required information including name, phone number, unit address, lease dates, contact details, and status.",
+        "schema": {
+          "__rl": true,
+          "mode": "list",
+          "value": "public"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tenants",
+          "mode": "list",
+          "cachedResultName": "tenants"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "name": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('name', `Full name of the tenant`, 'string') }}",
+            "phone_number": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('phone_number', `Phone number of the tenant`, 'string') }}",
+            "unit_address": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('unit_address', `Unit address where tenant resides`, 'string') }}",
+            "contact_email": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('contact_email', `Tenant contact email address`, 'string') }}",
+            "emergency_contact": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('emergency_contact', `Emergency contact name`, 'string') }}",
+            "emergency_phone": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('emergency_phone', `Emergency contact phone number`, 'string') }}",
+            "preferred_language": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('preferred_language', `Preferred language code (e.g., en, fr)`, 'string') }}",
+            "notes": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('notes', `Additional notes about the tenant`, 'string') }}",
+            "status": "={{ $fromAI('status', 'Tenant status: ACTIVE, INACTIVE, or PENDING', 'string') }}"
+          },
+          "matchingColumns": [
+            "id"
+          ],
+          "schema": [
+            {
+              "id": "id",
+              "displayName": "id",
+              "required": false,
+              "defaultMatch": true,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "name",
+              "displayName": "name",
+              "required": true,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "phone_number",
+              "displayName": "phone_number",
+              "required": true,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "unit_address",
+              "displayName": "unit_address",
+              "required": true,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "lease_start_date",
+              "displayName": "lease_start_date",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "dateTime",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "lease_end_date",
+              "displayName": "lease_end_date",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "dateTime",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "contact_email",
+              "displayName": "contact_email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "emergency_contact",
+              "displayName": "emergency_contact",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "emergency_phone",
+              "displayName": "emergency_phone",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "preferred_language",
+              "displayName": "preferred_language",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "status",
+              "displayName": "status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "options",
+              "canBeUsedToMatch": true,
+              "options": [
+                {
+                  "name": "PENDING",
+                  "value": "PENDING"
+                },
+                {
+                  "name": "INACTIVE",
+                  "value": "INACTIVE"
+                },
+                {
+                  "name": "ACTIVE",
+                  "value": "ACTIVE"
+                }
+              ]
+            },
+            {
+              "id": "notes",
+              "displayName": "notes",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "created_at",
+              "displayName": "created_at",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "dateTime",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "updated_at",
+              "displayName": "updated_at",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "dateTime",
+              "canBeUsedToMatch": true,
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "id": "c1b4e286-54ca-4e61-939c-e9401a667e96",
+      "name": "Create a tenant",
+      "type": "n8n-nodes-base.postgresTool",
+      "typeVersion": 2.6,
+      "position": [
+        592,
+        544
+      ],
+      "credentials": {
+        "postgres": {
+          "id": "u7j29OmyHuzkVDfZ",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "descriptionType": "manual",
+        "toolDescription": "Updates an existing tenant record in the database. Provide the phone number to identify the tenant and any fields you want to update. Only provided fields will be updated.",
+        "operation": "update",
+        "schema": {
+          "__rl": true,
+          "mode": "list",
+          "value": "public"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tenants",
+          "mode": "list",
+          "cachedResultName": "tenants"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "name": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('name', `Updated tenant name (optional)`, 'string') }}",
+            "phone_number": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('phone_number__using_to_match_', `New phone number if changing (optional)`, 'string') }}",
+            "unit_address": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('unit_address', `Updated unit address (optional)`, 'string') }}",
+            "lease_start_date": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('lease_start_date', `Updated lease start date (optional)`, 'string') }}",
+            "lease_end_date": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('lease_end_date', `Updated lease end date (optional)`, 'string') }}",
+            "contact_email": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('contact_email', `Updated contact email (optional)`, 'string') }}",
+            "emergency_contact": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('emergency_contact', `Updated emergency contact (optional)`, 'string') }}",
+            "emergency_phone": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('emergency_phone', `Updated emergency phone (optional)`, 'string') }}",
+            "preferred_language": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('preferred_language', `Updated preferred language (optional)`, 'string') }}",
+            "notes": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('notes', `Updated notes (optional)`, 'string') }}",
+            "status": "={{ $fromAI('status', 'Updated status: ACTIVE, INACTIVE, or PENDING (optional)', 'string') }}"
+          },
+          "matchingColumns": [
+            "phone_number"
+          ],
+          "schema": [
+            {
+              "id": "id",
+              "displayName": "id",
+              "required": false,
+              "defaultMatch": true,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "name",
+              "displayName": "name",
+              "required": true,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "phone_number",
+              "displayName": "phone_number",
+              "required": true,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "unit_address",
+              "displayName": "unit_address",
+              "required": true,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "lease_start_date",
+              "displayName": "lease_start_date",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "dateTime",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "lease_end_date",
+              "displayName": "lease_end_date",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "dateTime",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "contact_email",
+              "displayName": "contact_email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "emergency_contact",
+              "displayName": "emergency_contact",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "emergency_phone",
+              "displayName": "emergency_phone",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "preferred_language",
+              "displayName": "preferred_language",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "status",
+              "displayName": "status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "options",
+              "canBeUsedToMatch": true,
+              "options": [
+                {
+                  "name": "PENDING",
+                  "value": "PENDING"
+                },
+                {
+                  "name": "INACTIVE",
+                  "value": "INACTIVE"
+                },
+                {
+                  "name": "ACTIVE",
+                  "value": "ACTIVE"
+                }
+              ]
+            },
+            {
+              "id": "notes",
+              "displayName": "notes",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "created_at",
+              "displayName": "created_at",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "dateTime",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "updated_at",
+              "displayName": "updated_at",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "dateTime",
+              "canBeUsedToMatch": true,
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "id": "a1aebac9-b027-4cac-a595-f69fff0d883f",
+      "name": "Update a tenant",
+      "type": "n8n-nodes-base.postgresTool",
+      "typeVersion": 2.6,
+      "position": [
+        736,
+        544
+      ],
+      "credentials": {
+        "postgres": {
+          "id": "u7j29OmyHuzkVDfZ",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "descriptionType": "manual",
+        "toolDescription": "Retrieves all tenants information from the database. Returns tenant details including name, contact information, lease dates, and status.",
+        "operation": "select",
+        "schema": {
+          "__rl": true,
+          "mode": "list",
+          "value": "public"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tenants",
+          "mode": "list",
+          "cachedResultName": "tenants"
+        },
+        "returnAll": true,
+        "options": {}
+      },
+      "id": "66d69da8-af3c-4acc-b39a-cbf293ce7876",
+      "name": "List tenants",
+      "type": "n8n-nodes-base.postgresTool",
+      "typeVersion": 2.6,
+      "position": [
+        432,
+        544
+      ],
+      "credentials": {
+        "postgres": {
+          "id": "u7j29OmyHuzkVDfZ",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -256,
+        272
+      ],
+      "id": "6ca0f29a-500b-4779-ae9a-5f0566cb822e",
+      "name": "When clicking ‘Execute workflow’"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        128,
+        272
+      ],
+      "id": "bc83e47b-9c4d-49b6-9b3a-6932d90f713b",
+      "name": "Loop Over Items"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "value": "1Sd-2cvtC9l0IAsN4ze2s22bvYbRphnG_ARSLWiZJcZM",
+          "mode": "list",
+          "cachedResultName": "Rent payment",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1Sd-2cvtC9l0IAsN4ze2s22bvYbRphnG_ARSLWiZJcZM/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1613306859,
+          "mode": "list",
+          "cachedResultName": "TenantsList",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1Sd-2cvtC9l0IAsN4ze2s22bvYbRphnG_ARSLWiZJcZM/edit#gid=1613306859"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Status": "ADDED",
+            "row_number": "={{ $('Loop Over Items').first().json.row_number }}"
+          },
+          "matchingColumns": [
+            "row_number"
+          ],
+          "schema": [
+            {
+              "id": "Name",
+              "displayName": "Name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Email",
+              "displayName": "Email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Phone",
+              "displayName": "Phone",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Preferred Language",
+              "displayName": "Preferred Language",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Rent amount",
+              "displayName": "Rent amount",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Location",
+              "displayName": "Location",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Lease Start",
+              "displayName": "Lease Start",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Lease End",
+              "displayName": "Lease End",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Due date",
+              "displayName": "Due date",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Rent increase anniversary",
+              "displayName": "Rent increase anniversary",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Rent increase notice date (6.5 months prior to K)",
+              "displayName": "Rent increase notice date (6.5 months prior to K)",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Payment",
+              "displayName": "Payment",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Due",
+              "displayName": "Due",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Last payment",
+              "displayName": "Last payment",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Month",
+              "displayName": "Month",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Transaction type",
+              "displayName": "Transaction type",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Subject",
+              "displayName": "Subject",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Content",
+              "displayName": "Content",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "EmailToSend",
+              "displayName": "EmailToSend",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Status",
+              "displayName": "Status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "row_number",
+              "displayName": "row_number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true,
+              "readOnly": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "id": "6eb57abd-795e-46a0-a639-8ce9b2dbcaf8",
+      "name": "Add tenant1",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        704,
+        288
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "aTGWDwc4d28BUxCQ",
+          "name": "Google Sheets (Isaac)"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1",
+    "availableInMCP": false
+  },
+  "shared": [
+    {
+      "updatedAt": "2026-02-09T02:31:14.307Z",
+      "createdAt": "2026-02-09T02:31:14.307Z",
+      "role": "workflow:owner",
+      "workflowId": "x8dTYVpfjLBNrtSP",
+      "projectId": "K5c2PqoZjXPELHVa"
+    }
+  ],
+  "staticData": null,
+  "tags": [],
+  "triggerCount": 0,
+  "updatedAt": "2026-02-09T03:46:10.085Z",
+  "versionId": "4fdb08b1-c6bc-4119-b52f-a803ccecbc8d"
+}
