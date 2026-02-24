@@ -1,0 +1,348 @@
+{
+  "active": false,
+  "activeVersion": null,
+  "activeVersionId": null,
+  "connections": {
+    "When clicking 'Execute workflow'": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Login Page": {
+      "main": [
+        [
+          {
+            "node": "Login to Kijiji",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Login to Kijiji": {
+      "main": [
+        []
+      ]
+    },
+    "Get Messages": {
+      "main": [
+        [
+          {
+            "node": "Parse Messages",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse Messages": {
+      "main": [
+        []
+      ]
+    }
+  },
+  "createdAt": "2025-09-30T01:16:44.000Z",
+  "id": "410rL1z3jbmQ9wOE",
+  "isArchived": true,
+  "meta": null,
+  "name": "My workflow",
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -576,
+        -176
+      ],
+      "id": "db42f3c4-ea67-4ad5-88d0-bd123919991c",
+      "name": "When clicking 'Execute workflow'"
+    },
+    {
+      "parameters": {
+        "url": "https://id.kijiji.ca/login",
+        "options": {
+          "response": {
+            "response": {
+              "fullResponse": true
+            }
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        112,
+        176
+      ],
+      "id": "2bd66995-8168-4aad-b22c-2efc6bb3c998",
+      "name": "Get Login Page"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://id.kijiji.ca/login",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "User-Agent",
+              "value": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/x-www-form-urlencoded"
+            },
+            {
+              "name": "Referer",
+              "value": "https://id.kijiji.ca/login"
+            },
+            {
+              "name": "Cookie",
+              "value": "={{$node['Get Login Page'].json.headers['set-cookie'].join('; ')}}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "form-urlencoded",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "emailOrNickname",
+              "value": "YOUR_EMAIL_HERE"
+            },
+            {
+              "name": "password",
+              "value": "YOUR_PASSWORD_HERE"
+            }
+          ]
+        },
+        "options": {
+          "redirect": {
+            "redirect": {
+              "maxRedirects": 5
+            }
+          },
+          "response": {
+            "response": {
+              "fullResponse": true
+            }
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        320,
+        192
+      ],
+      "id": "7351d1ed-545e-4408-b2d5-0f6309f48548",
+      "name": "Login to Kijiji"
+    },
+    {
+      "parameters": {
+        "url": "https://www.kijiji.ca/m-my-ads/inbox/",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "User-Agent",
+              "value": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"
+            },
+            {
+              "name": "Cookie",
+              "value": "={{$node['Login to Kijiji'].json.headers['set-cookie'].join('; ')}}"
+            }
+          ]
+        },
+        "options": {
+          "response": {
+            "response": {
+              "fullResponse": true
+            }
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        192,
+        -176
+      ],
+      "id": "dd56b8b8-db11-49aa-8b8d-39b46947f45e",
+      "name": "Get Messages"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Parse the HTML response to extract messages\nconst html = $input.item.json.body;\n\n// This is a simplified example - you'll need to inspect\n// Kijiji's actual HTML structure to extract the right data\nconst messages = [];\n\n// You might need to use regex or a proper HTML parser\n// to extract message data from the HTML\n\nreturn messages.map(msg => ({ json: msg }));"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        384,
+        -176
+      ],
+      "id": "379b33b1-8655-4f81-81de-de8cd39b1062",
+      "name": "Parse Messages"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://id.kijiji.ca/login",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "accept",
+              "value": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7"
+            },
+            {
+              "name": "accept-language",
+              "value": "en-US,en;q=0.9,fr;q=0.8"
+            },
+            {
+              "name": "cache-control",
+              "value": "max-age=0"
+            },
+            {
+              "name": "origin",
+              "value": "https://id.kijiji.ca"
+            },
+            {
+              "name": "priority",
+              "value": "u=0, i"
+            },
+            {
+              "name": "referer",
+              "value": "https://id.kijiji.ca/login?service=https%3A%2F%2Fid.kijiji.ca%2Foauth2.0%2FcallbackAuthorize%3Fclient_id%3Dkijiji_horizontal_web_gpmPihV3%26redirect_uri%3Dhttps%253A%252F%252Fwww.kijiji.ca%252Fapi%252Fauth%252Fcallback%252Fcis%26response_type%3Dcode%26client_name%3DCasOAuthClient&locale=en&state=r5hQss6smRXFgcc6YKu6P2tNB-YV2jkVZF9f91yQc3Q&scope=openid+email+profile"
+            },
+            {
+              "name": "sec-ch-ua",
+              "value": "\"Chromium\";v=\"140\", \"Not=A?Brand\";v=\"24\", \"Google Chrome\";v=\"140\""
+            },
+            {
+              "name": "sec-ch-ua-mobile",
+              "value": "?0"
+            },
+            {
+              "name": "sec-ch-ua-platform",
+              "value": "\"Linux\""
+            },
+            {
+              "name": "sec-fetch-dest",
+              "value": "document"
+            },
+            {
+              "name": "sec-fetch-mode",
+              "value": "navigate"
+            },
+            {
+              "name": "sec-fetch-site",
+              "value": "same-origin"
+            },
+            {
+              "name": "sec-fetch-user",
+              "value": "?1"
+            },
+            {
+              "name": "upgrade-insecure-requests",
+              "value": "1"
+            },
+            {
+              "name": "user-agent",
+              "value": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36"
+            },
+            {
+              "name": "cookie",
+              "value": "machId=783f9b25f4e3eaa3b271b4ae1b523db4cf8b2acbf5dac44be3c43282a75586d0a556519b4ff3691f7d798cd774385acafb4c0ab2db6a49a9cfbb668bcddd0f92;kj-tg=kjca4700%3D0%3Bkjca5530%3D0%3Bkjca6246%3D0%3Bkjca6055%3D1%3B;up=%7B%22ln%22%3A%2245090592%22%2C%22ls%22%3A%22l%3D0%26sv%3DLIST%26sf%3DdateDesc%22%7D;_gcl_au=1.1.855464009.1756954849;__gsas=ID=49f12cfb5dac0a13:T=1756954849:RT=1756954849:S=ALNI_MYQzM9dGq4HFYgUjuxeFWcBlTwmGw;kj-ct=b2e8611a25b1188f16fec65064770131d1c082d8ad9d85343c6614c2f393e061%7Cd247c1d5a011cb43d5a9c64b46387cc361d458f403c7265516260326ef846f2e;kj-cu=https%3A%2F%2Fwww.kijiji.ca%2F%3Fuli%3Dtrue;SESSION=YWJkMjBjMDItYTUyZS00OGJlLTkwZjItN2IxOGQ4YzYzMzYz;org.springframework.web.servlet.i18n.CookieLocaleResolver.LOCALE=en;"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "form-urlencoded",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "execution",
+              "value": "fc1cc9a9-3ae7-4d0c-832e-d3b41bd21874_ZXlKaGJHY2lPaUpJVXpVeE1pSXNJblI1Y0NJNklrcFhWQ0o5LmlzdDcxd3c1QWZmT28zd2k5YjI2bGswRVRLbmpKQngxR0JpbE9sS1QyOTg2NnctM0hBbXFEcnFicHVyc1luYnRyTHJqVHlQVWlEQUpkYWtZUkFaUFhzTDhEM3kxcGNLY2xHQ2lOMk1TMjlsOTgzcmo0NlNKV2N1M2lPbmdMeW94X2NRR19TbHZOYWp2QlBENFlIa0d4UXlzTXpZYUdJN1RuRWNNSERzYnp0dFJqQ3pEeHhPblhBYjF6eVA1YjlGQzJlSnZ0cXJxckpPUEJIUXdlUHRyVzNjSE04Ulo1a3AzbWxxY3VzUDE0YmRGMHc1TzktdnNvTXdraE5jVFVtSENxWjYtZU92Q3dmaDZjWENFTmpoMUxVa0Y3ME1HRnI4S05kTEk5NXIxRnRPRThPdURtNUFuUWJqdVREWHlCbzVCeHotUHZ0WHVGcEhVOXVVYzBKU2xDRGVSejV3emRWNUo5V3l6a1IxcjlxVkF1eVQtWXdrNHVKQkZLemdnMGVMY3o5WS05M1JaU0JpOGdGSC13WXJIQzNEVWVMck4yZ3JGUlFHSlotWVVjX1BYSXdNUDd5WGN2cjIxRkhpZ3JidjhSTWtoXzhiMWdOeTdjTEJneUEwNVRWaHdIc1VoNG5hSUZnR1djUGtOWXRMRjU1QkpXRWphNlRldFpfUVRDRmZnbjViTTNFUjVrSTdVUjhqcE91WnI0U2tFTlB1bV9ZaWZ0QU5hTklmWDU2b1dFdE9kRWpHZGY5bG43U1M2dnVZMW9RN0FYdE9MVk1DMUpWOWs1TTdOOVhra0VCOVdGbExyVU12UDZvQXJhbDl4R1hXRUtXWmZMMS02WE01LVZMV0RBSnVFT29KTWpwaUJKYXhRS095YWpJLVd0NUhuN1JwRV84Z2xiNFZqbXh2MEt3UE42ZU5KUkt0aUxhTG9kRUhmekhQaTA5RkE4R2V1SWlNV2hBUkZRTjR1aXVjYllSTmMwQmczRzZaMUlydkxSRWxWUTRBemh6cG9SYkJCNWVWdjJIaFNuX2pRMmVtRFZVd1haTmtFeDNWZEZRWlZmRFQxM3hJS1BDcDBodnlHV3ZtaUFnYmY4a1h0WHZ6bFpIR2VNY3A0amk5dG9GYmtPRGtCUld3dVVWLTRaWFR2NWZhc1V1T1I3Q2dWZ1V5dVFzenVySlhhckw3UmZETy03SHQ5eENFdDhUUHozbDFvSnJxN0p3MzQ0UWlsSjdCSGlhWjRvV3I3UWlOYzBpVVBaRERwRG9aT3RFdC1WMm4zWjlaQ0xrUGJtTjJIVFFNcTNOMDJkUEFqX18wTmNnYVBfbVV2SDZZSFNvYTNDQ2ZKdFBqWFFQNHhYaHJVTmdyemxENFFQSy1hb2lrMGZYQVZDQjJQZUlreWZoTmZtVkcwSU80eHJTR3VuUlhlWm01NkpDU0tyZzRlUnlNZXFnOHVsU2V2RmxMb21nRVR5elgtVVVfY242YTZZRDlpSlpkY1BvOGNCSWp3RVgyNXJnVC1ZNjFQa0JrZDhYU3JQS1d3WXZuOWxzdEo0cE0zdzY3WVVJS19tVkdlU0JjZFJZQ1Z5VDliMzNTd2ZXLU5hQWFOT2N0Z3VtSFFZTUFUd1UycXZfQUU0WTJGRzBpZTZLT0h6R1pITVp2eTQ2a2FLV2lHcVdnWm5WSW5DOVVsaFE4U19UMlNXSVRUNjBBRENOZUVua2pRNWhhdlp4LUU0OGdzZTFEdTB6Y2RkMm1wU0oyX2dxSzRxbm5Hak1sVGVXb0EyZXBsMFNQUVhSMGtnUnZ1bDltSmlzNkFRRmlieDlIalhfcExHTjRJZG9UMHFqVVYyRW1fTy1MRE1RSkNaUGthamh0aG1lZEpjUVhmMG1pRC1VWFA1U196TGxMb0lteFpVaW5RdXZXSVI4V0ZuaTlxWUZOTVkza1pZSlBEZ3dfc3RHNWlfNmp1eDdfVzJvZ212YjZYckVpTUo0dkgyZkVWY2ozb3VjRFZQc2hEMVlscUlrMTh6YXlXT25oY1J4WHdoQkdjNW8xam56QWJ1b1VNbm5hcmxtS3JYYjB2eWdaV2x5aU5kdUlLU2lJdXA4MUVvLUhYeHhrTkRpbjRCWGlEWWN4dmNRUW94MUVEVDFFS0luUHl5RmwwZWh4dmdmc2ZXa3BfUnB5WVc4X1hrcHN4d09oakRudk1fQzhVclhmc25meVVUcE5XaWRvMGJ1VWZaS29KUHRwekRTeEpHSGVHYm1RNDJnYkRmTV9SUVZDYld4bF9pNldndnl6X1ZiSlQzNlJGZkl3WThfbWRTcE8zNnpoMUp4Y0w3NE93N3Z6cDRySFhGR2tZaTFqNm01MHgxblJjM3ZaVTdWQl9LMUdzUlNHMDlZYnlvVmRiUTRpc3J4QnJQRXZOa0hVWkFhR2dZRTlvYmZCUkFETnpCWEczUlFHSU9NbmNQTXFUR0pvUTdCQkthd1U1Ukg4cEFNUDJhUHVSMzV1OER1ekNSUWFUTHAzUzE3bUxDSXVfVFdGdG9qUnNHeDJUYTRaandISzVCSlV5bEp4dFZwcjFIMW93QlRuQ1F4LWd6bkQ4SHFreHJZR1cyWTFDbncxdW9uSFNmYTlHNDdBLVRSQU1vQW9jcTNwU3BGNHFjT2stLU1QVDF4NmRXR1dfc3BTTzlOLTVQUWJhUG5ZaWcySW1mcTc1Y3dmQ3E3dXRsSXd3ZDJlX2VtUHNRNk9Mc05Fa2g2OEdpd0xuVFZiRklneGV1VFkzUFFYdVJGZllpQmhTc19hb21wc3NwaWZqMjBQUHNub2JOWm1mVnJfM1dxTlo3VlVQQXl0T1g0XzBHMFY0MlZ2VnRuS2VkTW1Xd210cFdkT0ZKYnJ4VTh3dTJXdkV4b0VaUGZaaU02VFlSVnFucVFGMUpDU0QzNkdraDZvVlUxYnEyTXdkakVBTEQ3bl9Mc2VZb2RNbjNDcTBxd013MDJGaHNEZTN1RWphemhCWGVSc2pCWGtKUFdhMjNaWFctWmJxWkpuR3hxTjlmR0NYOE5ueTFUSjdkRkUwWnJvTGtkeS1RaU0xMEpydXY1THVOSXlnYkMzZ25pWGdNN2FZYmVQMmdSZjBwUWhZS2dlTnBBdVRHb0lvb3g2RFZGZFZTMThuMzhlaUtfNUd6ZEo3U1E2U3A2Q3hJbm8wVWdsdkxET3pHTExleEtTQUVHQjZtZkpHaE5iMGY3WlJfRk9oUVcwdjFGc29HamlzZVpxU0U4aFE0Wm1pNjg0RURNLUJKME9pbzF2Q21UU2xKb1JpNDJCTVVaYmVsN083cHgyUUxDZVZ5bVNVSUdmYXV5Z09vVFExM09TTlBkZmNmN2xpWlNEeVBIUjZYc3lubldKc0g1MDNmbmFkMmh3T00tNFVkckJEUEd2X0o1M0w3Q25WdENwXy1EWkRoVXdBS01wUWdfcGpfMWtzelg5SlV5MUxhbV9BcXpiNVd1MGJGQmNVS2FTaURyaU5jcmFjRzlJVzJGWldFTV9CaXB5bjNOZEVTbzhWaUZhY3BPNkIwUUNXalhHRnVBR0ZjY1ZhR2FhLXI2NFo0ZXh2dktqbFNGMzdhMVNDY3NxU1hoaF9heVFXeHFaaHBkZDdzYnVjQjVCVGFZQW9fQTFydDlEcVJzZ09VRzh4S2NHYmFZSzQzbUtFTzNXLXh3dDM4WnJ5T2QtXzJ2bzBYa0tSc01PWEZPcDRhYnJmQlFIenc5X0gzSHBIamowU2NUdWpHQXVBWl9rN0N1RDVhdVlhU1owWFZUdUUtdDM1Skd3NFc2N0QxdERtYkNlanNpWWNVQ2NPTzRSZXpxelBtMnp2LXJ3TXNrV1hwdzA2LWlyU0JZb0pCZjg1ekN3QWViQmRqekwzeEZkWUE4Nk1vWkFlb0dhekFvcDNSRHNhTWtXWGxrYnZCMVdGWjE0QWVxTU1ObmZURDRRbHo1SnYzdFNOS1ByT25zQ2VSRXlFa0lPcDQ5eGhKWW5aRlUxelhhNzhCWnBUbDlINlZwUXRJcHlGOWFHblIwVUJzc0dRNEUwRG50aTRDZ0lNMmx3ZXJjT3ZWZmxFYVZ1LVNBbzlzWjh2SnB6VlN3eEJLM0pCdkNfUnIxbmJoamxfQ3dERHEwRXFqX09SX3Q4Q3BjZHY3TUZRV3lHYWZmRDRWeDlldWRGODhTNVNZXzZNcEthNHpOdVFlcmlhTkVQdmRSZk5Ed0RLVXlEU0JhMEhYckk1MzBKVXZaLUFxTVZCT1phc2Fpa2ktUVAtdGxYTG5PcjIxY1NyWTV2bWhiaVd3VlVrUF8xcnhhRHFzNnhFVlhDUnFYcmhaTE5la2NTUU9VSk5UVFlSTzJOdWpJM0VLMTR2TUdUMi1LUlJEWExWZ3ZHTWVNMWxmZklkQ1dHWVlYY3Q4aGRLM3pJSGV0cFZYZnlCWU54Rm9teFRNUzEzQng5S0ljSmxjMUdnWHhRSDNRWVNtc2s2VHA2TkFkcGQ5R2Q0Z3pOSl9WNUs2YTZKTWFnSU1lUVJpQzJmODZMMFFrcXk1aHVackFKZ2trWXJJTjVJSmpONzJ6cVBiMDlUQW1yaDZ3akVNblp5M2ktTkI0RWc3cjhMdEVUVDhkVEZfdHFMQ0dzZGdKWU53TXNOU3hUTFZScWhvOTFvYnNWaDhvRHZRT1p2WlNpRm51THRvT0E4cTFIeXRNbkRfbVBRQUdHa3FlR2NqRjhxQk9hbnF4YmpMUTE3YXU1RDVOSVZBUHNiaUo4aTBnNTNpVVpSZ01tcGhZZVJ6LVpDa1p4anQ3T0wzMWZvRGVKdHVINlNNM1dQNmsxcG82ckxjVWRjdnIxdlNfU0ZQS0djYnh2MTBBZmstaXJ1NzNvNkxGdTRjMmhFeW1lTlJENXFCZ3dfOUZUNngyOVFPTVlLdUctdlJJLVRlOEpINTRXY2Z6SktYZHVZNmtpcnJDMDByUFlnMm56bm1zVC1scHUwTXpORXBNeFhyVkszQWFDRV9nNjh4Z3dIN3YxZmRKT2tCamQyUTFFaDFWMWN5Q0E3UGExd3YxMUFjNU1zdmY1cWs1WVR6am1VXzE4RXowbXh0MDMwdDFYT2w0ME5lMlZULUM5TkQ0bmk5UUtxbHBkaXU4ZXoyejBsR1AxLXZ3ci1ETWE1Vl9Id1N0aWRXYkM4dGtKWVNGWTIzSDNmSU5UNkN2Y1o5OVctcVYwaS1Od1ZneFpNM3c4YnN1Tm5MY2NMaFpCU0hZTTJ6VVotMllDZ29WY3g2dnhQODVoclVvUWdrR2NWdWxWWmJXVGxaLUZHbXY5QndYbFNpYWpPdHdHUnZYSTZ0VERUOVVmLXg2NWFtM1ZrcTVtN3ptXzE3LVF2NlUyVkdxNDNHZ1c1dkxlTUIyaVhUaWJxMXliNjNiRkptY3BKSlozVmZjN0NhTkNDb1hOYUxHb0l2bFRMSjFqZ0hKclZGb3FrZ1BWTUduSk9KUmx1LWU3c1Y4MDl4eWg4aFFsMWpYQlBzRFRuQWJLa18tT21JcFVMNVdqall1NzZuN3BZemdxTm9NZ0ptNFMxZUdjRGJWQ1I2THpVSlNpYW1TNW51WVVZS0lWbmluTHk4WFNHSGNLQVB4a3V3M3NueDNaTTJNN29TY0pTamNuMzlxTXhzS09lZ1pLckN1b3BmNVZvY0RIWXlTODhRSUNweWppSXBGNmtQb2c0QzgwYzEyejVZZEdDX0xhMkFpSDdZU3BXbWVKRDJ4RTViN083RlhWQlVHODhtekVQdHF4dVlZVE5wVXF1bjlQZEJqM08wUngyQjhaYWZ3S211NmNiWldIVzNNN3NVZkpOZ2FBcjJPWmFjR0piZ0ViTlFjSnFzeFJiX21KZjg1akZGMU5NdU5pdXNVMlRSajRiRk56YTY0NzhORFZHVHZZYnl4MW1nQl9hNHB5bFk0ZVg5UFFOXzd2dVpMU2FpdHBxRXRHT2Z0aEhiRXljdU53WHFuNWZDbWE0dkRvOW9iTl9IX2NCMWZ4MG9xOVA1LWoyc1FWZHBaamhVbEZ2VHpZREVkdWF0TG1KTVAwdlR4Wlc4alc1RXo1cVAtTzk1UThkcHQxLXpQLWRFaVZxODVWdHN1ZWhpa1M1Qmk5YmxpQ3ppX0piWE1idmFBelBuQ1A4Rk5XVGpGSm5mUWxzbnlqSkxoSlB6NS1nMXJodFBod29QcEs3UGRMcnYyeVZQcWY1Y052Um5OVGtJc3FETVZUdkk1V21KSzI4b01RbTZfZEREc1NxTnFpSk9KUzd2YjVwU1BrVUlXckctNDc4aXJSZzU2SVJXR3gxckdyYTlFY0hPczVaTTZjaUcxVERjYXV5aUR5ZGM2eXhyZUZpQjNDbHZfTl8tM1pfVENJQ1ZRdnhocWNMRk42T0M3WWw1QVFwelFuZExzZGk5LTlBMC15aGxpTkxKN2cyQ2VEdTFONVZsb3g4dEVBRzhDSHRKQ2R6T1czZGNrWDdZMktMcmFIZW9sQXVmY0t5NllmYWNVaVg3bExRMEk0UTA5UkRPUG1FQ09tMXg4SERSajg1bms0Szk2eVIwV0JlcTNWYWlaZTZYVTRNcXBTRlgzNFc3WEE4SURUYldjRndpT2RScUZIZEdfeHloeEhTc25vZ2FaSVNXVVF6TmRTcFJOQ29pcUN4X1J6NGFlNWFGSUhKMFpwMkdjajZwS0Rrd1ZnRm1CeXZwaU9zZjRYbkJIRTM2V0pxUENPM01admpEY3FwUHA2eHZhU1AtYnRJUHpjOVI5MXF2ZmxFQ1JRTG13TVBhN2xWc3lSdUFxS2Vobzk3R1VxYUNrQzdlcXJNUF9fT0pzYm52WURFTURyMkt4M3lfRElxOE90Si1jaVJUS01yVzNQaGdCcU9NSmYzYnZ2bG5WRFI1VTlQVEl3WVVoay50OWMwNlhvR0F1dzN2OW9Hd1hFaFU0OWI5SjNwTzl4VGctN0JrSUpoQ2xNSjVoZXh0cEdKVF9zRHJ4ZmdIOUc0M2YzR2YwN2RqeDhiaV9JOV9TUzczUQ=="
+            },
+            {
+              "name": "service",
+              "value": "https://id.kijiji.ca/oauth2.0/callbackAuthorize?client_id=kijiji_horizontal_web_gpmPihV3&redirect_uri=https%3A%2F%2Fwww.kijiji.ca%2Fapi%2Fauth%2Fcallback%2Fcis&response_type=code&client_name=CasOAuthClient"
+            },
+            {
+              "name": "state",
+              "value": "r5hQss6smRXFgcc6YKu6P2tNB-YV2jkVZF9f91yQc3Q"
+            },
+            {
+              "name": "nonce"
+            },
+            {
+              "name": "locale",
+              "value": "en"
+            },
+            {
+              "name": "kc_locale"
+            },
+            {
+              "name": "scope",
+              "value": "openid email profile"
+            },
+            {
+              "name": "tmSessionId",
+              "value": "8745ba08-074f-4f83-9c73-106bebe3a4b6"
+            },
+            {
+              "name": "_eventId",
+              "value": "submit"
+            },
+            {
+              "name": "geolocation"
+            },
+            {
+              "name": "username",
+              "value": "londononrideshare@gmail.com"
+            },
+            {
+              "name": "password",
+              "value": "Isaacn8n2025!"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -240,
+        -176
+      ],
+      "id": "ae00244a-17b0-432f-8c3d-6a94f2b38566",
+      "name": "HTTP Request"
+    }
+  ],
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "shared": [
+    {
+      "updatedAt": "2025-09-30T01:16:44.003Z",
+      "createdAt": "2025-09-30T01:16:44.003Z",
+      "role": "workflow:owner",
+      "workflowId": "410rL1z3jbmQ9wOE",
+      "projectId": "K5c2PqoZjXPELHVa"
+    }
+  ],
+  "staticData": null,
+  "tags": [],
+  "triggerCount": 0,
+  "updatedAt": "2025-09-30T03:00:48.000Z",
+  "versionId": "97725fb5-4241-4a78-ac33-11f026afb15f"
+}
