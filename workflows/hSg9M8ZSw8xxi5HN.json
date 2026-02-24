@@ -1,0 +1,595 @@
+{
+  "active": false,
+  "activeVersion": null,
+  "activeVersionId": null,
+  "connections": {
+    "Monthly Trigger - 2nd of Month": {
+      "main": [
+        [
+          {
+            "node": "Workflow Configuration",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Workflow Configuration": {
+      "main": [
+        [
+          {
+            "node": "Read Tenant List",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Search Gmail for Interac Payments": {
+      "main": [
+        [
+          {
+            "node": "Parse Payment Details from Emails",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse Payment Details from Emails": {
+      "main": [
+        [
+          {
+            "node": "Aggregate Payments by Tenant",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Aggregate Payments by Tenant": {
+      "main": [
+        [
+          {
+            "node": "Add Payments to Sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Add Payments to Sheet": {
+      "main": [
+        [
+          {
+            "node": "Identify Unpaid Tenants",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read Tenant List": {
+      "main": [
+        [
+          {
+            "node": "Search Gmail for Interac Payments",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Identify Unpaid Tenants": {
+      "main": [
+        [
+          {
+            "node": "Prepare Reminder Emails",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare Reminder Emails": {
+      "main": [
+        [
+          {
+            "node": "Update Due",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update Due": {
+      "main": [
+        []
+      ]
+    }
+  },
+  "createdAt": "2025-11-17T16:47:47.762Z",
+  "id": "hSg9M8ZSw8xxi5HN",
+  "isArchived": false,
+  "meta": {
+    "templateCredsSetupCompleted": true
+  },
+  "name": "My workflow 2",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "months",
+              "triggerAtDayOfMonth": 2
+            }
+          ]
+        }
+      },
+      "id": "663f2f43-f200-4afc-a776-180f1b26084d",
+      "name": "Monthly Trigger - 2nd of Month",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -432,
+        -112
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "id-1",
+              "name": "searchQuery",
+              "value": "Interac",
+              "type": "string"
+            },
+            {
+              "id": "id-2",
+              "name": "searchPeriodDays",
+              "value": 30,
+              "type": "number"
+            }
+          ]
+        },
+        "includeOtherFields": true,
+        "options": {}
+      },
+      "id": "d2c8490e-fa48-4715-bf3e-73197744e05a",
+      "name": "Workflow Configuration",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -224,
+        -112
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "getAll",
+        "limit": 20,
+        "simple": false,
+        "filters": {
+          "q": "={{ $('Workflow Configuration').first().json.searchQuery }}",
+          "receivedAfter": "={{ $now.minus({ days: $('Workflow Configuration').first().json.searchPeriodDays }).toISO() }}"
+        },
+        "options": {}
+      },
+      "id": "9c6718a6-be79-4574-a569-e61c06d80b78",
+      "name": "Search Gmail for Interac Payments",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        160,
+        -112
+      ],
+      "webhookId": "fb238b62-1478-47a8-8a9d-1597d1bc8b55",
+      "executeOnce": true,
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "xo2vGy71EbkeDpEG",
+          "name": "Gmail account (ok)"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Parse Interac payment details from Gmail and Yahoo emails\nconst payments = [];\n\nfor (const item of $input.all()) {\n  try {\n    // Récupérer le contenu de l'email (texte ou HTML)\n    const emailBody = item.json.text || item.json.textPlain || item.json.snippet || '';\n    const emailHtml = item.json.html || item.json.textAsHtml || '';\n    const emailSubject = item.json.subject || '';\n    const emailDate = item.json.date || item.json.receivedDateTime || new Date().toISOString();\n    \n    // Déterminer la source\n    const emailSource = item.json.labelIds ? 'Gmail' : 'Yahoo';\n    \n    // Combine text and HTML for better parsing\n    const fullContent = emailBody + ' ' + emailHtml;\n    \n    // === EXTRACTION DU MONTANT ===\n    let amount = null;\n    \n    // Pattern 1: \"requested $XXX.XX from you\" (Interac request)\n    let amountMatch = fullContent.match(/requested\\s+\\$([0-9,]+\\.?[0-9]{0,2})\\s+from\\s+you/i);\n    \n    // Pattern 2: \"Transfer Amount XXX.XX CAD\" (Western Union)\n    if (!amountMatch) {\n      amountMatch = fullContent.match(/Transfer\\s+Amount\\s+([0-9,]+\\.?[0-9]{0,2})\\s+CAD/i);\n    }\n    \n    // Pattern 3: Generic \"$XXX.XX (CAD)\" or \"$XXX.XX CAD\"\n    if (!amountMatch) {\n      amountMatch = fullContent.match(/\\$([0-9,]+\\.?[0-9]{0,2})\\s*\\(CAD\\)/i);\n    }\n    \n    // Pattern 4: Generic \"CAD XXX.XX\" or \"$XXX.XX\"\n    if (!amountMatch) {\n      amountMatch = fullContent.match(/(?:CAD|\\$)\\s*([0-9,]+\\.?[0-9]{0,2})/i);\n    }\n    \n    if (amountMatch) {\n      amount = parseFloat(amountMatch[1].replace(/,/g, ''));\n    }\n    \n    // === EXTRACTION DU NOM DU LOCATAIRE ===\n    let tenantName = '';\n    \n    // Pattern 1: From subject \"SENDER_NAME has requested\"\n    let nameMatch = emailSubject.match(/^Interac\\s+e-Transfer:\\s+([A-Z\\s]+)\\s+has\\s+requested/i);\n    \n    // Pattern 2: From \"Receiver Details\" section (Western Union)\n    if (!nameMatch) {\n      nameMatch = fullContent.match(/Receiver\\s+Details[^N]+Name\\s+([A-Za-z\\s-]+?)(?:\\s+Payout|<)/i);\n    }\n    \n    // Pattern 3: From \"Hi [NAME]\" or \"Sent From: [NAME]\"\n    if (!nameMatch) {\n      nameMatch = fullContent.match(/(?:Hi|Sent\\s+From:)\\s+([A-Z][a-z]+(?:\\s+[A-Z][a-z]+)+)/);\n    }\n    \n    // Pattern 4: From email sender field\n    if (!nameMatch) {\n      const fromField = item.json.from?.value?.[0]?.name || item.json.from?.text || '';\n      if (fromField && !fromField.includes('Union') && !fromField.includes('Interac') && !fromField.includes('notify')) {\n        tenantName = fromField.replace(/[<>\"]/g, '').trim();\n      }\n    }\n    \n    if (nameMatch) {\n      tenantName = nameMatch[1].trim();\n    }\n    \n    // === EXTRACTION DE L'EMAIL DU LOCATAIRE ===\n    let tenantEmail = '';\n    \n    // From reply-to field\n    if (item.json.replyTo?.value?.[0]?.address) {\n      tenantEmail = item.json.replyTo.value[0].address;\n    }\n    \n    // Fallback to from field if reply-to doesn't exist\n    if (!tenantEmail && item.json.from?.value?.[0]?.address) {\n      const fromAddr = item.json.from.value[0].address;\n      // Avoid system emails\n      if (!fromAddr.includes('notify@') && !fromAddr.includes('noreply@')) {\n        tenantEmail = fromAddr;\n      }\n    }\n    \n    // === PARSE DATE ===\n    const paymentDate = new Date(emailDate).toISOString().split('T')[0];\n    \n    // === DÉTECTION DU TYPE DE TRANSACTION ===\n    let transactionType = 'Unknown';\n    if (emailSubject.includes('has requested')) {\n      transactionType = 'Interac Request';\n    } else if (emailSubject.includes('ready for pickup') || fullContent.includes('Western Union')) {\n      transactionType = 'Western Union Transfer';\n    } else if (emailSubject.includes('Interac e-Transfer')) {\n      transactionType = 'Interac Transfer';\n    }\n    \n    // === EXTRACTION DU MTCN (Western Union) ===\n    let mtcn = '';\n    const mtcnMatch = fullContent.match(/MTCN[:\\s]+(\\d{10})/i);\n    if (mtcnMatch) {\n      mtcn = mtcnMatch[1];\n    }\n    \n    // Only add if we have at least amount and name\n    if (amount && tenantName) {\n      payments.push({\n        json: {\n          tenantName: tenantName,\n          tenantEmail: tenantEmail,\n          amount: amount,\n          date: paymentDate,\n          source: emailSource,\n          transactionType: transactionType,\n          mtcn: mtcn || 'N/A',\n          subject: emailSubject,\n          rawSnippet: emailBody.substring(0, 150) // Keep first 150 chars for reference\n        }\n      });\n    } else {\n      console.log(`Skipped email - Amount: ${amount}, Name: ${tenantName}`);\n    }\n    \n  } catch (error) {\n    console.log('Error parsing email:', error.message, error.stack);\n  }\n}\n\nconsole.log(`Successfully parsed ${payments.length} payments`);\nreturn payments;"
+      },
+      "id": "478e3967-4325-43e9-afc7-8c85fd582042",
+      "name": "Parse Payment Details from Emails",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        352,
+        -112
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Aggregate payments by tenant email\n// Sum all payments from the same customer (handles multiple payments per month)\n// Include current month name\n\nconst aggregatedPayments = {};\n\n// Get current month name\nconst currentDate = new Date();\nconst monthNames = ['January', 'February', 'March', 'April', 'May', 'June',\n  'July', 'August', 'September', 'October', 'November', 'December'];\nconst currentMonth = monthNames[currentDate.getMonth()];\n\n// Group payments by email\nfor (const payment of $input.all()) {\n  const email = payment.json.tenantEmail?.toLowerCase().trim();\n  if (!email) continue;\n  \n  if (!aggregatedPayments[email]) {\n    aggregatedPayments[email] = {\n      tenantEmail: email,\n      tenantName: payment.json.tenantName,\n      totalAmount: 0,\n      lastPaymentDate: payment.json.date,\n      transactionType: payment.json.transactionType,\n      paymentCount: 0,\n      allDates: [],\n      month: currentMonth\n    };\n  }\n  \n  // Add to total\n  aggregatedPayments[email].totalAmount += parseFloat(payment.json.amount) || 0;\n  aggregatedPayments[email].paymentCount += 1;\n  aggregatedPayments[email].allDates.push(payment.json.date);\n  \n  // Keep the latest date\n  if (payment.json.date > aggregatedPayments[email].lastPaymentDate) {\n    aggregatedPayments[email].lastPaymentDate = payment.json.date;\n  }\n}\n\n// Convert to array format for n8n\nconst result = Object.values(aggregatedPayments).map(agg => ({\n  json: {\n    tenantEmail: agg.tenantEmail,\n    tenantName: agg.tenantName,\n    amount: agg.totalAmount,\n    date: agg.lastPaymentDate,\n    month: agg.month,\n    transactionType: agg.transactionType,\n    paymentCount: agg.paymentCount,\n    allPaymentDates: agg.allDates.join(', ')\n  }\n}));\n\nconsole.log(`Aggregated ${Object.keys(aggregatedPayments).length} unique tenants with ${$input.all().length} total payments for ${currentMonth}`);\nreturn result;"
+      },
+      "id": "4a608382-7ea2-4d3d-9cdb-3ba8333f15cb",
+      "name": "Aggregate Payments by Tenant",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        576,
+        -112
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "value": "1Sd-2cvtC9l0IAsN4ze2s22bvYbRphnG_ARSLWiZJcZM",
+          "mode": "list",
+          "cachedResultName": "Rent payment",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1Sd-2cvtC9l0IAsN4ze2s22bvYbRphnG_ARSLWiZJcZM/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1613306859,
+          "mode": "list",
+          "cachedResultName": "TenantsList",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1Sd-2cvtC9l0IAsN4ze2s22bvYbRphnG_ARSLWiZJcZM/edit#gid=1613306859"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Email": "={{ $json.tenantEmail }}",
+            "Last payment": "={{ $json.date }}",
+            "Transaction type": "={{ $json.transactionType }}",
+            "Month": "={{ $json.month }}",
+            "row_number": 0,
+            "Payment": "={{ $json.amount }}"
+          },
+          "matchingColumns": [
+            "Email"
+          ],
+          "schema": [
+            {
+              "id": "Name",
+              "displayName": "Name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Email",
+              "displayName": "Email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Rent amount",
+              "displayName": "Rent amount",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Payment",
+              "displayName": "Payment",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Last payment",
+              "displayName": "Last payment",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Month",
+              "displayName": "Month",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Transaction type",
+              "displayName": "Transaction type",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "row_number",
+              "displayName": "row_number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true,
+              "readOnly": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "id": "2ca4f03b-f795-428b-a2ca-f4a1a176687b",
+      "name": "Add Payments to Sheet",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        768,
+        -112
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "aTGWDwc4d28BUxCQ",
+          "name": "Google Sheets (Isaac)"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1Sd-2cvtC9l0IAsN4ze2s22bvYbRphnG_ARSLWiZJcZM",
+          "mode": "list",
+          "cachedResultName": "Rent payment",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1Sd-2cvtC9l0IAsN4ze2s22bvYbRphnG_ARSLWiZJcZM/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1613306859,
+          "mode": "list",
+          "cachedResultName": "TenantsList",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1Sd-2cvtC9l0IAsN4ze2s22bvYbRphnG_ARSLWiZJcZM/edit#gid=1613306859"
+        },
+        "options": {}
+      },
+      "id": "4a76aed7-16ce-46cc-8680-645c88261d35",
+      "name": "Read Tenant List",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        -32,
+        -112
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "aTGWDwc4d28BUxCQ",
+          "name": "Google Sheets (Isaac)"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Identify tenants with payment issues\n// Check for: No payment OR Partial payment (less than Rent amount)\n// Filter: Skip invalid entries (no rent amount, duplicate emails, etc.)\n\nconst allTenants = $('Read Tenant List').all();\nconst unpaidTenants = [];\nconst seenEmails = new Set(); // Track seen emails to avoid duplicates\n\nfor (const tenant of allTenants) {\n  const tenantData = tenant.json;\n  \n  // Skip if no email\n  if (!tenantData.Email || tenantData.Email.trim() === '') {\n    continue;\n  }\n  \n  // Skip if no rent amount defined (invalid tenant)\n  const rentAmount = parseFloat(tenantData['Rent amount']) || 0;\n  if (rentAmount === 0) {\n    console.log(`Skipped tenant ${tenantData.Name} - no rent amount defined`);\n    continue;\n  }\n  \n  const tenantEmail = tenantData.Email.toLowerCase().trim();\n  \n  // Skip if we already processed this email (avoid duplicates)\n  if (seenEmails.has(tenantEmail)) {\n    console.log(`Skipped duplicate email: ${tenantEmail}`);\n    continue;\n  }\n  seenEmails.add(tenantEmail);\n  \n  const tenantName = tenantData.Name || 'Unknown';\n  const payment = parseFloat(tenantData.Payment) || 0;\n  \n  // Check if:\n  // 1. No payment at all (payment = 0)\n  // 2. Partial payment (payment < rent amount)\n  if (payment === 0) {\n    unpaidTenants.push({\n      json: {\n        name: tenantName,\n        email: tenantEmail,\n        rentAmount: rentAmount,\n        amountPaid: 0,\n        amountDue: rentAmount,\n        lastPaymentDate: tenantData['Last payment'] || 'Never',\n        status: 'UNPAID',\n        paymentStatus: 'NO_PAYMENT'\n      }\n    });\n  } else if (payment < rentAmount) {\n    unpaidTenants.push({\n      json: {\n        name: tenantName,\n        email: tenantEmail,\n        rentAmount: rentAmount,\n        amountPaid: payment,\n        amountDue: rentAmount - payment,\n        lastPaymentDate: tenantData['Last payment'] || 'Never',\n        status: 'PARTIAL_PAYMENT',\n        paymentStatus: 'PARTIAL'\n      }\n    });\n  }\n}\n\nconsole.log(`Found ${unpaidTenants.length} tenants with payment issues (unpaid or partial)`);\nreturn unpaidTenants;"
+      },
+      "id": "09f42563-157d-4a1f-88a7-b4ccf40bb246",
+      "name": "Identify Unpaid Tenants",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -272,
+        240
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Prepare personalized reminder emails based on payment status\n\nconst reminderEmails = [];\n\nfor (const unpaidTenant of $input.all()) {\n  const tenant = unpaidTenant.json;\n  \n  if (!tenant.email) {\n    continue;\n  }\n  \n  let emailBody = '';\n  let subject = '';\n  \n  if (tenant.paymentStatus === 'NO_PAYMENT') {\n    // No payment at all\n    subject = `Rent Payment Due - $${tenant.rentAmount}`;\n    emailBody = `Hello ${tenant.name},\\n\\nThis is a friendly reminder that your rent payment of $${tenant.rentAmount} for this month is due.\\n\\nPlease send your payment as soon as possible via Interac e-Transfer.\\n\\nThank you,\\nProperty Management`;\n  } else if (tenant.paymentStatus === 'PARTIAL') {\n    // Partial payment\n    subject = `Outstanding Rent Balance - $${tenant.amountDue}`;\n    emailBody = `Hello ${tenant.name},\\n\\nWe have received your payment of $${tenant.amountPaid}. However, there is still an outstanding balance of $${tenant.amountDue} remaining for the full rent of $${tenant.rentAmount}.\\n\\nPlease send the remaining balance via Interac e-Transfer.\\n\\nThank you,\\nProperty Management`;\n  }\n  \n  reminderEmails.push({\n    json: {\n      email: tenant.email,\n      name: tenant.name,\n      rentAmount: tenant.rentAmount,\n      amountPaid: tenant.amountPaid,\n      amountDue: tenant.amountDue,\n      lastPaymentDate: tenant.lastPaymentDate,\n      subject: subject,\n      body: emailBody,\n      status: tenant.paymentStatus\n    }\n  });\n}\n\nconsole.log(`Prepared ${reminderEmails.length} reminder emails (${reminderEmails.filter(e => e.json.status === 'NO_PAYMENT').length} unpaid, ${reminderEmails.filter(e => e.json.status === 'PARTIAL').length} partial)`);\nreturn reminderEmails;"
+      },
+      "id": "6f843c5f-7e81-4790-ab16-45e087170a36",
+      "name": "Prepare Reminder Emails",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -80,
+        240
+      ]
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $('Prepare Reminder Emails').item.json.email }}",
+        "subject": "={{ $('Prepare Reminder Emails').item.json.subject }}",
+        "message": "={{ $('Prepare Reminder Emails').item.json.body }}",
+        "options": {}
+      },
+      "id": "3c149ed8-edd9-4c90-b672-2e3015ed1e89",
+      "name": "Send Payment Reminders",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        336,
+        240
+      ],
+      "webhookId": "b331dc88-5df1-45fe-85a8-d9ff663f4420",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "ZUZLdJUCU7wpTjw3",
+          "name": "Gmail account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "value": "1Sd-2cvtC9l0IAsN4ze2s22bvYbRphnG_ARSLWiZJcZM",
+          "mode": "list",
+          "cachedResultName": "Rent payment",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1Sd-2cvtC9l0IAsN4ze2s22bvYbRphnG_ARSLWiZJcZM/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1613306859,
+          "mode": "list",
+          "cachedResultName": "TenantsList",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1Sd-2cvtC9l0IAsN4ze2s22bvYbRphnG_ARSLWiZJcZM/edit#gid=1613306859"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Email": "={{ $json.email }}",
+            "row_number": 0,
+            "Due": "={{ $json.amountDue }}"
+          },
+          "matchingColumns": [
+            "Email"
+          ],
+          "schema": [
+            {
+              "id": "Name",
+              "displayName": "Name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Email",
+              "displayName": "Email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Rent amount",
+              "displayName": "Rent amount",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Payment",
+              "displayName": "Payment",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Due",
+              "displayName": "Due",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Last payment",
+              "displayName": "Last payment",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Month",
+              "displayName": "Month",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Transaction type",
+              "displayName": "Transaction type",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "row_number",
+              "displayName": "row_number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true,
+              "readOnly": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "id": "c7c2c9c8-bf42-4a13-be62-36986db72cde",
+      "name": "Update Due",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        80,
+        240
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "aTGWDwc4d28BUxCQ",
+          "name": "Google Sheets (Isaac)"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "shared": [
+    {
+      "updatedAt": "2025-11-17T16:47:47.765Z",
+      "createdAt": "2025-11-17T16:47:47.765Z",
+      "role": "workflow:owner",
+      "workflowId": "hSg9M8ZSw8xxi5HN",
+      "projectId": "K5c2PqoZjXPELHVa"
+    }
+  ],
+  "staticData": null,
+  "tags": [],
+  "triggerCount": 0,
+  "updatedAt": "2025-11-24T02:07:32.000Z",
+  "versionId": "46b76cb7-c882-4551-bcee-12e56daa5c74"
+}
