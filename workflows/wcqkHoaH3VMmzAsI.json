@@ -1,0 +1,388 @@
+{
+  "active": false,
+  "activeVersion": null,
+  "activeVersionId": null,
+  "connections": {
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "Execute a SQL query",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Test Connection": {
+      "main": [
+        [
+          {
+            "node": "List Tables",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "List Tables": {
+      "main": [
+        [
+          {
+            "node": "Create Test Table",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Test Table": {
+      "main": [
+        [
+          {
+            "node": "Insert Test Record",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Insert Test Record": {
+      "main": [
+        [
+          {
+            "node": "Success Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Execute a SQL query": {
+      "main": [
+        [
+          {
+            "node": "Test Connection",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "createdAt": "2025-12-18T02:50:47.506Z",
+  "id": "wcqkHoaH3VMmzAsI",
+  "isArchived": false,
+  "meta": null,
+  "name": "Test Database Connection",
+  "nodes": [
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "-- N8N Workflows Database Schema for Jules AI\n-- This schema supports the webhook endpoints used by the voice agent system\n\n-- Tenants table for tenant management\nCREATE TABLE IF NOT EXISTS tenants (\n    id SERIAL PRIMARY KEY,\n    name VARCHAR(255) NOT NULL,\n    phone_number VARCHAR(20) UNIQUE NOT NULL,\n    email VARCHAR(255),\n    unit_address TEXT,\n    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,\n    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP\n);\n\n-- Work orders table for maintenance requests\nCREATE TABLE IF NOT EXISTS work_orders (\n    id SERIAL PRIMARY KEY,\n    tenant_id INTEGER REFERENCES tenants(id),\n    issue_type VARCHAR(100) NOT NULL,\n    description TEXT NOT NULL,\n    priority VARCHAR(20) DEFAULT 'medium',\n    unit_address TEXT,\n    status VARCHAR(20) DEFAULT 'pending',\n    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,\n    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP\n);\n\n-- Conversations table for call logging\nCREATE TABLE IF NOT EXISTS conversations (\n    id SERIAL PRIMARY KEY,\n    session_id VARCHAR(255) UNIQUE NOT NULL,\n    phone_number VARCHAR(20) NOT NULL,\n    language VARCHAR(10) NOT NULL,\n    conversation_summary TEXT,\n    duration INTEGER, -- in seconds\n    actions_taken JSONB,\n    timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP\n);\n\n-- Rental listings table for property listings\nCREATE TABLE IF NOT EXISTS rental_listings (\n    id SERIAL PRIMARY KEY,\n    property_address TEXT NOT NULL,\n    unit_number VARCHAR(50),\n    rent_amount DECIMAL(10,2),\n    bedrooms INTEGER,\n    bathrooms INTEGER,\n    square_footage INTEGER,\n    description TEXT,\n    status VARCHAR(20) DEFAULT 'available',\n    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,\n    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP\n);\n\n-- Property viewings table for scheduling\nCREATE TABLE IF NOT EXISTS property_viewings (\n    id SERIAL PRIMARY KEY,\n    tenant_id INTEGER REFERENCES tenants(id),\n    property_id INTEGER REFERENCES rental_listings(id),\n    viewing_time TIMESTAMP NOT NULL,\n    contact_phone VARCHAR(20) NOT NULL,\n    status VARCHAR(20) DEFAULT 'scheduled',\n    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,\n    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP\n);\n\n-- Emergency reports table for urgent issues\nCREATE TABLE IF NOT EXISTS emergency_reports (\n    id SERIAL PRIMARY KEY,\n    tenant_id INTEGER REFERENCES tenants(id),\n    emergency_type VARCHAR(100) NOT NULL,\n    description TEXT NOT NULL,\n    unit_address TEXT NOT NULL,\n    severity VARCHAR(20) DEFAULT 'high',\n    status VARCHAR(20) DEFAULT 'active',\n    reported_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,\n    resolved_at TIMESTAMP\n);\n\n-- Notifications table for communication logs\nCREATE TABLE IF NOT EXISTS notifications (\n    id SERIAL PRIMARY KEY,\n    recipient VARCHAR(255) NOT NULL,\n    message TEXT NOT NULL,\n    notification_type VARCHAR(20) DEFAULT 'sms',\n    priority VARCHAR(20) DEFAULT 'normal',\n    status VARCHAR(20) DEFAULT 'pending',\n    sent_at TIMESTAMP,\n    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP\n);\n\n-- Indexes for better performance\nCREATE INDEX IF NOT EXISTS idx_tenants_phone ON tenants(phone_number);\nCREATE INDEX IF NOT EXISTS idx_work_orders_tenant_id ON work_orders(tenant_id);\nCREATE INDEX IF NOT EXISTS idx_work_orders_status ON work_orders(status);\nCREATE INDEX IF NOT EXISTS idx_conversations_phone ON conversations(phone_number);\nCREATE INDEX IF NOT EXISTS idx_conversations_session ON conversations(session_id);\nCREATE INDEX IF NOT EXISTS idx_rental_listings_status ON rental_listings(status);\nCREATE INDEX IF NOT EXISTS idx_property_viewings_tenant ON property_viewings(tenant_id);\nCREATE INDEX IF NOT EXISTS idx_emergency_reports_tenant ON emergency_reports(tenant_id);\nCREATE INDEX IF NOT EXISTS idx_emergency_reports_status ON emergency_reports(status);\n\n-- Updates function for updated_at timestamp\nCREATE OR REPLACE FUNCTION update_updated_at_column()\nRETURNS TRIGGER AS $$\nBEGIN\n    NEW.updated_at = CURRENT_TIMESTAMP;\n    RETURN NEW;\nEND;\n$$ language 'plpgsql';\n\n-- Triggers to auto-update updated_at columns\nCREATE TRIGGER update_tenants_updated_at BEFORE UPDATE ON tenants\n    FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();\n\nCREATE TRIGGER update_work_orders_updated_at BEFORE UPDATE ON work_orders\n    FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();\n\nCREATE TRIGGER update_rental_listings_updated_at BEFORE UPDATE ON rental_listings\n    FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();\n\nCREATE TRIGGER update_property_viewings_updated_at BEFORE UPDATE ON property_viewings\n    FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        -256,
+        -352
+      ],
+      "id": "c1796233-aab5-475e-97a9-2463f1caf43f",
+      "name": "Execute a SQL query",
+      "credentials": {
+        "postgres": {
+          "id": "u7j29OmyHuzkVDfZ",
+          "name": "Postgres account"
+        }
+      },
+      "disabled": true
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -528,
+        -352
+      ],
+      "id": "d3d75af6-b332-44c3-86fe-3a56f5d849bd",
+      "name": "When clicking ‘Execute workflow’"
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT current_database(), current_user, version();",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        0,
+        -352
+      ],
+      "id": "69128719-8c1a-4bd3-9df5-72c8ff8d91a7",
+      "name": "Test Connection",
+      "credentials": {
+        "postgres": {
+          "id": "u7j29OmyHuzkVDfZ",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT table_name FROM information_schema.tables WHERE table_schema = 'public' ORDER BY table_name;",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        256,
+        -384
+      ],
+      "id": "624eed39-b6cb-4f33-940d-f1c9af4375dc",
+      "name": "List Tables",
+      "credentials": {
+        "postgres": {
+          "id": "u7j29OmyHuzkVDfZ",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "CREATE TABLE IF NOT EXISTS test_table (\n    id SERIAL PRIMARY KEY,\n    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP\n);",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        496,
+        -384
+      ],
+      "id": "af503803-65e6-4572-8045-aca06a7d43cd",
+      "name": "Create Test Table",
+      "credentials": {
+        "postgres": {
+          "id": "u7j29OmyHuzkVDfZ",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "INSERT INTO test_table DEFAULT VALUES RETURNING id, created_at;",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        752,
+        -384
+      ],
+      "id": "72799d62-7282-468f-9e23-02aaaaee58d5",
+      "name": "Insert Test Record",
+      "credentials": {
+        "postgres": {
+          "id": "u7j29OmyHuzkVDfZ",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ {\"success\": true, \"database_connected\": true, \"test_results\": $json} }}",
+        "options": {}
+      },
+      "id": "b73f5153-0601-4f7d-b181-2ce33363a77b",
+      "name": "Success Response",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [
+        960,
+        -384
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "-- Sample Data for Jules AI N8N Workflows\n-- Run this script after creating the database schema\n\n-- Insert sample tenants\nINSERT INTO tenants (name, phone_number, email, unit_address) VALUES\n('John Smith', '+14384541235', 'john.smith@email.com', 'Apartment 101, 123 Main St'),\n('Sarah Johnson', '+14385552346', 'sarah.j@email.com', 'Unit 2B, 456 Oak Ave'),\n('Michael Brown', '+14386663457', 'm.brown@email.com', 'Suite 301, 789 Pine Rd'),\n('Emily Davis', '+14387774568', 'emily.davis@email.com', 'Apartment 205, 321 Elm St'),\n('David Wilson', '+14388885679', 'd.wilson@email.com', 'Unit 4C, 654 Maple Dr'),\n('Lisa Anderson', '+14389996780', 'lisa.anderson@email.com', 'Penthouse 501, 987 Cedar Ln'),\n('Robert Taylor', '+14380007891', 'r.taylor@email.com', 'Apartment 103, 123 Main St'),\n('Jennifer Martinez', '+14381118902', 'j.martinez@email.com', 'Unit 3A, 456 Oak Ave'),\n('Christopher Garcia', '+14382229013', 'c.garcia@email.com', 'Suite 202, 789 Pine Rd'),\n('Amanda Rodriguez', '+14383330124', 'a.rodriguez@email.com', 'Apartment 404, 321 Elm St');\n\n-- Insert sample rental listings\nINSERT INTO rental_listings (property_address, unit_number, rent_amount, bedrooms, bathrooms, square_footage, description, status) VALUES\n('123 Main Street', '101', 1200.00, 1, 1, 650, 'Cozy 1-bedroom apartment with modern amenities', 'available'),\n('123 Main Street', '102', 1250.00, 1, 1, 680, 'Spacious 1-bedroom with balcony', 'available'),\n('123 Main Street', '103', 1300.00, 2, 1, 850, 'Bright 2-bedroom apartment', 'rented'),\n('456 Oak Avenue', '2B', 1400.00, 2, 2, 950, 'Modern 2-bedroom with in-unit laundry', 'available'),\n('456 Oak Avenue', '3A', 1450.00, 2, 2, 980, 'Corner unit with extra windows', 'rented'),\n('789 Pine Road', '201', 1600.00, 3, 2, 1200, 'Large 3-bedroom family apartment', 'available'),\n('789 Pine Road', '202', 1650.00, 3, 2, 1250, 'Updated 3-bedroom with hardwood floors', 'available'),\n('789 Pine Road', '301', 1800.00, 3, 2, 1300, 'Penthouse level 3-bedroom', 'available'),\n('321 Elm Street', '205', 1350.00, 2, 1, 900, 'Charming 2-bedroom in historic building', 'rented'),\n('321 Elm Street', '206', 1400.00, 2, 2, 950, 'Renovated 2-bedroom with modern kitchen', 'available'),\n('654 Maple Drive', '4C', 1550.00, 2, 2, 1100, 'Luxury 2-bedroom with city views', 'available'),\n('987 Cedar Lane', '501', 2200.00, 3, 3, 1600, 'Executive penthouse with rooftop access', 'available');\n\n-- Insert sample work orders\nINSERT INTO work_orders (tenant_id, issue_type, description, priority, unit_address, status) VALUES\n(1, 'plumbing', 'Leaky faucet in kitchen sink', 'low', 'Apartment 101, 123 Main St', 'pending'),\n(2, 'electrical', 'Light fixture not working in living room', 'medium', 'Unit 2B, 456 Oak Ave', 'in_progress'),\n(3, 'heating', 'Thermostat not responding properly', 'high', 'Suite 301, 789 Pine Rd', 'completed'),\n(4, 'maintenance', 'Door handle loose on bedroom door', 'low', 'Apartment 205, 321 Elm St', 'pending'),\n(5, 'plumbing', 'Clogged drain in bathroom sink', 'medium', 'Unit 4C, 654 Maple Dr', 'completed'),\n(6, 'electrical', 'Outlet not working in kitchen', 'high', 'Penthouse 501, 987 Cedar Ln', 'in_progress'),\n(7, 'maintenance', 'Window screen damaged', 'low', 'Apartment 103, 123 Main St', 'pending'),\n(8, 'heating', 'Radiator making strange noise', 'medium', 'Unit 3A, 456 Oak Ave', 'pending');\n\n-- Insert sample conversations\nINSERT INTO conversations (session_id, phone_number, language, conversation_summary, duration, actions_taken) VALUES\n('session-001', '+14384541235', 'en', 'Tenant called about leaky faucet, scheduled maintenance for tomorrow', 180, '[\"create_work_order\", \"schedule_maintenance\"]'),\n('session-002', '+14385552346', 'en', 'Inquired about available apartments, requested virtual tour', 240, '[\"check_availability\", \"schedule_viewing\"]'),\n('session-003', '+14386663457', 'fr', 'Demande de réparation du thermostat, urgence moyenne', 150, '[\"create_work_order\"]'),\n('session-004', '+14387774568', 'en', 'Reported broken light fixture, maintenance scheduled', 120, '[\"create_work_order\"]'),\n('session-005', '+14388885679', 'es', 'Consulta sobre apartamentos disponibles, pidió información', 200, '[\"check_availability\"]'),\n('session-006', '+14389996780', 'en', 'Emergency call about power outage in unit', 90, '[\"report_emergency\", \"dispatch_electrician\"]');\n\n-- Insert sample property viewings\nINSERT INTO property_viewings (tenant_id, property_id, viewing_time, contact_phone, status) VALUES\n(2, 1, '2025-12-20 14:00:00', '+14385552346', 'scheduled'),\n(5, 4, '2025-12-21 10:30:00', '+14388885679', 'confirmed'),\n(8, 7, '2025-12-22 15:00:00', '+14381118902', 'scheduled'),\n(9, 11, '2025-12-23 11:00:00', '+14382229013', 'cancelled'),\n(10, 12, '2025-12-24 13:30:00', '+14383330124', 'scheduled');\n\n-- Insert sample emergency reports\nINSERT INTO emergency_reports (tenant_id, emergency_type, description, unit_address, severity, status) VALUES\n(6, 'power_outage', 'Complete power outage in penthouse unit, elevator not working', 'Penthouse 501, 987 Cedar Ln', 'high', 'active'),\n(3, 'water_leak', 'Water leaking from ceiling in living room', 'Suite 301, 789 Pine Rd', 'medium', 'resolved'),\n(1, 'gas_leak', 'Detected gas smell in kitchen area', 'Apartment 101, 123 Main St', 'critical', 'resolved');\n\n-- Insert sample notifications\nINSERT INTO notifications (recipient, message, notification_type, priority, status, sent_at) VALUES\n('+14384541235', 'Your maintenance request for the leaky faucet has been scheduled for tomorrow at 2 PM.', 'sms', 'normal', 'sent', '2025-12-17 09:00:00'),\n('+14385552346', 'Your property viewing at 123 Main St #101 is confirmed for Dec 20 at 2 PM.', 'sms', 'normal', 'sent', '2025-12-17 10:30:00'),\n('+14386663457', 'Votre thermostat sera réparé demain matin entre 9h et 11h.', 'sms', 'normal', 'pending', NULL),\n('+14387774568', 'Maintenance completed: Light fixture in living room has been repaired.', 'sms', 'normal', 'sent', '2025-12-17 14:00:00'),\n('+14388885679', 'Recordatorio: Su cita para ver el apartamento está programada para mañana a las 10:30 AM.', 'sms', 'normal', 'pending', NULL),\n('+14389996780', 'URGENT: Power outage reported in your building. Technicians are on site.', 'sms', 'high', 'sent', '2025-12-17 16:45:00');\n\n-- Update timestamps for some records to show activity\nUPDATE tenants SET updated_at = CURRENT_TIMESTAMP WHERE id IN (1, 2, 3);\nUPDATE work_orders SET updated_at = CURRENT_TIMESTAMP WHERE status = 'in_progress';\nUPDATE rental_listings SET updated_at = CURRENT_TIMESTAMP WHERE status = 'available' AND id <= 5;\n\nCOMMIT;",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        -224,
+        -64
+      ],
+      "id": "da7e6d5b-4ab2-4038-a346-b50ce3530feb",
+      "name": "Create Sample Data",
+      "credentials": {
+        "postgres": {
+          "id": "u7j29OmyHuzkVDfZ",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://boninaurelien.app.n8n.cloud/webhook/work-order",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "action",
+              "value": "create_work_order"
+            },
+            {
+              "name": "tenant_id",
+              "value": "1"
+            },
+            {
+              "name": "issue_type",
+              "value": "plumbing"
+            },
+            {
+              "name": "description",
+              "value": "Leaky faucet in kitchen"
+            },
+            {
+              "name": "priority",
+              "value": "high"
+            },
+            {
+              "name": "unit_address",
+              "value": "123 Main St Apt 4B"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        48,
+        -64
+      ],
+      "id": "6e7f87cc-fbb1-4cb2-bc47-9310c720fb28",
+      "name": "Work order Sample",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "uvgqyRI1ddaWVLOw",
+          "name": "Jules Pipecat"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "-- Sample Data for Jules AI N8N Workflows\n-- Run this script after creating the database schema\n\n-- Insert sample tenants\nINSERT INTO tenants (name, phone_number, email, unit_address) VALUES\n('John Smith', '+14384541235', 'john.smith@email.com', 'Apartment 101, 123 Main St'),\n('Sarah Johnson', '+14385552346', 'sarah.j@email.com', 'Unit 2B, 456 Oak Ave'),\n('Michael Brown', '+14386663457', 'm.brown@email.com', 'Suite 301, 789 Pine Rd'),\n('Emily Davis', '+14387774568', 'emily.davis@email.com', 'Apartment 205, 321 Elm St'),\n('David Wilson', '+14388885679', 'd.wilson@email.com', 'Unit 4C, 654 Maple Dr'),\n('Lisa Anderson', '+14389996780', 'lisa.anderson@email.com', 'Penthouse 501, 987 Cedar Ln'),\n('Robert Taylor', '+14380007891', 'r.taylor@email.com', 'Apartment 103, 123 Main St'),\n('Jennifer Martinez', '+14381118902', 'j.martinez@email.com', 'Unit 3A, 456 Oak Ave'),\n('Christopher Garcia', '+14382229013', 'c.garcia@email.com', 'Suite 202, 789 Pine Rd'),\n('Amanda Rodriguez', '+14383330124', 'a.rodriguez@email.com', 'Apartment 404, 321 Elm St');\n\n-- Insert sample rental listings\nINSERT INTO rental_listings (property_address, unit_number, rent_amount, bedrooms, bathrooms, square_footage, description, status) VALUES\n('123 Main Street', '101', 1200.00, 1, 1, 650, 'Cozy 1-bedroom apartment with modern amenities', 'available'),\n('123 Main Street', '102', 1250.00, 1, 1, 680, 'Spacious 1-bedroom with balcony', 'available'),\n('123 Main Street', '103', 1300.00, 2, 1, 850, 'Bright 2-bedroom apartment', 'rented'),\n('456 Oak Avenue', '2B', 1400.00, 2, 2, 950, 'Modern 2-bedroom with in-unit laundry', 'available'),\n('456 Oak Avenue', '3A', 1450.00, 2, 2, 980, 'Corner unit with extra windows', 'rented'),\n('789 Pine Road', '201', 1600.00, 3, 2, 1200, 'Large 3-bedroom family apartment', 'available'),\n('789 Pine Road', '202', 1650.00, 3, 2, 1250, 'Updated 3-bedroom with hardwood floors', 'available'),\n('789 Pine Road', '301', 1800.00, 3, 2, 1300, 'Penthouse level 3-bedroom', 'available'),\n('321 Elm Street', '205', 1350.00, 2, 1, 900, 'Charming 2-bedroom in historic building', 'rented'),\n('321 Elm Street', '206', 1400.00, 2, 2, 950, 'Renovated 2-bedroom with modern kitchen', 'available'),\n('654 Maple Drive', '4C', 1550.00, 2, 2, 1100, 'Luxury 2-bedroom with city views', 'available'),\n('987 Cedar Lane', '501', 2200.00, 3, 3, 1600, 'Executive penthouse with rooftop access', 'available');\n\n-- Insert sample work orders\nINSERT INTO work_orders (tenant_id, issue_type, description, priority, unit_address, status) VALUES\n(1, 'plumbing', 'Leaky faucet in kitchen sink', 'low', 'Apartment 101, 123 Main St', 'pending'),\n(2, 'electrical', 'Light fixture not working in living room', 'medium', 'Unit 2B, 456 Oak Ave', 'in_progress'),\n(3, 'heating', 'Thermostat not responding properly', 'high', 'Suite 301, 789 Pine Rd', 'completed'),\n(4, 'maintenance', 'Door handle loose on bedroom door', 'low', 'Apartment 205, 321 Elm St', 'pending'),\n(5, 'plumbing', 'Clogged drain in bathroom sink', 'medium', 'Unit 4C, 654 Maple Dr', 'completed'),\n(6, 'electrical', 'Outlet not working in kitchen', 'high', 'Penthouse 501, 987 Cedar Ln', 'in_progress'),\n(7, 'maintenance', 'Window screen damaged', 'low', 'Apartment 103, 123 Main St', 'pending'),\n(8, 'heating', 'Radiator making strange noise', 'medium', 'Unit 3A, 456 Oak Ave', 'pending');\n\n-- Insert sample conversations\nINSERT INTO conversations (session_id, phone_number, language, conversation_summary, duration, actions_taken) VALUES\n('session-001', '+14384541235', 'en', 'Tenant called about leaky faucet, scheduled maintenance for tomorrow', 180, '[\"create_work_order\", \"schedule_maintenance\"]'),\n('session-002', '+14385552346', 'en', 'Inquired about available apartments, requested virtual tour', 240, '[\"check_availability\", \"schedule_viewing\"]'),\n('session-003', '+14386663457', 'fr', 'Demande de réparation du thermostat, urgence moyenne', 150, '[\"create_work_order\"]'),\n('session-004', '+14387774568', 'en', 'Reported broken light fixture, maintenance scheduled', 120, '[\"create_work_order\"]'),\n('session-005', '+14388885679', 'es', 'Consulta sobre apartamentos disponibles, pidió información', 200, '[\"check_availability\"]'),\n('session-006', '+14389996780', 'en', 'Emergency call about power outage in unit', 90, '[\"report_emergency\", \"dispatch_electrician\"]');\n\n-- Insert sample property viewings\nINSERT INTO property_viewings (tenant_id, property_id, viewing_time, contact_phone, status) VALUES\n(2, 1, '2025-12-20 14:00:00', '+14385552346', 'scheduled'),\n(5, 4, '2025-12-21 10:30:00', '+14388885679', 'confirmed'),\n(8, 7, '2025-12-22 15:00:00', '+14381118902', 'scheduled'),\n(9, 11, '2025-12-23 11:00:00', '+14382229013', 'cancelled'),\n(10, 12, '2025-12-24 13:30:00', '+14383330124', 'scheduled');\n\n-- Insert sample emergency reports\nINSERT INTO emergency_reports (tenant_id, emergency_type, description, unit_address, severity, status) VALUES\n(6, 'power_outage', 'Complete power outage in penthouse unit, elevator not working', 'Penthouse 501, 987 Cedar Ln', 'high', 'active'),\n(3, 'water_leak', 'Water leaking from ceiling in living room', 'Suite 301, 789 Pine Rd', 'medium', 'resolved'),\n(1, 'gas_leak', 'Detected gas smell in kitchen area', 'Apartment 101, 123 Main St', 'critical', 'resolved');\n\n-- Insert sample notifications\nINSERT INTO notifications (recipient, message, notification_type, priority, status, sent_at) VALUES\n('+14384541235', 'Your maintenance request for the leaky faucet has been scheduled for tomorrow at 2 PM.', 'sms', 'normal', 'sent', '2025-12-17 09:00:00'),\n('+14385552346', 'Your property viewing at 123 Main St #101 is confirmed for Dec 20 at 2 PM.', 'sms', 'normal', 'sent', '2025-12-17 10:30:00'),\n('+14386663457', 'Votre thermostat sera réparé demain matin entre 9h et 11h.', 'sms', 'normal', 'pending', NULL),\n('+14387774568', 'Maintenance completed: Light fixture in living room has been repaired.', 'sms', 'normal', 'sent', '2025-12-17 14:00:00'),\n('+14388885679', 'Recordatorio: Su cita para ver el apartamento está programada para mañana a las 10:30 AM.', 'sms', 'normal', 'pending', NULL),\n('+14389996780', 'URGENT: Power outage reported in your building. Technicians are on site.', 'sms', 'high', 'sent', '2025-12-17 16:45:00');\n\n-- Update timestamps for some records to show activity\nUPDATE tenants SET updated_at = CURRENT_TIMESTAMP WHERE id IN (1, 2, 3);\nUPDATE work_orders SET updated_at = CURRENT_TIMESTAMP WHERE status = 'in_progress';\nUPDATE rental_listings SET updated_at = CURRENT_TIMESTAMP WHERE status = 'available' AND id <= 5;\n\nCOMMIT;",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        1040,
+        -16
+      ],
+      "id": "8e616f9d-c7ba-498d-96ee-18618cca926b",
+      "name": "Create Sample Data3",
+      "credentials": {
+        "postgres": {
+          "id": "u7j29OmyHuzkVDfZ",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "-- Create notification_logs table for tracking all notifications sent through the system\nCREATE TABLE IF NOT EXISTS notification_logs (\n    id SERIAL PRIMARY KEY,\n    recipient VARCHAR(255) NOT NULL,\n    message TEXT NOT NULL,\n    notification_type VARCHAR(50) NOT NULL, -- 'sms', 'email', 'work_order', 'emergency'\n    priority VARCHAR(20) DEFAULT 'normal', -- 'low', 'normal', 'high', 'urgent'\n    status VARCHAR(20) DEFAULT 'pending', -- 'pending', 'sent', 'failed', 'delivered'\n    sent_at TIMESTAMP,\n    error_message TEXT,\n    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,\n    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP\n);\n\n-- Create indexes for better performance\nCREATE INDEX IF NOT EXISTS idx_notification_logs_recipient ON notification_logs(recipient);\nCREATE INDEX IF NOT EXISTS idx_notification_logs_type ON notification_logs(notification_type);\nCREATE INDEX IF NOT EXISTS idx_notification_logs_status ON notification_logs(status);\nCREATE INDEX IF NOT EXISTS idx_notification_logs_created_at ON notification_logs(created_at);\nCREATE INDEX IF NOT EXISTS idx_notification_logs_priority ON notification_logs(priority);\n\n-- Create trigger to update updated_at timestamp\nCREATE OR REPLACE FUNCTION update_updated_at_column()\nRETURNS TRIGGER AS $$\nBEGIN\n    NEW.updated_at = CURRENT_TIMESTAMP;\n    RETURN NEW;\nEND;\n$$ language 'plpgsql';\n\nCREATE TRIGGER update_notification_logs_updated_at\n    BEFORE UPDATE ON notification_logs\n    FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();\n\n-- Add comments for documentation\nCOMMENT ON TABLE notification_logs IS 'Logs all notifications sent through the Jules AI system';\nCOMMENT ON COLUMN notification_logs.recipient IS 'Phone number for SMS or email address for email notifications';\nCOMMENT ON COLUMN notification_logs.notification_type IS 'Type of notification: sms, email, work_order, emergency';\nCOMMENT ON COLUMN notification_logs.priority IS 'Priority level: low, normal, high, urgent';\nCOMMENT ON COLUMN notification_logs.status IS 'Delivery status: pending, sent, failed, delivered';",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        320,
+        -64
+      ],
+      "id": "7aa07b84-689c-4ea4-8fb5-daecc4a971f2",
+      "name": "Create Notifs Table",
+      "credentials": {
+        "postgres": {
+          "id": "u7j29OmyHuzkVDfZ",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "-- Simple update to add missing columns to existing property_viewings table\n-- Run this script on your existing database to add only the missing columns\n\n-- Add missing columns that the workflow needs\nDO $$\nBEGIN\n    -- Add property_address column if it doesn't exist\n    IF NOT EXISTS (\n        SELECT 1 FROM information_schema.columns\n        WHERE table_name='property_viewings' AND column_name='property_address'\n    ) THEN\n        ALTER TABLE property_viewings ADD COLUMN property_address TEXT;\n        RAISE NOTICE 'Added property_address column';\n    END IF;\n\n    -- Add contact_email column if it doesn't exist\n    IF NOT EXISTS (\n        SELECT 1 FROM information_schema.columns\n        WHERE table_name='property_viewings' AND column_name='contact_email'\n    ) THEN\n        ALTER TABLE property_viewings ADD COLUMN contact_email VARCHAR(255);\n        RAISE NOTICE 'Added contact_email column';\n    END IF;\n\n    -- Add viewing_duration column if it doesn't exist\n    IF NOT EXISTS (\n        SELECT 1 FROM information_schema.columns\n        WHERE table_name='property_viewings' AND column_name='viewing_duration'\n    ) THEN\n        ALTER TABLE property_viewings ADD COLUMN viewing_duration INTEGER DEFAULT 30;\n        RAISE NOTICE 'Added viewing_duration column';\n    END IF;\n\n    -- Add agent_assigned column if it doesn't exist\n    IF NOT EXISTS (\n        SELECT 1 FROM information_schema.columns\n        WHERE table_name='property_viewings' AND column_name='agent_assigned'\n    ) THEN\n        ALTER TABLE property_viewings ADD COLUMN agent_assigned VARCHAR(255);\n        RAISE NOTICE 'Added agent_assigned column';\n    END IF;\n\n    -- Add notes column if it doesn't exist\n    IF NOT EXISTS (\n        SELECT 1 FROM information_schema.columns\n        WHERE table_name='property_viewings' AND column_name='notes'\n    ) THEN\n        ALTER TABLE property_viewings ADD COLUMN notes TEXT;\n        RAISE NOTICE 'Added notes column';\n    END IF;\n\n    -- Add confirmation_sent column if it doesn't exist\n    IF NOT EXISTS (\n        SELECT 1 FROM information_schema.columns\n        WHERE table_name='property_viewings' AND column_name='confirmation_sent'\n    ) THEN\n        ALTER TABLE property_viewings ADD COLUMN confirmation_sent BOOLEAN DEFAULT FALSE;\n        RAISE NOTICE 'Added confirmation_sent column';\n    END IF;\n\n    -- Add reminder_sent column if it doesn't exist\n    IF NOT EXISTS (\n        SELECT 1 FROM information_schema.columns\n        WHERE table_name='property_viewings' AND column_name='reminder_sent'\n    ) THEN\n        ALTER TABLE property_viewings ADD COLUMN reminder_sent BOOLEAN DEFAULT FALSE;\n        RAISE NOTICE 'Added reminder_sent column';\n    END IF;\n\n    -- Add created_by column if it doesn't exist\n    IF NOT EXISTS (\n        SELECT 1 FROM information_schema.columns\n        WHERE table_name='property_viewings' AND column_name='created_by'\n    ) THEN\n        ALTER TABLE property_viewings ADD COLUMN created_by VARCHAR(50) DEFAULT 'voice_agent';\n        RAISE NOTICE 'Added created_by column';\n    END IF;\n\nEND $$;\n\n-- Create additional indexes for the new columns\nCREATE INDEX IF NOT EXISTS idx_property_viewings_status ON property_viewings(status);\nCREATE INDEX IF NOT EXISTS idx_property_viewings_created_by ON property_viewings(created_by);\n\n-- Show final table structure\nSELECT\n    column_name,\n    data_type,\n    is_nullable,\n    column_default\nFROM information_schema.columns\nWHERE table_name = 'property_viewings'\nORDER BY ordinal_position;",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        624,
+        -64
+      ],
+      "id": "fba1aa8e-25d2-42e8-b9a8-c917f15feaca",
+      "name": "Create Property Viewing Table",
+      "credentials": {
+        "postgres": {
+          "id": "u7j29OmyHuzkVDfZ",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "-- Create payments table for payment processing\nCREATE TABLE IF NOT EXISTS payments (\n    id SERIAL PRIMARY KEY,\n    tenant_id INTEGER NOT NULL REFERENCES tenants(id),\n    amount DECIMAL(10,2) NOT NULL,\n    payment_method VARCHAR(50) NOT NULL, -- online, phone, check, cash, etc.\n    payment_type VARCHAR(50) DEFAULT 'rent', -- rent, deposit, fee, etc.\n    status VARCHAR(50) DEFAULT 'pending', -- pending, processing, completed, failed, refunded\n    transaction_id VARCHAR(255), -- Payment processor transaction ID\n    description TEXT,\n    payment_date DATE,\n    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,\n    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP\n);\n\n-- Create properties table for property information and policies\nCREATE TABLE IF NOT EXISTS properties (\n    id SERIAL PRIMARY KEY,\n    name VARCHAR(255) NOT NULL,\n    address TEXT NOT NULL,\n    office_hours TEXT DEFAULT 'Monday-Friday: 9:00 AM - 6:00 PM, Saturday: 10:00 AM - 4:00 PM',\n    emergency_contact TEXT DEFAULT 'For emergencies: Call main office 24/7',\n    pet_policy TEXT DEFAULT 'Pets allowed with pet deposit ($300) and monthly pet rent ($25). Breed restrictions apply.',\n    parking_policy TEXT DEFAULT 'One parking space included per unit. Guest parking available.',\n    amenities TEXT, -- Pool, gym, laundry, etc.\n    lease_terms TEXT,\n    payment_methods TEXT DEFAULT 'Online portal, phone payment, automatic bank draft, check/cash at office',\n    rent_due_day INTEGER DEFAULT 1,\n    grace_period_days INTEGER DEFAULT 3,\n    late_fee_amount DECIMAL(10,2) DEFAULT 50.00,\n    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,\n    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP\n);\n\n-- Insert default property record\nINSERT INTO properties (name, address, office_hours, pet_policy, parking_policy)\nVALUES (\n    'Jules Property Management',\n    'Multiple Locations',\n    'Monday-Friday: 9:00 AM - 6:00 PM, Saturday: 10:00 AM - 4:00 PM, Sunday: Closed',\n    'Pets allowed with pet deposit ($300) and monthly pet rent ($25). Breed and size restrictions apply. Contact office for specific property policies.',\n    'One parking space included per unit. Covered parking available for additional $50/month where available. Guest parking in designated areas.'\n) ON CONFLICT DO NOTHING;\n\n-- Create indexes for better performance\nCREATE INDEX IF NOT EXISTS idx_payments_tenant_id ON payments(tenant_id);\nCREATE INDEX IF NOT EXISTS idx_payments_status ON payments(status);\nCREATE INDEX IF NOT EXISTS idx_payments_payment_date ON payments(payment_date);\n\n-- Add trigger to update updated_at timestamp\nCREATE OR REPLACE FUNCTION update_updated_at_column()\nRETURNS TRIGGER AS $$\nBEGIN\n    NEW.updated_at = CURRENT_TIMESTAMP;\n    RETURN NEW;\nEND;\n$$ language 'plpgsql';\n\nCREATE TRIGGER update_payments_updated_at BEFORE UPDATE\n    ON payments FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();\n\nCREATE TRIGGER update_properties_updated_at BEFORE UPDATE\n    ON properties FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        -64,
+        256
+      ],
+      "id": "3551f0ee-f2ef-4be9-8e1c-50e9b9367997",
+      "name": "Create payment table",
+      "credentials": {
+        "postgres": {
+          "id": "u7j29OmyHuzkVDfZ",
+          "name": "Postgres account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1",
+    "availableInMCP": false
+  },
+  "shared": [
+    {
+      "updatedAt": "2025-12-18T02:50:47.511Z",
+      "createdAt": "2025-12-18T02:50:47.511Z",
+      "role": "workflow:owner",
+      "workflowId": "wcqkHoaH3VMmzAsI",
+      "projectId": "K5c2PqoZjXPELHVa"
+    }
+  ],
+  "staticData": null,
+  "tags": [],
+  "triggerCount": 0,
+  "updatedAt": "2025-12-21T23:12:51.944Z",
+  "versionId": "5d8fabbb-eb1f-4bd7-8cad-ba24f7d98b0a"
+}
