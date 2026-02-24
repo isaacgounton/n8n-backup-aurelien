@@ -1,0 +1,489 @@
+{
+  "active": false,
+  "activeVersion": null,
+  "activeVersionId": null,
+  "connections": {
+    "Gmail Trigger": {
+      "main": [
+        [
+          {
+            "node": "Message a model",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Message a model": {
+      "main": [
+        [
+          {
+            "node": "Merge Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge Data": {
+      "main": [
+        [
+          {
+            "node": "Auto Follow-Up",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Auto Follow-Up": {
+      "main": [
+        [
+          {
+            "node": "Needs Follow-Up?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Needs Follow-Up?": {
+      "main": [
+        [
+          {
+            "node": "Send Follow-Up",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Calculate Fit Score",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Calculate Fit Score": {
+      "main": [
+        [
+          {
+            "node": "Append or update row in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "createdAt": "2025-07-31T13:26:12.198Z",
+  "id": "c1P01MSUwtHNREMy",
+  "isArchived": false,
+  "meta": {
+    "templateCredsSetupCompleted": true
+  },
+  "name": "Tenant Screening - 2BR Mini Home",
+  "nodes": [
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyMinute"
+            }
+          ]
+        },
+        "filters": {
+          "q": "subject:(rental OR apartment OR for rent)"
+        }
+      },
+      "type": "n8n-nodes-base.gmailTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        32,
+        0
+      ],
+      "id": "b5a2be23-4e1b-4cf8-98f0-405b8fc6908b",
+      "name": "Gmail Trigger",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "b2X2kv19YpyGTKF0",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "chatgpt-4o-latest",
+          "mode": "list",
+          "cachedResultName": "CHATGPT-4O-LATEST"
+        },
+        "messages": {
+          "values": [
+            {
+              "content": "You are a helpful assistant that extracts structured tenant information from emails. Your response must be valid JSON.\n",
+              "role": "system"
+            },
+            {
+              "content": "=Extract these fields if present:  \n• full_name  \n• email  \n• phone  \n• income  \n• employer  \n• move_in_date  \n• occupants  \n• pets  \n• reason  \n• category\n\nReturn only a JSON object.\n\nEmail subject: {{ $node[\"Gmail Trigger\"].json[\"subject\"] }}  \nEmail body:    {{ $node[\"Gmail Trigger\"].json[\"textPlain\"] }}\n"
+            }
+          ]
+        },
+        "jsonOutput": true,
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 1.8,
+      "position": [
+        208,
+        0
+      ],
+      "id": "1d89cac0-f18e-4feb-b30e-d502c8c05431",
+      "name": "Message a model",
+      "credentials": {
+        "openAiApi": {
+          "id": "vofRqqG7VEHTXxTs",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "appendOrUpdate",
+        "documentId": {
+          "__rl": true,
+          "value": "1rZbKY2jcBlEmLOqrCqzgJud4OrkeUgcKq8er90lSDyU",
+          "mode": "id"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Miramichi Tenant Leads - 2 Bedroom Mini Home",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1rZbKY2jcBlEmLOqrCqzgJud4OrkeUgcKq8er90lSDyU/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Email": "{{ $json[\"email\"] }}",
+            "full_name": "{{ $json[\"full_name\"] }}",
+            "Phone": "{{ $json[\"phone\"] }}",
+            "Income ": "{{ $json[\"income\"] }}",
+            "Category": "{{ $json[\"category\"] }}",
+            "Employer": "{{ $json[\"employer\"] }}",
+            "Move_in_date": "{{ $json[\"move_in_date\"] }}",
+            "Pets": "{{ $json[\"pets\"] }}",
+            "Occupants": "{{ $json[\"occupants\"] }}",
+            "Reason for Moving": "{{ $json[\"reason\"] }}",
+            "Status": "{{ $json[\"status\"] }}",
+            "Score": "{{ $json[\"score\"] }}",
+            "⭐️ Tenant “Fit” Scoring Rubric": "{{ $json[\"rubric\"] }}"
+          },
+          "matchingColumns": [
+            "Email"
+          ],
+          "schema": [
+            {
+              "id": "Email",
+              "displayName": "Email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "full_name",
+              "displayName": "full_name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Phone",
+              "displayName": "Phone",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Income ",
+              "displayName": "Income ",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Employer",
+              "displayName": "Employer",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Move_in_date",
+              "displayName": "Move_in_date",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Pets",
+              "displayName": "Pets",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Occupants",
+              "displayName": "Occupants",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Reason for Moving",
+              "displayName": "Reason for Moving",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Status",
+              "displayName": "Status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Score",
+              "displayName": "Score",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Category",
+              "displayName": "Category",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "⭐️ Tenant “Fit” Scoring Rubric",
+              "displayName": "⭐️ Tenant “Fit” Scoring Rubric",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "⭐️ Tenant “Fit” Scoring Rubric",
+              "displayName": "⭐️ Tenant “Fit” Scoring Rubric",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.6,
+      "position": [
+        1520,
+        96
+      ],
+      "id": "45ae7c93-967c-413f-a4d0-9321c58f179f",
+      "name": "Append or update row in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "0DyFgwOvPvRNVa3N",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Grab the latest ChatGPT output\nconst extracted = $node[\"Message a model\"].json;\n// Grab the email subject so we can derive category\nconst subject   = $node[\"Gmail Trigger\"].json[\"subject\"] || \"\";\n\n// If ChatGPT didn’t extract category, infer from subject\nconst category = extracted.category\n  || (subject.match(/2BR Mini Home/i) ? \"2BR Mini Home\" : \"\")\n  || \"\";\n\n// Build a single merged object\nconst merged = {\n  email:        extracted.email       || \"\",\n  full_name:    extracted.full_name   || \"\",\n  phone:        extracted.phone       || \"\",\n  income:       extracted.income      || \"\",\n  employer:     extracted.employer    || \"\",\n  move_in_date: extracted.move_in_date|| \"\",\n  occupants:    extracted.occupants   || \"\",\n  pets:         extracted.pets        || \"\",\n  reason:       extracted.reason      || \"\",\n  category:     category\n};\n\nreturn [{ json: merged }];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        560,
+        0
+      ],
+      "id": "68ad28a0-b0f2-41aa-8ebc-6df7873e1bd3",
+      "name": "Merge Data"
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "chatgpt-4o-latest",
+          "mode": "list",
+          "cachedResultName": "CHATGPT-4O-LATEST"
+        },
+        "messages": {
+          "values": [
+            {
+              "content": "You are a friendly leasing assistant. You will be given a JSON object representing an applicant’s data.\n1. Check these required fields: full_name, phone, income, employer, move_in_date, occupants, pets, reason.\n2. If any are missing or empty, output:\n   {\n     \"shouldFollowUp\": true,\n     \"body\": \"<a brief, friendly email asking only for the missing fields>\"\n   }\n3. If none are missing, output:\n   {\n     \"shouldFollowUp\": false,\n     \"body\": \"\"\n   }\nReturn only valid JSON.\n",
+              "role": "system"
+            },
+            {
+              "content": "=Applicant data:\n{{ $node[\"Merge Data\"].json | json }}\n"
+            }
+          ]
+        },
+        "simplify": false,
+        "jsonOutput": true,
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 1.8,
+      "position": [
+        704,
+        0
+      ],
+      "id": "eedd2e82-4b68-4dbc-85d2-514f0758daec",
+      "name": "Auto Follow-Up",
+      "credentials": {
+        "openAiApi": {
+          "id": "vofRqqG7VEHTXxTs",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "15889b7d-7971-44f0-993f-118be881d693",
+              "leftValue": "={{ $json[\"shouldFollowUp\"] }}  ",
+              "rightValue": "true ",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        1056,
+        0
+      ],
+      "id": "4416a373-549f-42e0-af9e-0dd3e2455571",
+      "name": "Needs Follow-Up?"
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $node[\"Merge Data\"].json.email }}  ",
+        "subject": "Quick follow-up on your rental inquiry  ",
+        "message": "={{ $node[\"Auto Follow-Up\"].json.body }}  ",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        1424,
+        -112
+      ],
+      "id": "4a99e64d-9d2b-4973-b1bd-2105be159f11",
+      "name": "Send Follow-Up",
+      "webhookId": "cedb00fc-5429-41a8-b43c-de15fd70a481",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "b2X2kv19YpyGTKF0",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// grab your merged data\nconst d = items[0].json;\n\n// helper to pick points\nfunction pick(val, thresholds){\n  for(const [limit,pts] of thresholds){\n    if(val >= limit) return pts;\n  }\n  return thresholds[thresholds.length-1][1];\n}\n\n// 1) Income → Rent Ratio (30%)\nconst ratio = Number(d.income) / Number(d.expected_rent);\nconst ratioPts = ratio >= 3   ? 10\n               : ratio >= 2.5 ? 8\n               : ratio >= 2   ? 6\n               :                2;\n\n// 2) Credit Score (20%)\nconst cs = Number(d.credit_score);\nconst csPts = cs >= 700 ? 10\n             : cs >= 650 ? 7\n             : cs >= 600 ? 4\n             :             1;\n\n// 3) Employment Tenure in months (15%)\nconst tenure = Number(d.employment_months);\nconst etPts = tenure >= 24 ? 10\n            : tenure >= 12 ? 7\n            : tenure >= 6  ? 4\n            :                1;\n\n// 4) Rental History (15%)\nlet rhPts = 10;\nif(d.rental_history?.includes(\"multiple evictions\")) rhPts = 0;\nelse if(d.rental_history?.includes(\"one eviction\"))    rhPts = 5;\n\n// 5) Pets (5%)\nconst pet = d.pets?.toLowerCase() || \"\";\nconst petPts = pet.includes(\"no\")   ? 10\n             : pet.includes(\"small\")? 7\n             : pet.includes(\"large\")? 4\n             :                          2;\n\n// 6) Smoking (5%)\nconst smoke = d.smoking?.toLowerCase() || \"\";\nconst smokePts = smoke.includes(\"non\")    ? 10\n               : smoke.includes(\"outside\")? 5\n               :                              0;\n\n// 7) Move-in Flexibility (10%)\nconst wanted = new Date(d.desired_move_in);\nconst actual = new Date(d.move_in_date);\nconst diffDays = Math.abs((actual - wanted)/(1000*60*60*24));\nconst mfPts = diffDays <= 0  ? 10\n            : diffDays <= 7  ? 7\n            : diffDays <= 14 ? 4\n            :                  2;\n\n// weights\nconst w = {\n  ratio: 0.30, cs: 0.20, et: 0.15, rh: 0.15,\n  pets: 0.05, smoke: 0.05, mf: 0.10\n};\n\n// total score (out of 10)\nconst total =\n  ratioPts * w.ratio +\n  csPts    * w.cs    +\n  etPts    * w.et    +\n  rhPts    * w.rh    +\n  petPts   * w.pets  +\n  smokePts * w.smoke +\n  mfPts    * w.mf;\n\n// build the rubric text\nconst rubric = `\nIncome → Rent Ratio: ${ratioPts} pts\nCredit Score: ${csPts} pts\nEmployment Tenure: ${etPts} pts\nRental History: ${rhPts} pts\nPets: ${petPts} pts\nSmoking: ${smokePts} pts\nMove-in Flexibility: ${mfPts} pts\n\n⭐️ **Total Fit Score**: ${total.toFixed(1)}/10\n`.trim();\n\n// return merged data + new fields\nreturn [{\n  json: {\n    ...d,\n    score: total.toFixed(1),\n    rubric\n  }\n}];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1264,
+        96
+      ],
+      "id": "7181a349-e793-4817-9444-031a00c0f4b1",
+      "name": "Calculate Fit Score"
+    }
+  ],
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "shared": [
+    {
+      "updatedAt": "2025-07-31T13:26:12.213Z",
+      "createdAt": "2025-07-31T13:26:12.213Z",
+      "role": "workflow:owner",
+      "workflowId": "c1P01MSUwtHNREMy",
+      "projectId": "K5c2PqoZjXPELHVa"
+    }
+  ],
+  "staticData": {
+    "node:Gmail Trigger": {
+      "Gmail Trigger": {
+        "lastTimeChecked": 1756473758,
+        "possibleDuplicates": [
+          "198f5fe93360f5fa",
+          "198f5fc29675dea4"
+        ]
+      }
+    }
+  },
+  "tags": [],
+  "triggerCount": 1,
+  "updatedAt": "2025-08-29T13:40:01.000Z",
+  "versionId": "b49282f4-b2cb-4fc1-add5-b2b5d927ab6c"
+}
