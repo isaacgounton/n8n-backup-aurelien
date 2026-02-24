@@ -1,0 +1,124 @@
+{
+  "active": false,
+  "activeVersion": null,
+  "activeVersionId": null,
+  "connections": {
+    "When Executed by Another Workflow": {
+      "main": [
+        [
+          {
+            "node": "Select rows from a table",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "createdAt": "2025-12-17T03:30:54.377Z",
+  "id": "v7PAMjriojq5fs1G",
+  "isArchived": false,
+  "meta": {
+    "templateCredsSetupCompleted": true
+  },
+  "name": "Test workflow",
+  "nodes": [
+    {
+      "parameters": {
+        "workflowInputs": {
+          "values": [
+            {
+              "name": "name"
+            },
+            {
+              "name": "phone_number"
+            },
+            {
+              "name": "unit_address"
+            },
+            {
+              "name": "lease_start_date"
+            },
+            {
+              "name": "lease_end_date"
+            },
+            {
+              "name": "contact_email"
+            },
+            {
+              "name": "emergency_contact"
+            },
+            {
+              "name": "emergency_phone"
+            },
+            {
+              "name": "preferred_language"
+            },
+            {
+              "name": "status"
+            },
+            {
+              "name": "notes"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        32,
+        -64
+      ],
+      "id": "2147c138-ed62-4af1-b892-72f38da4bc26",
+      "name": "When Executed by Another Workflow"
+    },
+    {
+      "parameters": {
+        "operation": "select",
+        "schema": {
+          "__rl": true,
+          "mode": "list",
+          "value": "public"
+        },
+        "table": {
+          "__rl": true,
+          "mode": "list",
+          "value": ""
+        }
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        240,
+        -64
+      ],
+      "id": "69a27532-64c4-4f4e-90c9-239c277456fb",
+      "name": "Select rows from a table",
+      "credentials": {
+        "postgres": {
+          "id": "u7j29OmyHuzkVDfZ",
+          "name": "Postgres account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1",
+    "availableInMCP": false
+  },
+  "shared": [
+    {
+      "updatedAt": "2025-12-17T03:30:54.382Z",
+      "createdAt": "2025-12-17T03:30:54.382Z",
+      "role": "workflow:owner",
+      "workflowId": "v7PAMjriojq5fs1G",
+      "projectId": "K5c2PqoZjXPELHVa"
+    }
+  ],
+  "staticData": null,
+  "tags": [],
+  "triggerCount": 0,
+  "updatedAt": "2025-12-20T07:58:08.100Z",
+  "versionId": "07bcd1db-5a05-4cba-836a-22df920b72c4"
+}
