@@ -1,0 +1,786 @@
+{
+  "active": true,
+  "activeVersion": {
+    "updatedAt": "2025-12-30T03:51:24.000Z",
+    "createdAt": "2025-12-30T03:51:20.023Z",
+    "versionId": "46043929-727e-452f-9755-30457fdbbe70",
+    "workflowId": "HEG4vVxgv9ZGOaBo",
+    "nodes": [
+      {
+        "parameters": {
+          "inputSource": "passthrough"
+        },
+        "type": "n8n-nodes-base.executeWorkflowTrigger",
+        "typeVersion": 1.1,
+        "position": [
+          -336,
+          224
+        ],
+        "id": "c2bbf263-6ebb-4dc4-98da-2fffded44d53",
+        "name": "When Executed by Another Workflow"
+      },
+      {
+        "parameters": {
+          "promptType": "define",
+          "text": "={{ $json.query }}",
+          "options": {
+            "systemMessage": "=You are an emergency management assistant for Jules AI. You handle emergency log records in the database with strict adherence to data formats and validation rules for property management emergencies.\n\n**Database Schema Requirements:**\n- **unit_address**: Full address including unit number (max 255 chars)\n- **emergency_type**: Enum value - MUST be one of: 'fire', 'gas_leak', 'burst_pipe', 'flooding', 'no_heat', 'electrical_hazard', 'medical_emergency', 'security_issue', 'other'\n- **response_actions**: JSON object documenting actions taken (examples below)\n- **tenant_notified**: Boolean (true/false) - Whether tenant has been notified\n- **emergency_services_called**: Boolean (true/false) - Whether emergency services were called\n- **resolution_status**: String status: 'pending', 'in_progress', 'resolved', 'escalated'\n- **follow_up_required**: Boolean (true/false) - Whether follow-up actions are needed\n- **notes**: Additional emergency details, timeline, witness information\n- **tenant_id**: Tenant ID if known (optional UUID)\n\n**Critical Formatting Rules:**\n- Always format emergency_type exactly as one of the valid enum values. If not provided or invalid, default to 'other'.\n- Convert any user input for emergency_type to the correct enum value (e.g., 'fire' -> 'fire', 'gas leak' -> 'gas_leak', 'no heat' -> 'no_heat')\n- Ensure resolution_status is a valid status; default to 'pending' if not provided\n- response_actions should be a properly formatted JSON object (see examples below)\n- Boolean fields should be true/false, not strings\n- unit_address should include unit number if available\n\n**response_actions JSON Format Examples:**\nFor fire emergency:\n```json\n{\n  \"tenant_evacuated\": true,\n  \"fire_department_called\": true,\n  \"building_power_shutdown\": true,\n  \"emergency_response_initiated\": \"2025-01-15T14:30:00Z\"\n}\n```\n\nFor medical emergency:\n```json\n{\n  \"ambulance_called\": true,\n  \"first_aid_provided\": true,\n  \"family_notified\": false,\n  \"vital_signs_monitored\": true\n}\n```\n\nFor burst pipe:\n```json\n{\n  \"water_main_shutdown\": true,\n  \"tenant_relocated\": false,\n  \"emergency_plumber_contacted\": true,\n  \"damage_assessment_initiated\": true\n}\n```\n\n**Emergency Response Protocol:**\nFor life-threatening emergencies (fire, gas_leak, medical_emergency):\n- Always advise calling emergency services immediately (911)\n- Recommend evacuation if unsafe conditions exist\n- Set emergency_services_called to true\n- Set resolution_status to 'escalated'\n- Include immediate actions in response_actions JSON\n\nFor urgent but non-life-threatening issues (no_heat, electrical_hazard, security_issue):\n- Contact emergency services if needed (police for security)\n- Set tenant_notified to true\n- Set follow_up_required to true\n- Resolution status as 'pending' or 'in_progress'\n- Document actions taken in response_actions JSON\n\nFor property damage (burst_pipe, flooding):\n- Contact emergency plumber/utility services if needed\n- Set tenant_notified to true\n- Set follow_up_required to true\n- Resolution status as 'in_progress'\n- Document mitigation actions in response_actions JSON\n\n**Automatic Data Normalization:**\n- Automatically normalize and format all input data according to the above rules\n- Do not ask for user confirmation for emergency situations - proceed immediately\n- If data cannot be reasonably normalized, use safe defaults\n- Always prioritize tenant safety and immediate response\n\n**Emergency Severity Assessment:**\n- **Life-Threatening**: FIRE, GAS_LEAK, MEDICAL_EMERGENCY → Call 911 immediately\n- **Property-Damaging**: BURST_PIPE, FLOODING → Emergency services + immediate action\n- **Discomfort/Urgent**: NO_HEAT, ELECTRICAL_HAZARD → Prompt maintenance + tenant safety\n- **Security**: SECURITY_ISSUE → Police if needed + property management\n\n**Response Guidelines:**\n- For life-threatening emergencies: \"EMERGENCY PROTOCOL ACTIVATED: Call 911 immediately. Evacuate if safe to do so. Property manager has been notified and is responding.\"\n- For urgent issues: \"URGENT: Property manager has been notified and is responding. Emergency services will be advised if needed.\"\n- Always confirm emergency logged and provide next steps\n- Include response_actions with specific actions taken"
+          }
+        },
+        "type": "@n8n/n8n-nodes-langchain.agent",
+        "typeVersion": 3.1,
+        "position": [
+          -128,
+          224
+        ],
+        "id": "a8bf6be7-449d-46a1-a706-6793ebbda6c0",
+        "name": "AI Agent"
+      },
+      {
+        "parameters": {
+          "schema": {
+            "__rl": true,
+            "mode": "list",
+            "value": "public"
+          },
+          "table": {
+            "__rl": true,
+            "value": "emergency_logs",
+            "mode": "list",
+            "cachedResultName": "emergency_logs"
+          },
+          "columns": {
+            "mappingMode": "defineBelow",
+            "value": {
+              "unit_address": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('unit_address', `Full address of the emergency location including unit number`, 'string') }}",
+              "emergency_type": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('emergency_type', `Type of emergency: fire, gas_leak, burst_pipe, flooding, no_heat, electrical_hazard, medical_emergency, security_issue`, 'string') }}",
+              "response_actions": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('response_actions', `JSON object documenting actions taken (tenant_evacuated, emergency_services_called, maintenance_notified, etc.)`, 'json') }}",
+              "tenant_notified": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('tenant_notified', `Whether tenant has been notified about the emergency`, 'boolean') }}",
+              "emergency_services_called": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('emergency_services_called', `Whether fire department, police, or medical services were called`, 'boolean') }}",
+              "resolution_status": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('resolution_status', `Current status: pending, in_progress, resolved, escalated`, 'string') }}",
+              "follow_up_required": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('follow_up_required', `Whether follow-up actions or checks are needed`, 'boolean') }}",
+              "notes": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('notes', `Additional emergency details, timeline of events, witness information, or follow-up instructions`, 'string') }}"
+            },
+            "matchingColumns": [
+              "id"
+            ],
+            "schema": [
+              {
+                "id": "id",
+                "displayName": "id",
+                "required": false,
+                "defaultMatch": true,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true,
+                "removed": true
+              },
+              {
+                "id": "unit_address",
+                "displayName": "unit_address",
+                "required": true,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true,
+                "removed": false
+              },
+              {
+                "id": "emergency_type",
+                "displayName": "emergency_type",
+                "required": true,
+                "defaultMatch": false,
+                "display": true,
+                "type": "options",
+                "canBeUsedToMatch": true,
+                "options": [
+                  {
+                    "name": "security_issue",
+                    "value": "security_issue"
+                  },
+                  {
+                    "name": "medical_emergency",
+                    "value": "medical_emergency"
+                  },
+                  {
+                    "name": "electrical_hazard",
+                    "value": "electrical_hazard"
+                  },
+                  {
+                    "name": "no_heat",
+                    "value": "no_heat"
+                  },
+                  {
+                    "name": "flooding",
+                    "value": "flooding"
+                  },
+                  {
+                    "name": "burst_pipe",
+                    "value": "burst_pipe"
+                  },
+                  {
+                    "name": "gas_leak",
+                    "value": "gas_leak"
+                  },
+                  {
+                    "name": "fire",
+                    "value": "fire"
+                  }
+                ],
+                "removed": false
+              },
+              {
+                "id": "response_actions",
+                "displayName": "response_actions",
+                "required": true,
+                "defaultMatch": false,
+                "display": true,
+                "type": "object",
+                "canBeUsedToMatch": true,
+                "removed": false
+              },
+              {
+                "id": "tenant_notified",
+                "displayName": "tenant_notified",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "boolean",
+                "canBeUsedToMatch": true,
+                "removed": false
+              },
+              {
+                "id": "emergency_services_called",
+                "displayName": "emergency_services_called",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "boolean",
+                "canBeUsedToMatch": true,
+                "removed": false
+              },
+              {
+                "id": "call_timestamp",
+                "displayName": "call_timestamp",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "dateTime",
+                "canBeUsedToMatch": true,
+                "removed": true
+              },
+              {
+                "id": "resolution_status",
+                "displayName": "resolution_status",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true,
+                "removed": false
+              },
+              {
+                "id": "follow_up_required",
+                "displayName": "follow_up_required",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "boolean",
+                "canBeUsedToMatch": true,
+                "removed": false
+              },
+              {
+                "id": "notes",
+                "displayName": "notes",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true
+              },
+              {
+                "id": "tenant_id",
+                "displayName": "tenant_id",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true,
+                "removed": true
+              },
+              {
+                "id": "created_at",
+                "displayName": "created_at",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "dateTime",
+                "canBeUsedToMatch": true,
+                "removed": true
+              },
+              {
+                "id": "updated_at",
+                "displayName": "updated_at",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "dateTime",
+                "canBeUsedToMatch": true,
+                "removed": true
+              }
+            ],
+            "attemptToConvertTypes": false,
+            "convertFieldsToString": false
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.postgresTool",
+        "typeVersion": 2.6,
+        "position": [
+          64,
+          368
+        ],
+        "id": "4746176c-af98-4b8a-aa98-a05dbc43c1d4",
+        "name": "Create Emergency Log",
+        "credentials": {
+          "postgres": {
+            "id": "u7j29OmyHuzkVDfZ",
+            "name": "Postgres account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "httpMethod": "POST",
+          "path": "create_emergency_log",
+          "authentication": "headerAuth",
+          "responseMode": "responseNode",
+          "options": {}
+        },
+        "type": "n8n-nodes-base.webhook",
+        "typeVersion": 2.1,
+        "position": [
+          -448,
+          528
+        ],
+        "id": "0b6b6379-f113-41cd-abbf-61a50dae7dc9",
+        "name": "Webhook",
+        "webhookId": "20969bb3-a554-4692-a2d0-2a1eae3f4feb",
+        "credentials": {
+          "httpHeaderAuth": {
+            "id": "0HuFZThSVNVITvy8",
+            "name": "Jules Livekit"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "options": {}
+        },
+        "type": "n8n-nodes-base.respondToWebhook",
+        "typeVersion": 1.5,
+        "position": [
+          224,
+          224
+        ],
+        "id": "c8652399-a5f2-4e7f-9098-49cdf5ce1f61",
+        "name": "Respond to Webhook"
+      },
+      {
+        "parameters": {
+          "model": {
+            "__rl": true,
+            "mode": "list",
+            "value": "gpt-4.1-mini"
+          },
+          "builtInTools": {},
+          "options": {}
+        },
+        "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+        "typeVersion": 1.3,
+        "position": [
+          -160,
+          368
+        ],
+        "id": "cfa295aa-e96a-4a20-a08e-df6ffcd45f34",
+        "name": "OpenAI Chat Model",
+        "credentials": {
+          "openAiApi": {
+            "id": "vofRqqG7VEHTXxTs",
+            "name": "OpenAi account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "operation": "executeQuery",
+          "query": "SELECT enumlabel FROM pg_enum WHERE enumtypid = 'emergencytype'::regtype ORDER BY enumsortorder;",
+          "options": {}
+        },
+        "type": "n8n-nodes-base.postgres",
+        "typeVersion": 2.6,
+        "position": [
+          -400,
+          704
+        ],
+        "id": "bb233a0a-6f70-4734-9f94-a521c61bdfc8",
+        "name": "Execute a SQL query",
+        "credentials": {
+          "postgres": {
+            "id": "u7j29OmyHuzkVDfZ",
+            "name": "Postgres account"
+          }
+        }
+      }
+    ],
+    "connections": {
+      "When Executed by Another Workflow": {
+        "main": [
+          [
+            {
+              "node": "AI Agent",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Create Emergency Log": {
+        "ai_tool": [
+          [
+            {
+              "node": "AI Agent",
+              "type": "ai_tool",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Webhook": {
+        "main": [
+          []
+        ]
+      },
+      "AI Agent": {
+        "main": [
+          []
+        ]
+      },
+      "OpenAI Chat Model": {
+        "ai_languageModel": [
+          [
+            {
+              "node": "AI Agent",
+              "type": "ai_languageModel",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    },
+    "authors": "Aurelien Bonin",
+    "name": "Version 46043929",
+    "description": "",
+    "autosaved": false
+  },
+  "activeVersionId": "46043929-727e-452f-9755-30457fdbbe70",
+  "connections": {
+    "When Executed by Another Workflow": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Emergency Log": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook": {
+      "main": [
+        []
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        []
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "createdAt": "2025-12-20T02:20:12.890Z",
+  "id": "HEG4vVxgv9ZGOaBo",
+  "isArchived": false,
+  "meta": {
+    "templateCredsSetupCompleted": true
+  },
+  "name": "Emergency",
+  "nodes": [
+    {
+      "parameters": {
+        "inputSource": "passthrough"
+      },
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        -336,
+        224
+      ],
+      "id": "c2bbf263-6ebb-4dc4-98da-2fffded44d53",
+      "name": "When Executed by Another Workflow"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.query }}",
+        "options": {
+          "systemMessage": "=You are an emergency management assistant for Jules AI. You handle emergency log records in the database with strict adherence to data formats and validation rules for property management emergencies.\n\n**Database Schema Requirements:**\n- **unit_address**: Full address including unit number (max 255 chars)\n- **emergency_type**: Enum value - MUST be one of: 'fire', 'gas_leak', 'burst_pipe', 'flooding', 'no_heat', 'electrical_hazard', 'medical_emergency', 'security_issue', 'other'\n- **response_actions**: JSON object documenting actions taken (examples below)\n- **tenant_notified**: Boolean (true/false) - Whether tenant has been notified\n- **emergency_services_called**: Boolean (true/false) - Whether emergency services were called\n- **resolution_status**: String status: 'pending', 'in_progress', 'resolved', 'escalated'\n- **follow_up_required**: Boolean (true/false) - Whether follow-up actions are needed\n- **notes**: Additional emergency details, timeline, witness information\n- **tenant_id**: Tenant ID if known (optional UUID)\n\n**Critical Formatting Rules:**\n- Always format emergency_type exactly as one of the valid enum values. If not provided or invalid, default to 'other'.\n- Convert any user input for emergency_type to the correct enum value (e.g., 'fire' -> 'fire', 'gas leak' -> 'gas_leak', 'no heat' -> 'no_heat')\n- Ensure resolution_status is a valid status; default to 'pending' if not provided\n- response_actions should be a properly formatted JSON object (see examples below)\n- Boolean fields should be true/false, not strings\n- unit_address should include unit number if available\n\n**response_actions JSON Format Examples:**\nFor fire emergency:\n```json\n{\n  \"tenant_evacuated\": true,\n  \"fire_department_called\": true,\n  \"building_power_shutdown\": true,\n  \"emergency_response_initiated\": \"2025-01-15T14:30:00Z\"\n}\n```\n\nFor medical emergency:\n```json\n{\n  \"ambulance_called\": true,\n  \"first_aid_provided\": true,\n  \"family_notified\": false,\n  \"vital_signs_monitored\": true\n}\n```\n\nFor burst pipe:\n```json\n{\n  \"water_main_shutdown\": true,\n  \"tenant_relocated\": false,\n  \"emergency_plumber_contacted\": true,\n  \"damage_assessment_initiated\": true\n}\n```\n\n**Emergency Response Protocol:**\nFor life-threatening emergencies (fire, gas_leak, medical_emergency):\n- Always advise calling emergency services immediately (911)\n- Recommend evacuation if unsafe conditions exist\n- Set emergency_services_called to true\n- Set resolution_status to 'escalated'\n- Include immediate actions in response_actions JSON\n\nFor urgent but non-life-threatening issues (no_heat, electrical_hazard, security_issue):\n- Contact emergency services if needed (police for security)\n- Set tenant_notified to true\n- Set follow_up_required to true\n- Resolution status as 'pending' or 'in_progress'\n- Document actions taken in response_actions JSON\n\nFor property damage (burst_pipe, flooding):\n- Contact emergency plumber/utility services if needed\n- Set tenant_notified to true\n- Set follow_up_required to true\n- Resolution status as 'in_progress'\n- Document mitigation actions in response_actions JSON\n\n**Automatic Data Normalization:**\n- Automatically normalize and format all input data according to the above rules\n- Do not ask for user confirmation for emergency situations - proceed immediately\n- If data cannot be reasonably normalized, use safe defaults\n- Always prioritize tenant safety and immediate response\n\n**Emergency Severity Assessment:**\n- **Life-Threatening**: FIRE, GAS_LEAK, MEDICAL_EMERGENCY → Call 911 immediately\n- **Property-Damaging**: BURST_PIPE, FLOODING → Emergency services + immediate action\n- **Discomfort/Urgent**: NO_HEAT, ELECTRICAL_HAZARD → Prompt maintenance + tenant safety\n- **Security**: SECURITY_ISSUE → Police if needed + property management\n\n**Response Guidelines:**\n- For life-threatening emergencies: \"EMERGENCY PROTOCOL ACTIVATED: Call 911 immediately. Evacuate if safe to do so. Property manager has been notified and is responding.\"\n- For urgent issues: \"URGENT: Property manager has been notified and is responding. Emergency services will be advised if needed.\"\n- Always confirm emergency logged and provide next steps\n- Include response_actions with specific actions taken"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        -128,
+        224
+      ],
+      "id": "a8bf6be7-449d-46a1-a706-6793ebbda6c0",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "schema": {
+          "__rl": true,
+          "mode": "list",
+          "value": "public"
+        },
+        "table": {
+          "__rl": true,
+          "value": "emergency_logs",
+          "mode": "list",
+          "cachedResultName": "emergency_logs"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "unit_address": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('unit_address', `Full address of the emergency location including unit number`, 'string') }}",
+            "emergency_type": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('emergency_type', `Type of emergency: fire, gas_leak, burst_pipe, flooding, no_heat, electrical_hazard, medical_emergency, security_issue`, 'string') }}",
+            "response_actions": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('response_actions', `JSON object documenting actions taken (tenant_evacuated, emergency_services_called, maintenance_notified, etc.)`, 'json') }}",
+            "tenant_notified": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('tenant_notified', `Whether tenant has been notified about the emergency`, 'boolean') }}",
+            "emergency_services_called": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('emergency_services_called', `Whether fire department, police, or medical services were called`, 'boolean') }}",
+            "resolution_status": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('resolution_status', `Current status: pending, in_progress, resolved, escalated`, 'string') }}",
+            "follow_up_required": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('follow_up_required', `Whether follow-up actions or checks are needed`, 'boolean') }}",
+            "notes": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('notes', `Additional emergency details, timeline of events, witness information, or follow-up instructions`, 'string') }}"
+          },
+          "matchingColumns": [
+            "id"
+          ],
+          "schema": [
+            {
+              "id": "id",
+              "displayName": "id",
+              "required": false,
+              "defaultMatch": true,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "unit_address",
+              "displayName": "unit_address",
+              "required": true,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "emergency_type",
+              "displayName": "emergency_type",
+              "required": true,
+              "defaultMatch": false,
+              "display": true,
+              "type": "options",
+              "canBeUsedToMatch": true,
+              "options": [
+                {
+                  "name": "security_issue",
+                  "value": "security_issue"
+                },
+                {
+                  "name": "medical_emergency",
+                  "value": "medical_emergency"
+                },
+                {
+                  "name": "electrical_hazard",
+                  "value": "electrical_hazard"
+                },
+                {
+                  "name": "no_heat",
+                  "value": "no_heat"
+                },
+                {
+                  "name": "flooding",
+                  "value": "flooding"
+                },
+                {
+                  "name": "burst_pipe",
+                  "value": "burst_pipe"
+                },
+                {
+                  "name": "gas_leak",
+                  "value": "gas_leak"
+                },
+                {
+                  "name": "fire",
+                  "value": "fire"
+                }
+              ],
+              "removed": false
+            },
+            {
+              "id": "response_actions",
+              "displayName": "response_actions",
+              "required": true,
+              "defaultMatch": false,
+              "display": true,
+              "type": "object",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "tenant_notified",
+              "displayName": "tenant_notified",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "boolean",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "emergency_services_called",
+              "displayName": "emergency_services_called",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "boolean",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "call_timestamp",
+              "displayName": "call_timestamp",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "dateTime",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "resolution_status",
+              "displayName": "resolution_status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "follow_up_required",
+              "displayName": "follow_up_required",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "boolean",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "notes",
+              "displayName": "notes",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "tenant_id",
+              "displayName": "tenant_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "created_at",
+              "displayName": "created_at",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "dateTime",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "updated_at",
+              "displayName": "updated_at",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "dateTime",
+              "canBeUsedToMatch": true,
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgresTool",
+      "typeVersion": 2.6,
+      "position": [
+        64,
+        368
+      ],
+      "id": "4746176c-af98-4b8a-aa98-a05dbc43c1d4",
+      "name": "Create Emergency Log",
+      "credentials": {
+        "postgres": {
+          "id": "u7j29OmyHuzkVDfZ",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "create_emergency_log",
+        "authentication": "headerAuth",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -448,
+        528
+      ],
+      "id": "0b6b6379-f113-41cd-abbf-61a50dae7dc9",
+      "name": "Webhook",
+      "webhookId": "20969bb3-a554-4692-a2d0-2a1eae3f4feb",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "0HuFZThSVNVITvy8",
+          "name": "Jules Livekit"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        224,
+        224
+      ],
+      "id": "c8652399-a5f2-4e7f-9098-49cdf5ce1f61",
+      "name": "Respond to Webhook"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4.1-mini"
+        },
+        "builtInTools": {},
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        -160,
+        368
+      ],
+      "id": "cfa295aa-e96a-4a20-a08e-df6ffcd45f34",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "vofRqqG7VEHTXxTs",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT enumlabel FROM pg_enum WHERE enumtypid = 'emergencytype'::regtype ORDER BY enumsortorder;",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        -400,
+        704
+      ],
+      "id": "bb233a0a-6f70-4734-9f94-a521c61bdfc8",
+      "name": "Execute a SQL query",
+      "credentials": {
+        "postgres": {
+          "id": "u7j29OmyHuzkVDfZ",
+          "name": "Postgres account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1",
+    "availableInMCP": false
+  },
+  "shared": [
+    {
+      "updatedAt": "2025-12-20T02:20:12.896Z",
+      "createdAt": "2025-12-20T02:20:12.896Z",
+      "role": "workflow:owner",
+      "workflowId": "HEG4vVxgv9ZGOaBo",
+      "projectId": "K5c2PqoZjXPELHVa"
+    }
+  ],
+  "staticData": null,
+  "tags": [],
+  "triggerCount": 1,
+  "updatedAt": "2025-12-30T03:51:20.022Z",
+  "versionId": "46043929-727e-452f-9755-30457fdbbe70"
+}
