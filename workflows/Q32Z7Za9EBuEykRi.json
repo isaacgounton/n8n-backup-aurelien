@@ -1,0 +1,1630 @@
+{
+  "active": true,
+  "activeVersion": {
+    "updatedAt": "2026-01-10T23:52:49.000Z",
+    "createdAt": "2026-01-10T23:52:45.447Z",
+    "versionId": "353ff5ab-43c8-4473-90a0-e2322ec2ccb0",
+    "workflowId": "Q32Z7Za9EBuEykRi",
+    "nodes": [
+      {
+        "parameters": {
+          "operation": "select",
+          "schema": {
+            "__rl": true,
+            "mode": "list",
+            "value": "public"
+          },
+          "table": {
+            "__rl": true,
+            "value": "rental_listings",
+            "mode": "list",
+            "cachedResultName": "rental_listings"
+          },
+          "limit": 3,
+          "options": {}
+        },
+        "type": "n8n-nodes-base.postgresTool",
+        "typeVersion": 2.6,
+        "position": [
+          592,
+          880
+        ],
+        "id": "9e116764-d9d7-4763-9641-2a11518133f8",
+        "name": "search_rental_listings",
+        "credentials": {
+          "postgres": {
+            "id": "u7j29OmyHuzkVDfZ",
+            "name": "Postgres account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "operation": "select",
+          "schema": {
+            "__rl": true,
+            "mode": "list",
+            "value": "public"
+          },
+          "table": {
+            "__rl": true,
+            "value": "tenants",
+            "mode": "list",
+            "cachedResultName": "tenants"
+          },
+          "limit": 1,
+          "where": {
+            "values": [
+              {
+                "column": "phone_number",
+                "value": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('values0_Value', `The phone number to search for`, 'string') }}"
+              }
+            ]
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.postgresTool",
+        "typeVersion": 2.6,
+        "position": [
+          384,
+          880
+        ],
+        "id": "00df5e7b-9e44-4f1f-85d6-a1c545f7b441",
+        "name": "get_tenant_by_phone",
+        "credentials": {
+          "postgres": {
+            "id": "u7j29OmyHuzkVDfZ",
+            "name": "Postgres account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "schema": {
+            "__rl": true,
+            "mode": "list",
+            "value": "public"
+          },
+          "table": {
+            "__rl": true,
+            "value": "work_orders",
+            "mode": "list",
+            "cachedResultName": "work_orders"
+          },
+          "columns": {
+            "mappingMode": "defineBelow",
+            "value": {
+              "address": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('address', `Full property address including unit number`, 'string') }}",
+              "tenant_name": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('tenant_name', `Tenant's full name as listed in lease`, 'string') }}",
+              "issue_type": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('issue_type', `Category: plumbing, electrical, HVAC, appliance, structural, pest, other`, 'string') }}",
+              "description": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('description', `Detailed description of the maintenance issue including when it started and any relevant details`, 'string') }}",
+              "priority": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('priority', `Priority level: URGENT (safety/emergency), HIGH (no essential services), MEDIUM (inconvenient but manageable), LOW (cosmetic/minor)`, 'string') }}",
+              "status": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('status', `Work order status: PENDING (new), IN_PROGRESS (being worked on), COMPLETED (finished), CANCELLED (no longer needed), ON_HOLD (waiting for parts/approval)`, 'string') }}",
+              "media_attachments": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('media_attachments', `JSON array of photo/video URLs showing the issue if available`, 'json') }}",
+              "troubleshooting_steps": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('troubleshooting_steps', `JSON array of diagnostic steps already attempted by tenant`, 'json') }}",
+              "tenant_id": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('tenant_id', `Internal tenant ID if known (optional)`, 'string') }}",
+              "notes": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('notes', `Additional context, tenant preferences, access instructions, or special considerations`, 'string') }}"
+            },
+            "matchingColumns": [
+              "id"
+            ],
+            "schema": [
+              {
+                "id": "id",
+                "displayName": "id",
+                "required": false,
+                "defaultMatch": true,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true,
+                "removed": true
+              },
+              {
+                "id": "date",
+                "displayName": "date",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "dateTime",
+                "canBeUsedToMatch": true,
+                "removed": true
+              },
+              {
+                "id": "address",
+                "displayName": "address",
+                "required": true,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true
+              },
+              {
+                "id": "tenant_name",
+                "displayName": "tenant_name",
+                "required": true,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true
+              },
+              {
+                "id": "issue_type",
+                "displayName": "issue_type",
+                "required": true,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true
+              },
+              {
+                "id": "status",
+                "displayName": "status",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "options",
+                "canBeUsedToMatch": true,
+                "options": [
+                  {
+                    "name": "ON_HOLD",
+                    "value": "ON_HOLD"
+                  },
+                  {
+                    "name": "CANCELLED",
+                    "value": "CANCELLED"
+                  },
+                  {
+                    "name": "COMPLETED",
+                    "value": "COMPLETED"
+                  },
+                  {
+                    "name": "IN_PROGRESS",
+                    "value": "IN_PROGRESS"
+                  },
+                  {
+                    "name": "PENDING",
+                    "value": "PENDING"
+                  }
+                ]
+              },
+              {
+                "id": "priority",
+                "displayName": "priority",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "options",
+                "canBeUsedToMatch": true,
+                "options": [
+                  {
+                    "name": "URGENT",
+                    "value": "URGENT"
+                  },
+                  {
+                    "name": "HIGH",
+                    "value": "HIGH"
+                  },
+                  {
+                    "name": "MEDIUM",
+                    "value": "MEDIUM"
+                  },
+                  {
+                    "name": "LOW",
+                    "value": "LOW"
+                  }
+                ]
+              },
+              {
+                "id": "description",
+                "displayName": "description",
+                "required": true,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true
+              },
+              {
+                "id": "contractor",
+                "displayName": "contractor",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true,
+                "removed": true
+              },
+              {
+                "id": "contractor_contact",
+                "displayName": "contractor_contact",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true,
+                "removed": true
+              },
+              {
+                "id": "cost",
+                "displayName": "cost",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "number",
+                "canBeUsedToMatch": true,
+                "removed": true
+              },
+              {
+                "id": "notes",
+                "displayName": "notes",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true
+              },
+              {
+                "id": "media_attachments",
+                "displayName": "media_attachments",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "object",
+                "canBeUsedToMatch": true
+              },
+              {
+                "id": "troubleshooting_steps",
+                "displayName": "troubleshooting_steps",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "object",
+                "canBeUsedToMatch": true
+              },
+              {
+                "id": "resolution_summary",
+                "displayName": "resolution_summary",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true,
+                "removed": true
+              },
+              {
+                "id": "estimated_completion",
+                "displayName": "estimated_completion",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "dateTime",
+                "canBeUsedToMatch": true,
+                "removed": true
+              },
+              {
+                "id": "completed_at",
+                "displayName": "completed_at",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "dateTime",
+                "canBeUsedToMatch": true,
+                "removed": true
+              },
+              {
+                "id": "tenant_id",
+                "displayName": "tenant_id",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true
+              },
+              {
+                "id": "created_at",
+                "displayName": "created_at",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "dateTime",
+                "canBeUsedToMatch": true,
+                "removed": true
+              },
+              {
+                "id": "updated_at",
+                "displayName": "updated_at",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "dateTime",
+                "canBeUsedToMatch": true,
+                "removed": true
+              }
+            ],
+            "attemptToConvertTypes": false,
+            "convertFieldsToString": false
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.postgresTool",
+        "typeVersion": 2.6,
+        "position": [
+          224,
+          864
+        ],
+        "id": "87ddc571-b39f-4cfd-83d2-816ee8d7122a",
+        "name": "create_work_order",
+        "credentials": {
+          "postgres": {
+            "id": "u7j29OmyHuzkVDfZ",
+            "name": "Postgres account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "schema": {
+            "__rl": true,
+            "mode": "list",
+            "value": "public"
+          },
+          "table": {
+            "__rl": true,
+            "value": "qualified_leads",
+            "mode": "list",
+            "cachedResultName": "qualified_leads"
+          },
+          "columns": {
+            "mappingMode": "defineBelow",
+            "value": {
+              "tenant_name": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('tenant_name', `Prospect's full name for lead qualification`, 'string') }}",
+              "contact_info": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('contact_info', `Phone number and/or email address for follow-up`, 'string') }}",
+              "unit_interest": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('unit_interest', `Specific property address or unit type they're interested in`, 'string') }}",
+              "qualification_answers": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('qualification_answers', `JSON object with responses to qualification questions (budget, move-in timeline, income verification, references, etc.)`, 'json') }}",
+              "status": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('status', `Lead status: new, qualified, unqualified, converted, archived`, 'string') }}",
+              "notes": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('notes', `Additional context about the lead conversation, special requirements, or follow-up notes`, 'string') }}"
+            },
+            "matchingColumns": [
+              "id"
+            ],
+            "schema": [
+              {
+                "id": "id",
+                "displayName": "id",
+                "required": false,
+                "defaultMatch": true,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true,
+                "removed": true
+              },
+              {
+                "id": "tenant_name",
+                "displayName": "tenant_name",
+                "required": true,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true
+              },
+              {
+                "id": "contact_info",
+                "displayName": "contact_info",
+                "required": true,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true,
+                "removed": false
+              },
+              {
+                "id": "unit_interest",
+                "displayName": "unit_interest",
+                "required": true,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true,
+                "removed": false
+              },
+              {
+                "id": "qualification_answers",
+                "displayName": "qualification_answers",
+                "required": true,
+                "defaultMatch": false,
+                "display": true,
+                "type": "object",
+                "canBeUsedToMatch": true,
+                "removed": false
+              },
+              {
+                "id": "email_sent",
+                "displayName": "email_sent",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "boolean",
+                "canBeUsedToMatch": true,
+                "removed": true
+              },
+              {
+                "id": "email_recipient",
+                "displayName": "email_recipient",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true,
+                "removed": true
+              },
+              {
+                "id": "notes",
+                "displayName": "notes",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true
+              },
+              {
+                "id": "status",
+                "displayName": "status",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true,
+                "removed": false
+              },
+              {
+                "id": "created_at",
+                "displayName": "created_at",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "dateTime",
+                "canBeUsedToMatch": true,
+                "removed": true
+              },
+              {
+                "id": "updated_at",
+                "displayName": "updated_at",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "dateTime",
+                "canBeUsedToMatch": true,
+                "removed": true
+              }
+            ],
+            "attemptToConvertTypes": false,
+            "convertFieldsToString": false
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.postgresTool",
+        "typeVersion": 2.6,
+        "position": [
+          48,
+          848
+        ],
+        "id": "4e0bc135-c600-4606-96b6-874edc3f57ee",
+        "name": "create_qualified_lead",
+        "credentials": {
+          "postgres": {
+            "id": "u7j29OmyHuzkVDfZ",
+            "name": "Postgres account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "authentication": "bearerAuth",
+          "path": "jules-mcp-server"
+        },
+        "type": "@n8n/n8n-nodes-langchain.mcpTrigger",
+        "typeVersion": 2,
+        "position": [
+          240,
+          176
+        ],
+        "id": "4eb5b06c-488d-4482-b4bb-26dc0cd18a68",
+        "name": "Jules Database MCP",
+        "webhookId": "ef513b25-03df-4e96-bf8b-51f8ab60a906",
+        "credentials": {
+          "httpBearerAuth": {
+            "id": "fqejqO6Mm96hMw5D",
+            "name": "Jules MCP"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "description": "=Call this tool to create a new emergency log\n\n- **unit_address**: Full address including unit number (max 255 chars)\n- **emergency_type**: Enum value - MUST be one of: 'fire', 'gas_leak', 'burst_pipe', 'flooding', 'no_heat', 'electrical_hazard', 'medical_emergency', 'security_issue', 'other'\n- **response_actions**: JSON object documenting actions taken (examples below)\n- **tenant_notified**: Boolean (true/false) - Whether tenant has been notified\n- **emergency_services_called**: Boolean (true/false) - Whether emergency services were called\n- **resolution_status**: String status: 'pending', 'in_progress', 'resolved', 'escalated'\n- **follow_up_required**: Boolean (true/false) - Whether follow-up actions are needed\n- **notes**: Additional emergency details, timeline, witness information",
+          "workflowId": {
+            "__rl": true,
+            "value": "HEG4vVxgv9ZGOaBo",
+            "mode": "list",
+            "cachedResultUrl": "/workflow/HEG4vVxgv9ZGOaBo",
+            "cachedResultName": "Emergency"
+          },
+          "workflowInputs": {
+            "mappingMode": "defineBelow",
+            "value": {},
+            "matchingColumns": [
+              "email"
+            ],
+            "schema": [],
+            "attemptToConvertTypes": false,
+            "convertFieldsToString": false
+          }
+        },
+        "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+        "typeVersion": 2.2,
+        "position": [
+          768,
+          400
+        ],
+        "id": "bdaca965-db7b-4a87-994d-51fd4bd45cb6",
+        "name": "create_emergency_log"
+      },
+      {
+        "parameters": {
+          "description": "=Call this tool to get, list, create, update or delete a rental listing.\n\n- Search for rental listings by address, bedrooms, bathrooms, rent amount, or neighborhood. \n- Retrieves all available rental listings.\n- Creates a new rental listing with property details including address, bedrooms, bathrooms, monthly_rent, square_feet, neighborhood, description, unit_type, availability_date.\n- Updates an existing rental listing (by ID)\n- Deletes a rental listing (by ID)\n\nOne or more of these is required based on operation type\n\n- **description**: Detailed property description as text\n- **address**: Full property address as string (max 255 chars)\n- **unit_type**: Unit type as string (max 100 chars, e.g., 'Studio', '1 Bedroom', '2 Bedroom', '3 Bedroom', 'House', 'Townhouse')\n- **bedrooms**: Number of bedrooms as integer (0-10)\n- **bathrooms**: Number of bathrooms as decimal (0.5, 1, 1.5, 2, 2.5, 3, etc.)\n- **neighborhood**: Neighborhood name as string (max 255 chars)\n- **square_feet**: Property square footage as integer\n- **monthly_rent**: Monthly rent as decimal/float (must be positive number)\n- **availability_date**: Date when property is available as string (ISO format: YYYY-MM-DD)\n- **lease_term**: Lease term as string (max 50 chars, e.g., '12 months', '6 months', 'month-to-month')\n- **status**: Listing status as string (max 50 chars, must be one of: 'available', 'rented', 'pending', 'maintenance', 'inactive')\n- **is_available**: Boolean indicating if property is currently available (true/false)",
+          "workflowId": {
+            "__rl": true,
+            "value": "vo5VLUs8I0HxXplU",
+            "mode": "list",
+            "cachedResultUrl": "/workflow/vo5VLUs8I0HxXplU",
+            "cachedResultName": "Rentals Listings"
+          },
+          "workflowInputs": {
+            "mappingMode": "defineBelow",
+            "value": {},
+            "matchingColumns": [
+              "email"
+            ],
+            "schema": [],
+            "attemptToConvertTypes": false,
+            "convertFieldsToString": false
+          }
+        },
+        "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+        "typeVersion": 2.2,
+        "position": [
+          448,
+          400
+        ],
+        "id": "a9dd88c5-7275-405e-bb7b-7e1dc31b493a",
+        "name": "rental_listings"
+      },
+      {
+        "parameters": {
+          "description": "=Call this tool to get, list, create, update or delete work orders.\n\n- Search work orders by address, tenant name, issue type, status, or priority.\n- List all work orders\n- Create a new work order with property maintenance details. Required: address, tenant_name, issue_type, description. Optional: priority, status, contractor, cost, notes\n- Update an existing work order by ID.\n- Delete a work order by ID\n\nUse one or many of these base on operation type\n\n- **address**: Property address as string (max 255 chars, required, indexed)\n- **tenant_name**: Tenant's full name as string (max 255 chars, required)\n- **issue_type**: Type of maintenance issue as string (max 100 chars, required, indexed)\n- **priority**: Priority level as enum - MUST be one of: 'LOW', 'MEDIUM', 'HIGH', 'URGENT' (all uppercase)\n- **status**: Work order status as enum - MUST be one of: 'PENDING', 'IN_PROGRESS', 'COMPLETED', 'CANCELLED', 'ON_HOLD' (all uppercase)\n- **description**: Detailed description of the issue as text (required)\n- **contractor**: Contractor name as string (max 255 chars, optional)\n- **contractor_contact**: Contractor contact information as string (max 255 chars, optional)\n- **cost**: Total cost in cents as integer (optional, positive numbers only)\n- **notes**: Additional notes or updates as text (optional)\n- **media_attachments**: Media files and attachments as JSON object (optional)\n- **troubleshooting_steps**: Troubleshooting steps taken as JSON object (optional)\n- **resolution_summary**: Summary of work completed as text (optional)\n- **estimated_completion**: Estimated completion date as datetime (optional)\n- **completed_at**: Actual completion date as datetime (optional)",
+          "workflowId": {
+            "__rl": true,
+            "value": "IYnwoCkfB2hckbzf",
+            "mode": "list",
+            "cachedResultUrl": "/workflow/IYnwoCkfB2hckbzf",
+            "cachedResultName": "Work orders"
+          },
+          "workflowInputs": {
+            "mappingMode": "defineBelow",
+            "value": {},
+            "matchingColumns": [],
+            "schema": [],
+            "attemptToConvertTypes": false,
+            "convertFieldsToString": false
+          }
+        },
+        "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+        "typeVersion": 2.2,
+        "position": [
+          304,
+          400
+        ],
+        "id": "96d0da07-9136-4917-95f8-c5d62555e9f7",
+        "name": "work_orders"
+      },
+      {
+        "parameters": {
+          "description": "=Call this tool to get, list, create, update or delete a qualified lead.\n\n- Search qualified leads by tenant name or unit interest. \n- List all qualified leads\n- Create a new qualified lead record. Required: tenant_name, contact_info, unit_interest, qualification_answers (JSON object). Optional: status (default: new), notes, email_recipient\n- Update an existing qualified lead by ID. Provide the lead ID and any fields to update (tenant_name, contact_info, unit_interest, qualification_answers, status, notes, email_recipient, email_sent).\n- Delete a qualified lead record by ID.\n\n- **tenant_name**: Lead's full name as string (max 255 chars, required)\n- **contact_info**: Contact information as string (max 255 chars, required) - typically phone number or email\n- **unit_interest**: Unit or property of interest as string (max 255 chars, required)\n- **qualification_answers**: Qualification questionnaire responses as JSON object (required)\n- **email_sent**: Email notification status as boolean (default: false)\n- **email_recipient**: Email address of recipient as string (max 255 chars, optional)\n- **notes**: Additional notes or follow-up information as text (optional)\n- **status**: Lead status as string (max 50 chars, default: \"new\")\n\nExample qualification_answers:\n```json\n{\n  \"move_in_date\": \"2025-02-01\",\n  \"desired_rent_range\": \"1500-2000\",\n  \"occupancy_count\": 2,\n  \"pets\": \"no\",\n  \"employment_status\": \"employed\",\n  \"monthly_income\": 5500,\n  \"workspace\": \"Google\",\n  \"smoking\": \"no\",\n  \"reason_for_moving\": \"New employment\",\n  \"special_requirements\": \"ground floor unit preferred\"\n}\n```",
+          "workflowId": {
+            "__rl": true,
+            "value": "GuxpKmwVPHJFYvLK",
+            "mode": "list",
+            "cachedResultUrl": "/workflow/GuxpKmwVPHJFYvLK",
+            "cachedResultName": "Qualified leads"
+          },
+          "workflowInputs": {
+            "mappingMode": "defineBelow",
+            "value": {},
+            "matchingColumns": [],
+            "schema": [],
+            "attemptToConvertTypes": false,
+            "convertFieldsToString": false
+          }
+        },
+        "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+        "typeVersion": 2.2,
+        "position": [
+          144,
+          400
+        ],
+        "id": "cbb70fb7-678d-471e-8ab9-b1d3ca28d0bf",
+        "name": "qualified_leads"
+      },
+      {
+        "parameters": {
+          "description": "=Call this tool to:\n\n- Get tenant by phone number\n- List all tenants\n- Create new tenant record with all required fields\n- Update existing tenant by phone_number\n- Delete tenant record by phone_number\n\nONE OR MANY OF THESE ARE REQUIRED BASED ON THE OPERATION TYPE:\n- **name**: Full name as string (max 255 chars)\n- **phone_number**: Phone number as string (max 20 chars, format: +1XXXXXXXXXX or similar)\n- **email**: Email address as string (max 255 chars, valid email format)\n- **unit_address**: Unit address as string (max 255 chars, includes unit number)\n- **unit_type**: Unit type as string (max 100 chars, e.g., 'Studio', '1 Bedroom', '2 Bedroom')\n- **rent_amount**: Monthly rent as decimal/float\n- **lease_start_date**: Lease start date as string (ISO format: YYYY-MM-DD)\n- **lease_end_date**: Lease end date as string (ISO format: YYYY-MM-DD)\n- **status**: Tenant status as string (max 50 chars, e.g., 'ACTIVE', 'INACTIVE', 'PENDING')\n- **preferred_language**: Language preference as string (max 10 chars, e.g., 'en', 'fr', 'es')\n",
+          "workflowId": {
+            "__rl": true,
+            "value": "e4waUtFt6pAfOZ9Z",
+            "mode": "list",
+            "cachedResultUrl": "/workflow/e4waUtFt6pAfOZ9Z",
+            "cachedResultName": "Tenants"
+          },
+          "workflowInputs": {
+            "mappingMode": "defineBelow",
+            "value": {},
+            "matchingColumns": [
+              "email"
+            ],
+            "schema": [],
+            "attemptToConvertTypes": false,
+            "convertFieldsToString": false
+          }
+        },
+        "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+        "typeVersion": 2.2,
+        "position": [
+          592,
+          400
+        ],
+        "id": "d126eb06-952d-4418-85a7-21e156439bc6",
+        "name": "tenants"
+      },
+      {
+        "parameters": {
+          "description": "=Call this tool to get, list, create, update or delete contractors.\n\n- Get contractor by phone number\n- List all contractors\n- Create new contractor record with all required fields\n- Update existing contractor by phone_number\n- Delete contractor record by phone_number\n\nONE OR MANY OF THESE ARE REQUIRED BASED ON THE OPERATION TYPE:\n- **name**: Full name as string (max 255 chars, required)\n- **phone_number**: Phone number as string (max 50 chars, format: +1XXXXXXXXXX or similar, required)\n- **email**: Email address as string (max 255 chars, optional)\n- **company_name**: Company name as string (max 255 chars, optional)\n- **specialty**: Trade specialty as string (max 100 chars, required) - e.g., 'Plumbing', 'Electrical', 'HVAC', 'Carpentry', 'Painting', 'Roofing', 'Landscaping', 'General Maintenance'\n- **hourly_rate**: Hourly rate as integer in cents (optional) - e.g., 5000 for $50.00, 7550 for $75.50\n- **status**: Contractor status as string (max 50 chars, optional) - MUST be one of: 'ACTIVE', 'INACTIVE', 'UNAVAILABLE'\n- **notes**: Additional notes or comments as text (optional)\n",
+          "workflowId": {
+            "__rl": true,
+            "value": "KNUVhRTJOFGdtBlR",
+            "mode": "list",
+            "cachedResultUrl": "/workflow/KNUVhRTJOFGdtBlR",
+            "cachedResultName": "Contractors"
+          },
+          "workflowInputs": {
+            "mappingMode": "defineBelow",
+            "value": {},
+            "matchingColumns": [],
+            "schema": [],
+            "attemptToConvertTypes": false,
+            "convertFieldsToString": false
+          }
+        },
+        "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+        "typeVersion": 2.2,
+        "position": [
+          912,
+          400
+        ],
+        "id": "756c468f-a832-4cb4-8773-9867d1128647",
+        "name": "contractors"
+      }
+    ],
+    "connections": {
+      "search_rental_listings": {
+        "ai_tool": [
+          []
+        ]
+      },
+      "get_tenant_by_phone": {
+        "ai_tool": [
+          []
+        ]
+      },
+      "create_work_order": {
+        "ai_tool": [
+          []
+        ]
+      },
+      "create_qualified_lead": {
+        "ai_tool": [
+          []
+        ]
+      },
+      "create_emergency_log": {
+        "ai_tool": [
+          [
+            {
+              "node": "Jules Database MCP",
+              "type": "ai_tool",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "rental_listings": {
+        "ai_tool": [
+          [
+            {
+              "node": "Jules Database MCP",
+              "type": "ai_tool",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "work_orders": {
+        "ai_tool": [
+          [
+            {
+              "node": "Jules Database MCP",
+              "type": "ai_tool",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "qualified_leads": {
+        "ai_tool": [
+          [
+            {
+              "node": "Jules Database MCP",
+              "type": "ai_tool",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "tenants": {
+        "ai_tool": [
+          [
+            {
+              "node": "Jules Database MCP",
+              "type": "ai_tool",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "contractors": {
+        "ai_tool": [
+          [
+            {
+              "node": "Jules Database MCP",
+              "type": "ai_tool",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    },
+    "authors": "Aurelien Bonin",
+    "name": "Version 353ff5ab",
+    "description": "",
+    "autosaved": false
+  },
+  "activeVersionId": "353ff5ab-43c8-4473-90a0-e2322ec2ccb0",
+  "connections": {
+    "search_rental_listings": {
+      "ai_tool": [
+        []
+      ]
+    },
+    "get_tenant_by_phone": {
+      "ai_tool": [
+        []
+      ]
+    },
+    "create_work_order": {
+      "ai_tool": [
+        []
+      ]
+    },
+    "create_qualified_lead": {
+      "ai_tool": [
+        []
+      ]
+    },
+    "create_emergency_log": {
+      "ai_tool": [
+        [
+          {
+            "node": "Jules Database MCP",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "rental_listings": {
+      "ai_tool": [
+        [
+          {
+            "node": "Jules Database MCP",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "work_orders": {
+      "ai_tool": [
+        [
+          {
+            "node": "Jules Database MCP",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "qualified_leads": {
+      "ai_tool": [
+        [
+          {
+            "node": "Jules Database MCP",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "tenants": {
+      "ai_tool": [
+        [
+          {
+            "node": "Jules Database MCP",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "contractors": {
+      "ai_tool": [
+        [
+          {
+            "node": "Jules Database MCP",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "createdAt": "2025-12-17T02:12:07.729Z",
+  "id": "Q32Z7Za9EBuEykRi",
+  "isArchived": false,
+  "meta": {
+    "templateCredsSetupCompleted": true
+  },
+  "name": "Jules MCPServer",
+  "nodes": [
+    {
+      "parameters": {
+        "operation": "select",
+        "schema": {
+          "__rl": true,
+          "mode": "list",
+          "value": "public"
+        },
+        "table": {
+          "__rl": true,
+          "value": "rental_listings",
+          "mode": "list",
+          "cachedResultName": "rental_listings"
+        },
+        "limit": 3,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgresTool",
+      "typeVersion": 2.6,
+      "position": [
+        592,
+        880
+      ],
+      "id": "9e116764-d9d7-4763-9641-2a11518133f8",
+      "name": "search_rental_listings",
+      "credentials": {
+        "postgres": {
+          "id": "u7j29OmyHuzkVDfZ",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "select",
+        "schema": {
+          "__rl": true,
+          "mode": "list",
+          "value": "public"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tenants",
+          "mode": "list",
+          "cachedResultName": "tenants"
+        },
+        "limit": 1,
+        "where": {
+          "values": [
+            {
+              "column": "phone_number",
+              "value": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('values0_Value', `The phone number to search for`, 'string') }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgresTool",
+      "typeVersion": 2.6,
+      "position": [
+        384,
+        880
+      ],
+      "id": "00df5e7b-9e44-4f1f-85d6-a1c545f7b441",
+      "name": "get_tenant_by_phone",
+      "credentials": {
+        "postgres": {
+          "id": "u7j29OmyHuzkVDfZ",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "schema": {
+          "__rl": true,
+          "mode": "list",
+          "value": "public"
+        },
+        "table": {
+          "__rl": true,
+          "value": "work_orders",
+          "mode": "list",
+          "cachedResultName": "work_orders"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "address": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('address', `Full property address including unit number`, 'string') }}",
+            "tenant_name": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('tenant_name', `Tenant's full name as listed in lease`, 'string') }}",
+            "issue_type": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('issue_type', `Category: plumbing, electrical, HVAC, appliance, structural, pest, other`, 'string') }}",
+            "description": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('description', `Detailed description of the maintenance issue including when it started and any relevant details`, 'string') }}",
+            "priority": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('priority', `Priority level: URGENT (safety/emergency), HIGH (no essential services), MEDIUM (inconvenient but manageable), LOW (cosmetic/minor)`, 'string') }}",
+            "status": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('status', `Work order status: PENDING (new), IN_PROGRESS (being worked on), COMPLETED (finished), CANCELLED (no longer needed), ON_HOLD (waiting for parts/approval)`, 'string') }}",
+            "media_attachments": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('media_attachments', `JSON array of photo/video URLs showing the issue if available`, 'json') }}",
+            "troubleshooting_steps": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('troubleshooting_steps', `JSON array of diagnostic steps already attempted by tenant`, 'json') }}",
+            "tenant_id": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('tenant_id', `Internal tenant ID if known (optional)`, 'string') }}",
+            "notes": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('notes', `Additional context, tenant preferences, access instructions, or special considerations`, 'string') }}"
+          },
+          "matchingColumns": [
+            "id"
+          ],
+          "schema": [
+            {
+              "id": "id",
+              "displayName": "id",
+              "required": false,
+              "defaultMatch": true,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "date",
+              "displayName": "date",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "dateTime",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "address",
+              "displayName": "address",
+              "required": true,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "tenant_name",
+              "displayName": "tenant_name",
+              "required": true,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "issue_type",
+              "displayName": "issue_type",
+              "required": true,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "status",
+              "displayName": "status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "options",
+              "canBeUsedToMatch": true,
+              "options": [
+                {
+                  "name": "ON_HOLD",
+                  "value": "ON_HOLD"
+                },
+                {
+                  "name": "CANCELLED",
+                  "value": "CANCELLED"
+                },
+                {
+                  "name": "COMPLETED",
+                  "value": "COMPLETED"
+                },
+                {
+                  "name": "IN_PROGRESS",
+                  "value": "IN_PROGRESS"
+                },
+                {
+                  "name": "PENDING",
+                  "value": "PENDING"
+                }
+              ]
+            },
+            {
+              "id": "priority",
+              "displayName": "priority",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "options",
+              "canBeUsedToMatch": true,
+              "options": [
+                {
+                  "name": "URGENT",
+                  "value": "URGENT"
+                },
+                {
+                  "name": "HIGH",
+                  "value": "HIGH"
+                },
+                {
+                  "name": "MEDIUM",
+                  "value": "MEDIUM"
+                },
+                {
+                  "name": "LOW",
+                  "value": "LOW"
+                }
+              ]
+            },
+            {
+              "id": "description",
+              "displayName": "description",
+              "required": true,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "contractor",
+              "displayName": "contractor",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "contractor_contact",
+              "displayName": "contractor_contact",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "cost",
+              "displayName": "cost",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "notes",
+              "displayName": "notes",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "media_attachments",
+              "displayName": "media_attachments",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "object",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "troubleshooting_steps",
+              "displayName": "troubleshooting_steps",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "object",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "resolution_summary",
+              "displayName": "resolution_summary",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "estimated_completion",
+              "displayName": "estimated_completion",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "dateTime",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "completed_at",
+              "displayName": "completed_at",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "dateTime",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "tenant_id",
+              "displayName": "tenant_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "created_at",
+              "displayName": "created_at",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "dateTime",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "updated_at",
+              "displayName": "updated_at",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "dateTime",
+              "canBeUsedToMatch": true,
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgresTool",
+      "typeVersion": 2.6,
+      "position": [
+        224,
+        864
+      ],
+      "id": "87ddc571-b39f-4cfd-83d2-816ee8d7122a",
+      "name": "create_work_order",
+      "credentials": {
+        "postgres": {
+          "id": "u7j29OmyHuzkVDfZ",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "schema": {
+          "__rl": true,
+          "mode": "list",
+          "value": "public"
+        },
+        "table": {
+          "__rl": true,
+          "value": "qualified_leads",
+          "mode": "list",
+          "cachedResultName": "qualified_leads"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "tenant_name": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('tenant_name', `Prospect's full name for lead qualification`, 'string') }}",
+            "contact_info": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('contact_info', `Phone number and/or email address for follow-up`, 'string') }}",
+            "unit_interest": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('unit_interest', `Specific property address or unit type they're interested in`, 'string') }}",
+            "qualification_answers": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('qualification_answers', `JSON object with responses to qualification questions (budget, move-in timeline, income verification, references, etc.)`, 'json') }}",
+            "status": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('status', `Lead status: new, qualified, unqualified, converted, archived`, 'string') }}",
+            "notes": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('notes', `Additional context about the lead conversation, special requirements, or follow-up notes`, 'string') }}"
+          },
+          "matchingColumns": [
+            "id"
+          ],
+          "schema": [
+            {
+              "id": "id",
+              "displayName": "id",
+              "required": false,
+              "defaultMatch": true,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "tenant_name",
+              "displayName": "tenant_name",
+              "required": true,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "contact_info",
+              "displayName": "contact_info",
+              "required": true,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "unit_interest",
+              "displayName": "unit_interest",
+              "required": true,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "qualification_answers",
+              "displayName": "qualification_answers",
+              "required": true,
+              "defaultMatch": false,
+              "display": true,
+              "type": "object",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "email_sent",
+              "displayName": "email_sent",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "boolean",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "email_recipient",
+              "displayName": "email_recipient",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "notes",
+              "displayName": "notes",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "status",
+              "displayName": "status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "created_at",
+              "displayName": "created_at",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "dateTime",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "updated_at",
+              "displayName": "updated_at",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "dateTime",
+              "canBeUsedToMatch": true,
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgresTool",
+      "typeVersion": 2.6,
+      "position": [
+        48,
+        848
+      ],
+      "id": "4e0bc135-c600-4606-96b6-874edc3f57ee",
+      "name": "create_qualified_lead",
+      "credentials": {
+        "postgres": {
+          "id": "u7j29OmyHuzkVDfZ",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "authentication": "bearerAuth",
+        "path": "jules-mcp-server"
+      },
+      "type": "@n8n/n8n-nodes-langchain.mcpTrigger",
+      "typeVersion": 2,
+      "position": [
+        240,
+        176
+      ],
+      "id": "4eb5b06c-488d-4482-b4bb-26dc0cd18a68",
+      "name": "Jules Database MCP",
+      "webhookId": "ef513b25-03df-4e96-bf8b-51f8ab60a906",
+      "credentials": {
+        "httpBearerAuth": {
+          "id": "fqejqO6Mm96hMw5D",
+          "name": "Jules MCP"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "description": "=Call this tool to create a new emergency log\n\n- **unit_address**: Full address including unit number (max 255 chars)\n- **emergency_type**: Enum value - MUST be one of: 'fire', 'gas_leak', 'burst_pipe', 'flooding', 'no_heat', 'electrical_hazard', 'medical_emergency', 'security_issue', 'other'\n- **response_actions**: JSON object documenting actions taken (examples below)\n- **tenant_notified**: Boolean (true/false) - Whether tenant has been notified\n- **emergency_services_called**: Boolean (true/false) - Whether emergency services were called\n- **resolution_status**: String status: 'pending', 'in_progress', 'resolved', 'escalated'\n- **follow_up_required**: Boolean (true/false) - Whether follow-up actions are needed\n- **notes**: Additional emergency details, timeline, witness information",
+        "workflowId": {
+          "__rl": true,
+          "value": "HEG4vVxgv9ZGOaBo",
+          "mode": "list",
+          "cachedResultUrl": "/workflow/HEG4vVxgv9ZGOaBo",
+          "cachedResultName": "Emergency"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {},
+          "matchingColumns": [
+            "email"
+          ],
+          "schema": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "typeVersion": 2.2,
+      "position": [
+        768,
+        400
+      ],
+      "id": "bdaca965-db7b-4a87-994d-51fd4bd45cb6",
+      "name": "create_emergency_log"
+    },
+    {
+      "parameters": {
+        "description": "=Call this tool to get, list, create, update or delete a rental listing.\n\n- Search for rental listings by address, bedrooms, bathrooms, rent amount, or neighborhood. \n- Retrieves all available rental listings.\n- Creates a new rental listing with property details including address, bedrooms, bathrooms, monthly_rent, square_feet, neighborhood, description, unit_type, availability_date.\n- Updates an existing rental listing (by ID)\n- Deletes a rental listing (by ID)\n\nOne or more of these is required based on operation type\n\n- **description**: Detailed property description as text\n- **address**: Full property address as string (max 255 chars)\n- **unit_type**: Unit type as string (max 100 chars, e.g., 'Studio', '1 Bedroom', '2 Bedroom', '3 Bedroom', 'House', 'Townhouse')\n- **bedrooms**: Number of bedrooms as integer (0-10)\n- **bathrooms**: Number of bathrooms as decimal (0.5, 1, 1.5, 2, 2.5, 3, etc.)\n- **neighborhood**: Neighborhood name as string (max 255 chars)\n- **square_feet**: Property square footage as integer\n- **monthly_rent**: Monthly rent as decimal/float (must be positive number)\n- **availability_date**: Date when property is available as string (ISO format: YYYY-MM-DD)\n- **lease_term**: Lease term as string (max 50 chars, e.g., '12 months', '6 months', 'month-to-month')\n- **status**: Listing status as string (max 50 chars, must be one of: 'available', 'rented', 'pending', 'maintenance', 'inactive')\n- **is_available**: Boolean indicating if property is currently available (true/false)",
+        "workflowId": {
+          "__rl": true,
+          "value": "vo5VLUs8I0HxXplU",
+          "mode": "list",
+          "cachedResultUrl": "/workflow/vo5VLUs8I0HxXplU",
+          "cachedResultName": "Rentals Listings"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {},
+          "matchingColumns": [
+            "email"
+          ],
+          "schema": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "typeVersion": 2.2,
+      "position": [
+        448,
+        400
+      ],
+      "id": "a9dd88c5-7275-405e-bb7b-7e1dc31b493a",
+      "name": "rental_listings"
+    },
+    {
+      "parameters": {
+        "description": "=Call this tool to get, list, create, update or delete work orders.\n\n- Search work orders by address, tenant name, issue type, status, or priority.\n- List all work orders\n- Create a new work order with property maintenance details. Required: address, tenant_name, issue_type, description. Optional: priority, status, contractor, cost, notes\n- Update an existing work order by ID.\n- Delete a work order by ID\n\nUse one or many of these base on operation type\n\n- **address**: Property address as string (max 255 chars, required, indexed)\n- **tenant_name**: Tenant's full name as string (max 255 chars, required)\n- **issue_type**: Type of maintenance issue as string (max 100 chars, required, indexed)\n- **priority**: Priority level as enum - MUST be one of: 'LOW', 'MEDIUM', 'HIGH', 'URGENT' (all uppercase)\n- **status**: Work order status as enum - MUST be one of: 'PENDING', 'IN_PROGRESS', 'COMPLETED', 'CANCELLED', 'ON_HOLD' (all uppercase)\n- **description**: Detailed description of the issue as text (required)\n- **contractor**: Contractor name as string (max 255 chars, optional)\n- **contractor_contact**: Contractor contact information as string (max 255 chars, optional)\n- **cost**: Total cost in cents as integer (optional, positive numbers only)\n- **notes**: Additional notes or updates as text (optional)\n- **media_attachments**: Media files and attachments as JSON object (optional)\n- **troubleshooting_steps**: Troubleshooting steps taken as JSON object (optional)\n- **resolution_summary**: Summary of work completed as text (optional)\n- **estimated_completion**: Estimated completion date as datetime (optional)\n- **completed_at**: Actual completion date as datetime (optional)",
+        "workflowId": {
+          "__rl": true,
+          "value": "IYnwoCkfB2hckbzf",
+          "mode": "list",
+          "cachedResultUrl": "/workflow/IYnwoCkfB2hckbzf",
+          "cachedResultName": "Work orders"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {},
+          "matchingColumns": [],
+          "schema": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "typeVersion": 2.2,
+      "position": [
+        304,
+        400
+      ],
+      "id": "96d0da07-9136-4917-95f8-c5d62555e9f7",
+      "name": "work_orders"
+    },
+    {
+      "parameters": {
+        "description": "=Call this tool to get, list, create, update or delete a qualified lead.\n\n- Search qualified leads by tenant name or unit interest. \n- List all qualified leads\n- Create a new qualified lead record. Required: tenant_name, contact_info, unit_interest, qualification_answers (JSON object). Optional: status (default: new), notes, email_recipient\n- Update an existing qualified lead by ID. Provide the lead ID and any fields to update (tenant_name, contact_info, unit_interest, qualification_answers, status, notes, email_recipient, email_sent).\n- Delete a qualified lead record by ID.\n\n- **tenant_name**: Lead's full name as string (max 255 chars, required)\n- **contact_info**: Contact information as string (max 255 chars, required) - typically phone number or email\n- **unit_interest**: Unit or property of interest as string (max 255 chars, required)\n- **qualification_answers**: Qualification questionnaire responses as JSON object (required)\n- **email_sent**: Email notification status as boolean (default: false)\n- **email_recipient**: Email address of recipient as string (max 255 chars, optional)\n- **notes**: Additional notes or follow-up information as text (optional)\n- **status**: Lead status as string (max 50 chars, default: \"new\")\n\nExample qualification_answers:\n```json\n{\n  \"move_in_date\": \"2025-02-01\",\n  \"desired_rent_range\": \"1500-2000\",\n  \"occupancy_count\": 2,\n  \"pets\": \"no\",\n  \"employment_status\": \"employed\",\n  \"monthly_income\": 5500,\n  \"workspace\": \"Google\",\n  \"smoking\": \"no\",\n  \"reason_for_moving\": \"New employment\",\n  \"special_requirements\": \"ground floor unit preferred\"\n}\n```",
+        "workflowId": {
+          "__rl": true,
+          "value": "GuxpKmwVPHJFYvLK",
+          "mode": "list",
+          "cachedResultUrl": "/workflow/GuxpKmwVPHJFYvLK",
+          "cachedResultName": "Qualified leads"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {},
+          "matchingColumns": [],
+          "schema": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "typeVersion": 2.2,
+      "position": [
+        144,
+        400
+      ],
+      "id": "cbb70fb7-678d-471e-8ab9-b1d3ca28d0bf",
+      "name": "qualified_leads"
+    },
+    {
+      "parameters": {
+        "description": "=Call this tool to:\n\n- Get tenant by phone number\n- List all tenants\n- Create new tenant record with all required fields\n- Update existing tenant by phone_number\n- Delete tenant record by phone_number\n\nONE OR MANY OF THESE ARE REQUIRED BASED ON THE OPERATION TYPE:\n- **name**: Full name as string (max 255 chars)\n- **phone_number**: Phone number as string (max 20 chars, format: +1XXXXXXXXXX or similar)\n- **email**: Email address as string (max 255 chars, valid email format)\n- **unit_address**: Unit address as string (max 255 chars, includes unit number)\n- **unit_type**: Unit type as string (max 100 chars, e.g., 'Studio', '1 Bedroom', '2 Bedroom')\n- **rent_amount**: Monthly rent as decimal/float\n- **lease_start_date**: Lease start date as string (ISO format: YYYY-MM-DD)\n- **lease_end_date**: Lease end date as string (ISO format: YYYY-MM-DD)\n- **status**: Tenant status as string (max 50 chars, e.g., 'ACTIVE', 'INACTIVE', 'PENDING')\n- **preferred_language**: Language preference as string (max 10 chars, e.g., 'en', 'fr', 'es')\n",
+        "workflowId": {
+          "__rl": true,
+          "value": "e4waUtFt6pAfOZ9Z",
+          "mode": "list",
+          "cachedResultUrl": "/workflow/e4waUtFt6pAfOZ9Z",
+          "cachedResultName": "Tenants"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {},
+          "matchingColumns": [
+            "email"
+          ],
+          "schema": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "typeVersion": 2.2,
+      "position": [
+        592,
+        400
+      ],
+      "id": "d126eb06-952d-4418-85a7-21e156439bc6",
+      "name": "tenants"
+    },
+    {
+      "parameters": {
+        "description": "=Call this tool to get, list, create, update or delete contractors.\n\n- Get contractor by phone number\n- List all contractors\n- Create new contractor record with all required fields\n- Update existing contractor by phone_number\n- Delete contractor record by phone_number\n\nONE OR MANY OF THESE ARE REQUIRED BASED ON THE OPERATION TYPE:\n- **name**: Full name as string (max 255 chars, required)\n- **phone_number**: Phone number as string (max 50 chars, format: +1XXXXXXXXXX or similar, required)\n- **email**: Email address as string (max 255 chars, optional)\n- **company_name**: Company name as string (max 255 chars, optional)\n- **specialty**: Trade specialty as string (max 100 chars, required) - e.g., 'Plumbing', 'Electrical', 'HVAC', 'Carpentry', 'Painting', 'Roofing', 'Landscaping', 'General Maintenance'\n- **hourly_rate**: Hourly rate as integer in cents (optional) - e.g., 5000 for $50.00, 7550 for $75.50\n- **status**: Contractor status as string (max 50 chars, optional) - MUST be one of: 'ACTIVE', 'INACTIVE', 'UNAVAILABLE'\n- **notes**: Additional notes or comments as text (optional)\n",
+        "workflowId": {
+          "__rl": true,
+          "value": "KNUVhRTJOFGdtBlR",
+          "mode": "list",
+          "cachedResultUrl": "/workflow/KNUVhRTJOFGdtBlR",
+          "cachedResultName": "Contractors"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {},
+          "matchingColumns": [],
+          "schema": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "typeVersion": 2.2,
+      "position": [
+        912,
+        400
+      ],
+      "id": "756c468f-a832-4cb4-8773-9867d1128647",
+      "name": "contractors"
+    }
+  ],
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1",
+    "availableInMCP": false
+  },
+  "shared": [
+    {
+      "updatedAt": "2025-12-17T02:12:07.732Z",
+      "createdAt": "2025-12-17T02:12:07.732Z",
+      "role": "workflow:owner",
+      "workflowId": "Q32Z7Za9EBuEykRi",
+      "projectId": "K5c2PqoZjXPELHVa"
+    }
+  ],
+  "staticData": null,
+  "tags": [],
+  "triggerCount": 1,
+  "updatedAt": "2026-01-10T23:52:45.446Z",
+  "versionId": "353ff5ab-43c8-4473-90a0-e2322ec2ccb0"
+}
