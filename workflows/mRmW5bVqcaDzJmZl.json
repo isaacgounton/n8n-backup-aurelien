@@ -1,0 +1,886 @@
+{
+  "active": true,
+  "activeVersion": {
+    "updatedAt": "2025-12-18T16:09:53.000Z",
+    "createdAt": "2025-12-18T16:09:51.162Z",
+    "versionId": "55ad1b93-4f9b-44e4-9a12-138fb2d0b716",
+    "workflowId": "mRmW5bVqcaDzJmZl",
+    "nodes": [
+      {
+        "parameters": {
+          "httpMethod": "POST",
+          "path": "work-order",
+          "authentication": "headerAuth",
+          "responseMode": "responseNode",
+          "options": {}
+        },
+        "type": "n8n-nodes-base.webhook",
+        "typeVersion": 2.1,
+        "position": [
+          -464,
+          96
+        ],
+        "id": "c8063535-26f2-42e7-9bd7-1eb22c73dd41",
+        "name": "Webhook",
+        "webhookId": "4289d04c-6e73-4c72-9e9c-85c6ea5b195c",
+        "credentials": {
+          "httpHeaderAuth": {
+            "id": "uvgqyRI1ddaWVLOw",
+            "name": "Jules Pipecat"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "rules": {
+            "values": [
+              {
+                "conditions": {
+                  "options": {
+                    "caseSensitive": true,
+                    "leftValue": "",
+                    "typeValidation": "strict",
+                    "version": 3
+                  },
+                  "conditions": [
+                    {
+                      "id": "rule-create-work-order",
+                      "leftValue": "={{ $json.body.action }}",
+                      "rightValue": "create_work_order",
+                      "operator": {
+                        "type": "string",
+                        "operation": "equals"
+                      }
+                    }
+                  ],
+                  "combinator": "and"
+                },
+                "renameOutput": true,
+                "outputKey": "create_work_order"
+              },
+              {
+                "conditions": {
+                  "options": {
+                    "caseSensitive": true,
+                    "leftValue": "",
+                    "typeValidation": "strict",
+                    "version": 3
+                  },
+                  "conditions": [
+                    {
+                      "id": "rule-get-work-orders",
+                      "leftValue": "={{ $json.body.action }}",
+                      "rightValue": "get_tenant_work_orders",
+                      "operator": {
+                        "type": "string",
+                        "operation": "equals"
+                      }
+                    }
+                  ],
+                  "combinator": "and"
+                },
+                "renameOutput": true,
+                "outputKey": "get_tenant_work_orders"
+              },
+              {
+                "conditions": {
+                  "options": {
+                    "caseSensitive": true,
+                    "leftValue": "",
+                    "typeValidation": "strict",
+                    "version": 3
+                  },
+                  "conditions": [
+                    {
+                      "id": "rule-not-create",
+                      "leftValue": "={{ $json.body.action }}",
+                      "rightValue": "create_work_order",
+                      "operator": {
+                        "type": "string",
+                        "operation": "notEqual"
+                      }
+                    },
+                    {
+                      "id": "rule-not-get",
+                      "leftValue": "={{ $json.body.action }}",
+                      "rightValue": "get_tenant_work_orders",
+                      "operator": {
+                        "type": "string",
+                        "operation": "notEqual"
+                      }
+                    }
+                  ],
+                  "combinator": "and"
+                },
+                "renameOutput": true,
+                "outputKey": "error"
+              }
+            ]
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.switch",
+        "typeVersion": 3.4,
+        "position": [
+          -256,
+          80
+        ],
+        "id": "ce7e9484-0605-45d6-93fd-8c726a7c69f0",
+        "name": "Switch"
+      },
+      {
+        "parameters": {
+          "schema": "public",
+          "table": "work_orders",
+          "dataMode": "defineBelow",
+          "valuesToSend": {
+            "values": [
+              {
+                "column": "tenant_id",
+                "value": "={{ $json.body.tenant_id }}"
+              },
+              {
+                "column": "issue_type",
+                "value": "={{ $json.body.issue_type }}"
+              },
+              {
+                "column": "description",
+                "value": "={{ $json.body.description }}"
+              },
+              {
+                "column": "priority",
+                "value": "={{ $json.body.priority || 'medium' }}"
+              },
+              {
+                "column": "unit_address",
+                "value": "={{ $json.body.unit_address || null }}"
+              },
+              {
+                "column": "status",
+                "value": "pending"
+              },
+              {
+                "column": "created_at",
+                "value": "={{ $json.body.timestamp || new Date().toISOString() }}"
+              }
+            ]
+          },
+          "options": {}
+        },
+        "id": "83028f59-c3b6-42bf-bf63-bfc32ab36fb7",
+        "name": "Create Work Order",
+        "type": "n8n-nodes-base.postgres",
+        "typeVersion": 2,
+        "position": [
+          160,
+          48
+        ],
+        "credentials": {
+          "postgres": {
+            "id": "u7j29OmyHuzkVDfZ",
+            "name": "Postgres account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "operation": "select",
+          "schema": "public",
+          "table": "work_orders",
+          "returnAll": true,
+          "where": {
+            "values": [
+              {
+                "column": "tenant_id",
+                "value": "={{ $json.body.tenant_id }}"
+              }
+            ]
+          },
+          "options": {}
+        },
+        "id": "c95bfdbb-f4e0-461a-b3cb-465c6d4ff3bb",
+        "name": "Get Work Orders",
+        "type": "n8n-nodes-base.postgres",
+        "typeVersion": 2,
+        "position": [
+          160,
+          256
+        ],
+        "credentials": {
+          "postgres": {
+            "id": "u7j29OmyHuzkVDfZ",
+            "name": "Postgres account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "assignments": {
+            "assignments": [
+              {
+                "id": "d1e2f3g4-h5i6-47j8-9k0l-m1n2o3p4q5r6",
+                "name": "work_order_id",
+                "value": "={{ $json.id }}",
+                "type": "number"
+              },
+              {
+                "id": "s7t8u9v0-w1x2-43y4-5z6a-b7c8d9e0f1g2",
+                "name": "tenant_id",
+                "value": "={{ $json.tenant_id }}",
+                "type": "number"
+              },
+              {
+                "id": "h3i4j5k6-l7m8-49n0-1o2p-q3r4s5t6u7v8",
+                "name": "issue_type",
+                "value": "={{ $json.issue_type }}",
+                "type": "string"
+              },
+              {
+                "id": "w9x0y1z2-3a4b-45c6-7d8e-f9g0h1i2j3k4",
+                "name": "description",
+                "value": "={{ $json.description }}",
+                "type": "string"
+              },
+              {
+                "id": "l5m6n7o8-p9q0-41r2-3s4t-u5v6w7x8y9z0",
+                "name": "priority",
+                "value": "={{ $json.priority }}",
+                "type": "string"
+              },
+              {
+                "id": "a1b2c3d4-e5f6-47g8-9h0i-j1k2l3m4n5o6",
+                "name": "status",
+                "value": "={{ $json.status }}",
+                "type": "string"
+              },
+              {
+                "id": "p7q8r9s0-t1u2-43v4-5w6x-y7z8a9b0c1d2",
+                "name": "created_at",
+                "value": "={{ $json.created_at }}",
+                "type": "string"
+              }
+            ]
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.set",
+        "typeVersion": 3.4,
+        "position": [
+          336,
+          48
+        ],
+        "id": "9e1f1929-59bb-407d-9cef-d9d444592093",
+        "name": "Set Create Response"
+      },
+      {
+        "parameters": {
+          "assignments": {
+            "assignments": [
+              {
+                "id": "f6g7h8i9-j0k1-42l3-4m5n-o6p7q8r9s0t1",
+                "name": "work_orders",
+                "value": "={{ $json }}",
+                "type": "array"
+              },
+              {
+                "id": "u2v3w4x5-y6z7-43a8-9b0c-d1e2f3g4h5i6",
+                "name": "count",
+                "value": "={{ $json.length }}",
+                "type": "number"
+              }
+            ]
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.set",
+        "typeVersion": 3.4,
+        "position": [
+          336,
+          256
+        ],
+        "id": "e10bcf09-4f17-43c5-b8b2-3f81692683d6",
+        "name": "Set Get Response"
+      },
+      {
+        "parameters": {
+          "respondWith": "json",
+          "responseBody": "={{ {\n  \"success\": true,\n  \"message\": \"Work order created successfully\",\n  \"work_order_id\": $json.work_order_id,\n  \"issue_type\": $json.issue_type,\n  \"priority\": $json.priority,\n  \"status\": $json.status\n} }}",
+          "options": {}
+        },
+        "id": "e478f9f1-4e3e-4e93-89d4-3d57dd5d8961",
+        "name": "Create Success Response",
+        "type": "n8n-nodes-base.respondToWebhook",
+        "typeVersion": 1,
+        "position": [
+          944,
+          48
+        ]
+      },
+      {
+        "parameters": {
+          "respondWith": "json",
+          "responseBody": "={{ {\n  \"success\": true,\n  \"work_orders\": $json.work_orders,\n  \"count\": $json.count\n} }}",
+          "options": {}
+        },
+        "id": "1edd85b3-0b87-4eea-af94-149749cd67db",
+        "name": "Get Success Response",
+        "type": "n8n-nodes-base.respondToWebhook",
+        "typeVersion": 1,
+        "position": [
+          944,
+          256
+        ]
+      },
+      {
+        "parameters": {
+          "respondWith": "json",
+          "responseBody": "={{ {\"success\": false, \"error\": \"Invalid action specified\", \"received\": $json.body.action} }}",
+          "options": {}
+        },
+        "id": "b8fc2168-d88a-4a76-932e-d44d7808de2e",
+        "name": "Error Response",
+        "type": "n8n-nodes-base.respondToWebhook",
+        "typeVersion": 1,
+        "position": [
+          160,
+          416
+        ]
+      }
+    ],
+    "connections": {
+      "Webhook": {
+        "main": [
+          [
+            {
+              "node": "Switch",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Switch": {
+        "main": [
+          [
+            {
+              "node": "Create Work Order",
+              "type": "main",
+              "index": 0
+            }
+          ],
+          [
+            {
+              "node": "Get Work Orders",
+              "type": "main",
+              "index": 0
+            }
+          ],
+          [
+            {
+              "node": "Error Response",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Create Work Order": {
+        "main": [
+          [
+            {
+              "node": "Set Create Response",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Get Work Orders": {
+        "main": [
+          [
+            {
+              "node": "Set Get Response",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Set Create Response": {
+        "main": [
+          [
+            {
+              "node": "Create Success Response",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Set Get Response": {
+        "main": [
+          [
+            {
+              "node": "Get Success Response",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    },
+    "authors": "Aurelien Bonin",
+    "name": "Version 55ad1b93",
+    "description": "",
+    "autosaved": false
+  },
+  "activeVersionId": "55ad1b93-4f9b-44e4-9a12-138fb2d0b716",
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Switch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch": {
+      "main": [
+        [
+          {
+            "node": "Create Work Order",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Get Work Orders",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Error Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Work Order": {
+      "main": [
+        [
+          {
+            "node": "Set Create Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Work Orders": {
+      "main": [
+        [
+          {
+            "node": "Set Get Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set Create Response": {
+      "main": [
+        [
+          {
+            "node": "Create Success Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set Get Response": {
+      "main": [
+        [
+          {
+            "node": "Get Success Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "createdAt": "2025-12-18T03:10:22.895Z",
+  "id": "mRmW5bVqcaDzJmZl",
+  "isArchived": false,
+  "meta": null,
+  "name": "Work Order Webhook",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "work-order",
+        "authentication": "headerAuth",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -464,
+        96
+      ],
+      "id": "c8063535-26f2-42e7-9bd7-1eb22c73dd41",
+      "name": "Webhook",
+      "webhookId": "4289d04c-6e73-4c72-9e9c-85c6ea5b195c",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "uvgqyRI1ddaWVLOw",
+          "name": "Jules Pipecat"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "rule-create-work-order",
+                    "leftValue": "={{ $json.body.action }}",
+                    "rightValue": "create_work_order",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "create_work_order"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "rule-get-work-orders",
+                    "leftValue": "={{ $json.body.action }}",
+                    "rightValue": "get_tenant_work_orders",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "get_tenant_work_orders"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "rule-not-create",
+                    "leftValue": "={{ $json.body.action }}",
+                    "rightValue": "create_work_order",
+                    "operator": {
+                      "type": "string",
+                      "operation": "notEqual"
+                    }
+                  },
+                  {
+                    "id": "rule-not-get",
+                    "leftValue": "={{ $json.body.action }}",
+                    "rightValue": "get_tenant_work_orders",
+                    "operator": {
+                      "type": "string",
+                      "operation": "notEqual"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "error"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.4,
+      "position": [
+        -256,
+        80
+      ],
+      "id": "ce7e9484-0605-45d6-93fd-8c726a7c69f0",
+      "name": "Switch"
+    },
+    {
+      "parameters": {
+        "schema": "public",
+        "table": "work_orders",
+        "dataMode": "defineBelow",
+        "valuesToSend": {
+          "values": [
+            {
+              "column": "tenant_id",
+              "value": "={{ $json.body.tenant_id }}"
+            },
+            {
+              "column": "issue_type",
+              "value": "={{ $json.body.issue_type }}"
+            },
+            {
+              "column": "description",
+              "value": "={{ $json.body.description }}"
+            },
+            {
+              "column": "priority",
+              "value": "={{ $json.body.priority || 'medium' }}"
+            },
+            {
+              "column": "unit_address",
+              "value": "={{ $json.body.unit_address || null }}"
+            },
+            {
+              "column": "status",
+              "value": "pending"
+            },
+            {
+              "column": "created_at",
+              "value": "={{ $json.body.timestamp || new Date().toISOString() }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "83028f59-c3b6-42bf-bf63-bfc32ab36fb7",
+      "name": "Create Work Order",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2,
+      "position": [
+        160,
+        48
+      ],
+      "credentials": {
+        "postgres": {
+          "id": "u7j29OmyHuzkVDfZ",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "select",
+        "schema": "public",
+        "table": "work_orders",
+        "returnAll": true,
+        "where": {
+          "values": [
+            {
+              "column": "tenant_id",
+              "value": "={{ $json.body.tenant_id }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "c95bfdbb-f4e0-461a-b3cb-465c6d4ff3bb",
+      "name": "Get Work Orders",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2,
+      "position": [
+        160,
+        256
+      ],
+      "credentials": {
+        "postgres": {
+          "id": "u7j29OmyHuzkVDfZ",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "d1e2f3g4-h5i6-47j8-9k0l-m1n2o3p4q5r6",
+              "name": "work_order_id",
+              "value": "={{ $json.id }}",
+              "type": "number"
+            },
+            {
+              "id": "s7t8u9v0-w1x2-43y4-5z6a-b7c8d9e0f1g2",
+              "name": "tenant_id",
+              "value": "={{ $json.tenant_id }}",
+              "type": "number"
+            },
+            {
+              "id": "h3i4j5k6-l7m8-49n0-1o2p-q3r4s5t6u7v8",
+              "name": "issue_type",
+              "value": "={{ $json.issue_type }}",
+              "type": "string"
+            },
+            {
+              "id": "w9x0y1z2-3a4b-45c6-7d8e-f9g0h1i2j3k4",
+              "name": "description",
+              "value": "={{ $json.description }}",
+              "type": "string"
+            },
+            {
+              "id": "l5m6n7o8-p9q0-41r2-3s4t-u5v6w7x8y9z0",
+              "name": "priority",
+              "value": "={{ $json.priority }}",
+              "type": "string"
+            },
+            {
+              "id": "a1b2c3d4-e5f6-47g8-9h0i-j1k2l3m4n5o6",
+              "name": "status",
+              "value": "={{ $json.status }}",
+              "type": "string"
+            },
+            {
+              "id": "p7q8r9s0-t1u2-43v4-5w6x-y7z8a9b0c1d2",
+              "name": "created_at",
+              "value": "={{ $json.created_at }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        336,
+        48
+      ],
+      "id": "9e1f1929-59bb-407d-9cef-d9d444592093",
+      "name": "Set Create Response"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "f6g7h8i9-j0k1-42l3-4m5n-o6p7q8r9s0t1",
+              "name": "work_orders",
+              "value": "={{ $json }}",
+              "type": "array"
+            },
+            {
+              "id": "u2v3w4x5-y6z7-43a8-9b0c-d1e2f3g4h5i6",
+              "name": "count",
+              "value": "={{ $json.length }}",
+              "type": "number"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        336,
+        256
+      ],
+      "id": "e10bcf09-4f17-43c5-b8b2-3f81692683d6",
+      "name": "Set Get Response"
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ {\n  \"success\": true,\n  \"message\": \"Work order created successfully\",\n  \"work_order_id\": $json.work_order_id,\n  \"issue_type\": $json.issue_type,\n  \"priority\": $json.priority,\n  \"status\": $json.status\n} }}",
+        "options": {}
+      },
+      "id": "e478f9f1-4e3e-4e93-89d4-3d57dd5d8961",
+      "name": "Create Success Response",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [
+        944,
+        48
+      ]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ {\n  \"success\": true,\n  \"work_orders\": $json.work_orders,\n  \"count\": $json.count\n} }}",
+        "options": {}
+      },
+      "id": "1edd85b3-0b87-4eea-af94-149749cd67db",
+      "name": "Get Success Response",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [
+        944,
+        256
+      ]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ {\"success\": false, \"error\": \"Invalid action specified\", \"received\": $json.body.action} }}",
+        "options": {}
+      },
+      "id": "b8fc2168-d88a-4a76-932e-d44d7808de2e",
+      "name": "Error Response",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [
+        160,
+        416
+      ]
+    }
+  ],
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1",
+    "availableInMCP": true
+  },
+  "shared": [
+    {
+      "updatedAt": "2025-12-18T03:10:22.902Z",
+      "createdAt": "2025-12-18T03:10:22.902Z",
+      "role": "workflow:owner",
+      "workflowId": "mRmW5bVqcaDzJmZl",
+      "projectId": "K5c2PqoZjXPELHVa"
+    }
+  ],
+  "staticData": null,
+  "tags": [],
+  "triggerCount": 1,
+  "updatedAt": "2025-12-18T19:07:36.736Z",
+  "versionId": "55ad1b93-4f9b-44e4-9a12-138fb2d0b716"
+}
