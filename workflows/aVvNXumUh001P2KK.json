@@ -1,0 +1,1541 @@
+{
+  "active": true,
+  "activeVersion": {
+    "updatedAt": "2025-12-18T18:32:27.000Z",
+    "createdAt": "2025-12-18T18:32:12.277Z",
+    "versionId": "7fdd9a9e-7d72-4b93-945a-67b70269fb4c",
+    "workflowId": "aVvNXumUh001P2KK",
+    "nodes": [
+      {
+        "parameters": {
+          "method": "POST",
+          "url": "https://boninaurelien.app.n8n.cloud/webhook/emergency",
+          "authentication": "genericCredentialType",
+          "genericAuthType": "httpHeaderAuth",
+          "sendBody": true,
+          "bodyParameters": {
+            "parameters": [
+              {
+                "name": "action",
+                "value": "emergency"
+              },
+              {
+                "name": "tenant_id",
+                "value": "4"
+              },
+              {
+                "name": "emergency_type",
+                "value": "fire"
+              },
+              {
+                "name": "description",
+                "value": "Smoke coming from kitchen in apartment 4B"
+              },
+              {
+                "name": "unit_address",
+                "value": "123 Main St Apt 4B"
+              },
+              {
+                "name": "severity",
+                "value": "critical"
+              }
+            ]
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.httpRequest",
+        "typeVersion": 4.3,
+        "position": [
+          -304,
+          384
+        ],
+        "id": "a7e49757-abb1-4146-b69e-20dc7a2b1a81",
+        "name": "HTTP Request",
+        "credentials": {
+          "httpHeaderAuth": {
+            "id": "uvgqyRI1ddaWVLOw",
+            "name": "Jules Pipecat"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "httpMethod": "POST",
+          "path": "emergency",
+          "authentication": "headerAuth",
+          "responseMode": "responseNode",
+          "options": {}
+        },
+        "type": "n8n-nodes-base.webhook",
+        "typeVersion": 2.1,
+        "position": [
+          -512,
+          -240
+        ],
+        "id": "1a2ebe8d-32e8-4ba0-aa14-74c44d0ec2f6",
+        "name": "Webhook",
+        "webhookId": "4289d04c-6e73-4c72-9e9c-85c6ea5b195c",
+        "credentials": {
+          "httpHeaderAuth": {
+            "id": "uvgqyRI1ddaWVLOw",
+            "name": "Jules Pipecat"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "schema": "public",
+          "table": "emergency_reports",
+          "dataMode": "defineBelow",
+          "valuesToSend": {
+            "values": [
+              {
+                "column": "tenant_id",
+                "value": "={{ $json.body.tenant_id || null }}"
+              },
+              {
+                "column": "unit_address",
+                "value": "={{ $json.body.unit_address }}"
+              },
+              {
+                "column": "emergency_type",
+                "value": "={{ $json.body.emergency_type }}"
+              },
+              {
+                "column": "description",
+                "value": "={{ $json.body.description || 'Emergency reported via voice agent' }}"
+              },
+              {
+                "column": "severity",
+                "value": "={{ $json.body.severity || 'high' }}"
+              },
+              {
+                "column": "status",
+                "value": "active"
+              },
+              {
+                "column": "reported_at",
+                "value": "={{ $json.body.timestamp || new Date().toISOString() }}"
+              }
+            ]
+          },
+          "options": {}
+        },
+        "id": "379f515b-83f0-4eb7-8df9-0723bcf22b78",
+        "name": "Log Emergency",
+        "type": "n8n-nodes-base.postgres",
+        "typeVersion": 2,
+        "position": [
+          -288,
+          -240
+        ],
+        "credentials": {
+          "postgres": {
+            "id": "u7j29OmyHuzkVDfZ",
+            "name": "Postgres account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "operation": "select",
+          "schema": "public",
+          "table": "tenants",
+          "where": {
+            "values": [
+              {
+                "column": "id",
+                "value": "={{ $('Webhook').item.json.body.tenant_id }}"
+              }
+            ]
+          },
+          "options": {}
+        },
+        "id": "96f30ee2-9c22-48f5-ba92-63962b0228b6",
+        "name": "Get Tenant Info",
+        "type": "n8n-nodes-base.postgres",
+        "typeVersion": 2,
+        "position": [
+          -112,
+          -240
+        ],
+        "credentials": {
+          "postgres": {
+            "id": "u7j29OmyHuzkVDfZ",
+            "name": "Postgres account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "rules": {
+            "values": [
+              {
+                "conditions": {
+                  "options": {
+                    "caseSensitive": true,
+                    "leftValue": "",
+                    "typeValidation": "strict",
+                    "version": 3
+                  },
+                  "conditions": [
+                    {
+                      "id": "rule-fire",
+                      "leftValue": "={{ $('Webhook').item.json.body.emergency_type }}",
+                      "rightValue": "fire",
+                      "operator": {
+                        "type": "string",
+                        "operation": "equals"
+                      }
+                    }
+                  ],
+                  "combinator": "and"
+                },
+                "renameOutput": true,
+                "outputKey": "fire_emergency"
+              },
+              {
+                "conditions": {
+                  "options": {
+                    "caseSensitive": true,
+                    "leftValue": "",
+                    "typeValidation": "strict",
+                    "version": 3
+                  },
+                  "conditions": [
+                    {
+                      "id": "rule-gas-leak",
+                      "leftValue": "={{ $('Webhook').item.json.body.emergency_type }}",
+                      "rightValue": "gas_leak",
+                      "operator": {
+                        "type": "string",
+                        "operation": "equals"
+                      }
+                    }
+                  ],
+                  "combinator": "and"
+                },
+                "renameOutput": true,
+                "outputKey": "gas_leak_emergency"
+              },
+              {
+                "conditions": {
+                  "options": {
+                    "caseSensitive": true,
+                    "leftValue": "",
+                    "typeValidation": "strict",
+                    "version": 3
+                  },
+                  "conditions": [
+                    {
+                      "id": "rule-medical",
+                      "leftValue": "={{ $('Webhook').item.json.body.emergency_type }}",
+                      "rightValue": "medical_emergency",
+                      "operator": {
+                        "type": "string",
+                        "operation": "equals"
+                      }
+                    }
+                  ],
+                  "combinator": "and"
+                },
+                "renameOutput": true,
+                "outputKey": "medical_emergency"
+              },
+              {
+                "conditions": {
+                  "options": {
+                    "caseSensitive": true,
+                    "leftValue": "",
+                    "typeValidation": "strict",
+                    "version": 3
+                  },
+                  "conditions": [
+                    {
+                      "id": "rule-security",
+                      "leftValue": "={{ $('Webhook').item.json.body.emergency_type }}",
+                      "rightValue": "security_issue",
+                      "operator": {
+                        "type": "string",
+                        "operation": "equals"
+                      }
+                    }
+                  ],
+                  "combinator": "and"
+                },
+                "renameOutput": true,
+                "outputKey": "security_emergency"
+              },
+              {
+                "conditions": {
+                  "options": {
+                    "caseSensitive": true,
+                    "leftValue": "",
+                    "typeValidation": "strict",
+                    "version": 3
+                  },
+                  "conditions": [
+                    {
+                      "id": "rule-standard-emergency",
+                      "leftValue": "={{ $json.body.emergency_type }}",
+                      "rightValue": "fire",
+                      "operator": {
+                        "type": "string",
+                        "operation": "notEqual"
+                      }
+                    },
+                    {
+                      "id": "rule-not-gas",
+                      "leftValue": "={{ $json.body.emergency_type }}",
+                      "rightValue": "gas_leak",
+                      "operator": {
+                        "type": "string",
+                        "operation": "notEqual"
+                      }
+                    },
+                    {
+                      "id": "rule-not-medical",
+                      "leftValue": "={{ $json.body.emergency_type }}",
+                      "rightValue": "medical_emergency",
+                      "operator": {
+                        "type": "string",
+                        "operation": "notEqual"
+                      }
+                    },
+                    {
+                      "id": "rule-not-security",
+                      "leftValue": "={{ $json.body.emergency_type }}",
+                      "rightValue": "security_issue",
+                      "operator": {
+                        "type": "string",
+                        "operation": "notEqual"
+                      }
+                    }
+                  ],
+                  "combinator": "and"
+                },
+                "renameOutput": true,
+                "outputKey": "standard_emergency"
+              }
+            ]
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.switch",
+        "typeVersion": 3.4,
+        "position": [
+          96,
+          -288
+        ],
+        "id": "daddaf18-69fb-4725-8a2f-e2fe1d4aaed1",
+        "name": "Emergency Type Switch"
+      },
+      {
+        "parameters": {
+          "assignments": {
+            "assignments": [
+              {
+                "id": "d1e2f3g4-h5i6-47j8-9k0l-m1n2o3p4q5r6",
+                "name": "emergency_id",
+                "value": "={{ $json.id }}",
+                "type": "string"
+              },
+              {
+                "id": "s7t8u9v0-w1x2-43y4-5z6a-b7c8d9e0f1g2",
+                "name": "emergency_type",
+                "value": "={{ $('Webhook').item.json.body.emergency_type }}",
+                "type": "string"
+              },
+              {
+                "id": "h3i4j5k6-l7m8-49n0-1o2p-q3r4s5t6u7v8",
+                "name": "unit_address",
+                "value": "={{ $json.unit_address }}",
+                "type": "string"
+              },
+              {
+                "id": "w9x0y1z2-3a4b-45c6-7d8e-f9g0h1i2j3k4",
+                "name": "severity",
+                "value": "critical",
+                "type": "string"
+              },
+              {
+                "id": "l5m6n7o8-p9q0-41r2-3s4t-u5v6w7x8y9z0",
+                "name": "priority_level",
+                "value": 1,
+                "type": "number"
+              }
+            ]
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.set",
+        "typeVersion": 3.4,
+        "position": [
+          416,
+          -496
+        ],
+        "id": "6c816604-69f9-47e4-bc40-ee1db716e49f",
+        "name": "Set Fire Response"
+      },
+      {
+        "parameters": {
+          "assignments": {
+            "assignments": [
+              {
+                "id": "f6g7h8i9-j0k1-42l3-4m5n-o6p7q8r9s0t1",
+                "name": "emergency_id",
+                "value": "={{ $json.id }}",
+                "type": "string"
+              },
+              {
+                "id": "u2v3w4x5-y6z7-43a8-9b0c-d1e2f3g4h5i6",
+                "name": "emergency_type",
+                "value": "={{ $('Webhook').item.json.body.emergency_type }}",
+                "type": "string"
+              },
+              {
+                "id": "a3b4c5d6-e7f8-49g0-1h2i-j3k4l5m6n7o8",
+                "name": "unit_address",
+                "value": "={{ $json.unit_address }}",
+                "type": "string"
+              },
+              {
+                "id": "p9q0r1s2-t3u4-45v5-6w7x-y8z9a0b1c2d3",
+                "name": "severity",
+                "value": "critical",
+                "type": "string"
+              },
+              {
+                "id": "e4f5g6h7-i8j9-46k0-1l2m-n3o4p5q6r7s8",
+                "name": "priority_level",
+                "value": 1,
+                "type": "number"
+              }
+            ]
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.set",
+        "typeVersion": 3.4,
+        "position": [
+          416,
+          -336
+        ],
+        "id": "a1f395a1-2c89-49be-89d2-a9b0ed85a3a0",
+        "name": "Set Gas Leak Response"
+      },
+      {
+        "parameters": {
+          "assignments": {
+            "assignments": [
+              {
+                "id": "h0i1j2k3-l4m5-48n6-7o8p-q9r0s1t2u3v4",
+                "name": "emergency_id",
+                "value": "={{ $json.id }}",
+                "type": "string"
+              },
+              {
+                "id": "r1s2t3u4-v5w6-49x7-8y9z-a0b1c2d3e4f5",
+                "name": "emergency_type",
+                "value": "={{ $('Webhook').item.json.body.emergency_type }}",
+                "type": "string"
+              },
+              {
+                "id": "i2j3k4l5-m6n7-50o8-9p0q-r1s2t3u4v5w6",
+                "name": "unit_address",
+                "value": "={{ $json.unit_address }}",
+                "type": "string"
+              },
+              {
+                "id": "s3t4u5v6-w7x8-51y9-0z1a-b2c3d4e5f6g7",
+                "name": "severity",
+                "value": "critical",
+                "type": "string"
+              },
+              {
+                "id": "j4k5l6m7-n8o9-52p0-1q2r-s3t4u5v6w7x8",
+                "name": "priority_level",
+                "value": 1,
+                "type": "number"
+              }
+            ]
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.set",
+        "typeVersion": 3.4,
+        "position": [
+          416,
+          -192
+        ],
+        "id": "d7814943-2d98-44b1-9e50-c14afd6e7b0b",
+        "name": "Set Medical Response"
+      },
+      {
+        "parameters": {
+          "assignments": {
+            "assignments": [
+              {
+                "id": "l6m7n8o9-p0q1-54r2-3s4t-u5v6w7x8y9z0",
+                "name": "emergency_id",
+                "value": "={{ $json.id }}",
+                "type": "string"
+              },
+              {
+                "id": "t4u5v6w7-x8y9-55z0-a1b2-c3d4e5f6g7h8",
+                "name": "emergency_type",
+                "value": "={{ $('Webhook').item.json.body.emergency_type }}",
+                "type": "string"
+              },
+              {
+                "id": "m7n8o9p0-q1r2-56s3-4t5u-v6w7x8y9z0a1",
+                "name": "unit_address",
+                "value": "={{ $json.unit_address }}",
+                "type": "string"
+              },
+              {
+                "id": "u5v6w7x8-y9z0-57a1-2b3c-d4e5f6g7h8i9",
+                "name": "severity",
+                "value": "high",
+                "type": "string"
+              },
+              {
+                "id": "n8o9p0q1-r2s3-58t4-5u6v-w7x8y9z0a1b2",
+                "name": "priority_level",
+                "value": 2,
+                "type": "number"
+              }
+            ]
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.set",
+        "typeVersion": 3.4,
+        "position": [
+          416,
+          -48
+        ],
+        "id": "0113143e-9631-4c20-b6be-382efa0e76fb",
+        "name": "Set Security Response"
+      },
+      {
+        "parameters": {
+          "assignments": {
+            "assignments": [
+              {
+                "id": "o9p0q1r2-s3t4-59u5-6v7w-x8y9z0a1b2c3",
+                "name": "emergency_id",
+                "value": "={{ $json.id }}",
+                "type": "string"
+              },
+              {
+                "id": "v6w7x8y9-z0a1-60b2-3c4d-e5f6g7h8i9j0",
+                "name": "emergency_type",
+                "value": "={{ $('Webhook').item.json.body.emergency_type }}",
+                "type": "string"
+              },
+              {
+                "id": "p0q1r2s3-t4u5-61c3-4d5e-f6g7h8i9j0k1",
+                "name": "unit_address",
+                "value": "={{ $json.unit_address }}",
+                "type": "string"
+              },
+              {
+                "id": "w7x8y9z0-a1b2-62d4-5e6f-g7h8i9j0k1l2",
+                "name": "severity",
+                "value": "medium",
+                "type": "string"
+              },
+              {
+                "id": "q1r2s3t4-u5v6-63e5-6f7g-h8i9j0k1l2m3",
+                "name": "priority_level",
+                "value": 3,
+                "type": "number"
+              }
+            ]
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.set",
+        "typeVersion": 3.4,
+        "position": [
+          416,
+          96
+        ],
+        "id": "1f8c53b6-f59d-437a-a891-5238629deca9",
+        "name": "Set Standard Response"
+      },
+      {
+        "parameters": {
+          "respondWith": "json",
+          "responseBody": "={{ {\n  \"success\": true,\n  \"emergency_id\": $json.emergency_id,\n  \"emergency_type\": $json.emergency_type,\n  \"unit_address\": $json.unit_address,\n  \"severity\": $json.severity,\n  \"message\": \"🚨 EMERGENCY LOGGED: \" + $json.emergency_type.replace('_', ' ').toUpperCase() + \" at \" + $json.unit_address + \". Emergency services will be notified if required.\",\n  \"priority_level\": $json.priority_level,\n  \"response_message\": \"Stay calm and follow safety protocols. Help is on the way.\",\n  \"timestamp\": new Date().toISOString()\n} }}",
+          "options": {}
+        },
+        "id": "4d4fc52b-b64e-4528-b8b8-6e05b235a27f",
+        "name": "Emergency Response",
+        "type": "n8n-nodes-base.respondToWebhook",
+        "typeVersion": 1,
+        "position": [
+          784,
+          -208
+        ]
+      },
+      {
+        "parameters": {
+          "operation": "select",
+          "schema": "public",
+          "table": "tenants",
+          "limit": 5,
+          "options": {}
+        },
+        "id": "41d87158-5d62-453c-8925-6df1ac11b222",
+        "name": "Get Tenant Info1",
+        "type": "n8n-nodes-base.postgres",
+        "typeVersion": 2,
+        "position": [
+          -528,
+          384
+        ],
+        "credentials": {
+          "postgres": {
+            "id": "u7j29OmyHuzkVDfZ",
+            "name": "Postgres account"
+          }
+        }
+      }
+    ],
+    "connections": {
+      "Webhook": {
+        "main": [
+          [
+            {
+              "node": "Log Emergency",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Log Emergency": {
+        "main": [
+          [
+            {
+              "node": "Get Tenant Info",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Get Tenant Info": {
+        "main": [
+          [
+            {
+              "node": "Emergency Type Switch",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Emergency Type Switch": {
+        "main": [
+          [
+            {
+              "node": "Set Fire Response",
+              "type": "main",
+              "index": 0
+            }
+          ],
+          [
+            {
+              "node": "Set Gas Leak Response",
+              "type": "main",
+              "index": 0
+            }
+          ],
+          [
+            {
+              "node": "Set Medical Response",
+              "type": "main",
+              "index": 0
+            }
+          ],
+          [
+            {
+              "node": "Set Security Response",
+              "type": "main",
+              "index": 0
+            }
+          ],
+          [
+            {
+              "node": "Set Standard Response",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Set Fire Response": {
+        "main": [
+          [
+            {
+              "node": "Emergency Response",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Set Gas Leak Response": {
+        "main": [
+          [
+            {
+              "node": "Emergency Response",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Set Medical Response": {
+        "main": [
+          [
+            {
+              "node": "Emergency Response",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Set Security Response": {
+        "main": [
+          [
+            {
+              "node": "Emergency Response",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Set Standard Response": {
+        "main": [
+          [
+            {
+              "node": "Emergency Response",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    },
+    "authors": "Aurelien Bonin",
+    "name": "Version 7fdd9a9e",
+    "description": "",
+    "autosaved": false
+  },
+  "activeVersionId": "7fdd9a9e-7d72-4b93-945a-67b70269fb4c",
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Log Emergency",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Log Emergency": {
+      "main": [
+        [
+          {
+            "node": "Get Tenant Info",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Tenant Info": {
+      "main": [
+        [
+          {
+            "node": "Emergency Type Switch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Emergency Type Switch": {
+      "main": [
+        [
+          {
+            "node": "Set Fire Response",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Set Gas Leak Response",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Set Medical Response",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Set Security Response",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Set Standard Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set Fire Response": {
+      "main": [
+        [
+          {
+            "node": "Emergency Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set Gas Leak Response": {
+      "main": [
+        [
+          {
+            "node": "Emergency Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set Medical Response": {
+      "main": [
+        [
+          {
+            "node": "Emergency Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set Security Response": {
+      "main": [
+        [
+          {
+            "node": "Emergency Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set Standard Response": {
+      "main": [
+        [
+          {
+            "node": "Emergency Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "createdAt": "2025-12-18T00:10:59.372Z",
+  "id": "aVvNXumUh001P2KK",
+  "isArchived": false,
+  "meta": {
+    "templateCredsSetupCompleted": true
+  },
+  "name": "Emergency Webhook",
+  "nodes": [
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://boninaurelien.app.n8n.cloud/webhook/emergency",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "action",
+              "value": "emergency"
+            },
+            {
+              "name": "tenant_id",
+              "value": "4"
+            },
+            {
+              "name": "emergency_type",
+              "value": "fire"
+            },
+            {
+              "name": "description",
+              "value": "Smoke coming from kitchen in apartment 4B"
+            },
+            {
+              "name": "unit_address",
+              "value": "123 Main St Apt 4B"
+            },
+            {
+              "name": "severity",
+              "value": "critical"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        -304,
+        384
+      ],
+      "id": "a7e49757-abb1-4146-b69e-20dc7a2b1a81",
+      "name": "HTTP Request",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "uvgqyRI1ddaWVLOw",
+          "name": "Jules Pipecat"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "emergency",
+        "authentication": "headerAuth",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -512,
+        -240
+      ],
+      "id": "1a2ebe8d-32e8-4ba0-aa14-74c44d0ec2f6",
+      "name": "Webhook",
+      "webhookId": "4289d04c-6e73-4c72-9e9c-85c6ea5b195c",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "uvgqyRI1ddaWVLOw",
+          "name": "Jules Pipecat"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "schema": "public",
+        "table": "emergency_reports",
+        "dataMode": "defineBelow",
+        "valuesToSend": {
+          "values": [
+            {
+              "column": "tenant_id",
+              "value": "={{ $json.body.tenant_id || null }}"
+            },
+            {
+              "column": "unit_address",
+              "value": "={{ $json.body.unit_address }}"
+            },
+            {
+              "column": "emergency_type",
+              "value": "={{ $json.body.emergency_type }}"
+            },
+            {
+              "column": "description",
+              "value": "={{ $json.body.description || 'Emergency reported via voice agent' }}"
+            },
+            {
+              "column": "severity",
+              "value": "={{ $json.body.severity || 'high' }}"
+            },
+            {
+              "column": "status",
+              "value": "active"
+            },
+            {
+              "column": "reported_at",
+              "value": "={{ $json.body.timestamp || new Date().toISOString() }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "379f515b-83f0-4eb7-8df9-0723bcf22b78",
+      "name": "Log Emergency",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2,
+      "position": [
+        -288,
+        -240
+      ],
+      "credentials": {
+        "postgres": {
+          "id": "u7j29OmyHuzkVDfZ",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "select",
+        "schema": "public",
+        "table": "tenants",
+        "where": {
+          "values": [
+            {
+              "column": "id",
+              "value": "={{ $('Webhook').item.json.body.tenant_id }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "96f30ee2-9c22-48f5-ba92-63962b0228b6",
+      "name": "Get Tenant Info",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2,
+      "position": [
+        -112,
+        -240
+      ],
+      "credentials": {
+        "postgres": {
+          "id": "u7j29OmyHuzkVDfZ",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "rule-fire",
+                    "leftValue": "={{ $('Webhook').item.json.body.emergency_type }}",
+                    "rightValue": "fire",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "fire_emergency"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "rule-gas-leak",
+                    "leftValue": "={{ $('Webhook').item.json.body.emergency_type }}",
+                    "rightValue": "gas_leak",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "gas_leak_emergency"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "rule-medical",
+                    "leftValue": "={{ $('Webhook').item.json.body.emergency_type }}",
+                    "rightValue": "medical_emergency",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "medical_emergency"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "rule-security",
+                    "leftValue": "={{ $('Webhook').item.json.body.emergency_type }}",
+                    "rightValue": "security_issue",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "security_emergency"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "rule-standard-emergency",
+                    "leftValue": "={{ $json.body.emergency_type }}",
+                    "rightValue": "fire",
+                    "operator": {
+                      "type": "string",
+                      "operation": "notEqual"
+                    }
+                  },
+                  {
+                    "id": "rule-not-gas",
+                    "leftValue": "={{ $json.body.emergency_type }}",
+                    "rightValue": "gas_leak",
+                    "operator": {
+                      "type": "string",
+                      "operation": "notEqual"
+                    }
+                  },
+                  {
+                    "id": "rule-not-medical",
+                    "leftValue": "={{ $json.body.emergency_type }}",
+                    "rightValue": "medical_emergency",
+                    "operator": {
+                      "type": "string",
+                      "operation": "notEqual"
+                    }
+                  },
+                  {
+                    "id": "rule-not-security",
+                    "leftValue": "={{ $json.body.emergency_type }}",
+                    "rightValue": "security_issue",
+                    "operator": {
+                      "type": "string",
+                      "operation": "notEqual"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "standard_emergency"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.4,
+      "position": [
+        96,
+        -288
+      ],
+      "id": "daddaf18-69fb-4725-8a2f-e2fe1d4aaed1",
+      "name": "Emergency Type Switch"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "d1e2f3g4-h5i6-47j8-9k0l-m1n2o3p4q5r6",
+              "name": "emergency_id",
+              "value": "={{ $json.id }}",
+              "type": "string"
+            },
+            {
+              "id": "s7t8u9v0-w1x2-43y4-5z6a-b7c8d9e0f1g2",
+              "name": "emergency_type",
+              "value": "={{ $('Webhook').item.json.body.emergency_type }}",
+              "type": "string"
+            },
+            {
+              "id": "h3i4j5k6-l7m8-49n0-1o2p-q3r4s5t6u7v8",
+              "name": "unit_address",
+              "value": "={{ $json.unit_address }}",
+              "type": "string"
+            },
+            {
+              "id": "w9x0y1z2-3a4b-45c6-7d8e-f9g0h1i2j3k4",
+              "name": "severity",
+              "value": "critical",
+              "type": "string"
+            },
+            {
+              "id": "l5m6n7o8-p9q0-41r2-3s4t-u5v6w7x8y9z0",
+              "name": "priority_level",
+              "value": 1,
+              "type": "number"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        416,
+        -496
+      ],
+      "id": "6c816604-69f9-47e4-bc40-ee1db716e49f",
+      "name": "Set Fire Response"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "f6g7h8i9-j0k1-42l3-4m5n-o6p7q8r9s0t1",
+              "name": "emergency_id",
+              "value": "={{ $json.id }}",
+              "type": "string"
+            },
+            {
+              "id": "u2v3w4x5-y6z7-43a8-9b0c-d1e2f3g4h5i6",
+              "name": "emergency_type",
+              "value": "={{ $('Webhook').item.json.body.emergency_type }}",
+              "type": "string"
+            },
+            {
+              "id": "a3b4c5d6-e7f8-49g0-1h2i-j3k4l5m6n7o8",
+              "name": "unit_address",
+              "value": "={{ $json.unit_address }}",
+              "type": "string"
+            },
+            {
+              "id": "p9q0r1s2-t3u4-45v5-6w7x-y8z9a0b1c2d3",
+              "name": "severity",
+              "value": "critical",
+              "type": "string"
+            },
+            {
+              "id": "e4f5g6h7-i8j9-46k0-1l2m-n3o4p5q6r7s8",
+              "name": "priority_level",
+              "value": 1,
+              "type": "number"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        416,
+        -336
+      ],
+      "id": "a1f395a1-2c89-49be-89d2-a9b0ed85a3a0",
+      "name": "Set Gas Leak Response"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "h0i1j2k3-l4m5-48n6-7o8p-q9r0s1t2u3v4",
+              "name": "emergency_id",
+              "value": "={{ $json.id }}",
+              "type": "string"
+            },
+            {
+              "id": "r1s2t3u4-v5w6-49x7-8y9z-a0b1c2d3e4f5",
+              "name": "emergency_type",
+              "value": "={{ $('Webhook').item.json.body.emergency_type }}",
+              "type": "string"
+            },
+            {
+              "id": "i2j3k4l5-m6n7-50o8-9p0q-r1s2t3u4v5w6",
+              "name": "unit_address",
+              "value": "={{ $json.unit_address }}",
+              "type": "string"
+            },
+            {
+              "id": "s3t4u5v6-w7x8-51y9-0z1a-b2c3d4e5f6g7",
+              "name": "severity",
+              "value": "critical",
+              "type": "string"
+            },
+            {
+              "id": "j4k5l6m7-n8o9-52p0-1q2r-s3t4u5v6w7x8",
+              "name": "priority_level",
+              "value": 1,
+              "type": "number"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        416,
+        -192
+      ],
+      "id": "d7814943-2d98-44b1-9e50-c14afd6e7b0b",
+      "name": "Set Medical Response"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "l6m7n8o9-p0q1-54r2-3s4t-u5v6w7x8y9z0",
+              "name": "emergency_id",
+              "value": "={{ $json.id }}",
+              "type": "string"
+            },
+            {
+              "id": "t4u5v6w7-x8y9-55z0-a1b2-c3d4e5f6g7h8",
+              "name": "emergency_type",
+              "value": "={{ $('Webhook').item.json.body.emergency_type }}",
+              "type": "string"
+            },
+            {
+              "id": "m7n8o9p0-q1r2-56s3-4t5u-v6w7x8y9z0a1",
+              "name": "unit_address",
+              "value": "={{ $json.unit_address }}",
+              "type": "string"
+            },
+            {
+              "id": "u5v6w7x8-y9z0-57a1-2b3c-d4e5f6g7h8i9",
+              "name": "severity",
+              "value": "high",
+              "type": "string"
+            },
+            {
+              "id": "n8o9p0q1-r2s3-58t4-5u6v-w7x8y9z0a1b2",
+              "name": "priority_level",
+              "value": 2,
+              "type": "number"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        416,
+        -48
+      ],
+      "id": "0113143e-9631-4c20-b6be-382efa0e76fb",
+      "name": "Set Security Response"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "o9p0q1r2-s3t4-59u5-6v7w-x8y9z0a1b2c3",
+              "name": "emergency_id",
+              "value": "={{ $json.id }}",
+              "type": "string"
+            },
+            {
+              "id": "v6w7x8y9-z0a1-60b2-3c4d-e5f6g7h8i9j0",
+              "name": "emergency_type",
+              "value": "={{ $('Webhook').item.json.body.emergency_type }}",
+              "type": "string"
+            },
+            {
+              "id": "p0q1r2s3-t4u5-61c3-4d5e-f6g7h8i9j0k1",
+              "name": "unit_address",
+              "value": "={{ $json.unit_address }}",
+              "type": "string"
+            },
+            {
+              "id": "w7x8y9z0-a1b2-62d4-5e6f-g7h8i9j0k1l2",
+              "name": "severity",
+              "value": "medium",
+              "type": "string"
+            },
+            {
+              "id": "q1r2s3t4-u5v6-63e5-6f7g-h8i9j0k1l2m3",
+              "name": "priority_level",
+              "value": 3,
+              "type": "number"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        416,
+        96
+      ],
+      "id": "1f8c53b6-f59d-437a-a891-5238629deca9",
+      "name": "Set Standard Response"
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ {\n  \"success\": true,\n  \"emergency_id\": $json.emergency_id,\n  \"emergency_type\": $json.emergency_type,\n  \"unit_address\": $json.unit_address,\n  \"severity\": $json.severity,\n  \"message\": \"🚨 EMERGENCY LOGGED: \" + $json.emergency_type.replace('_', ' ').toUpperCase() + \" at \" + $json.unit_address + \". Emergency services will be notified if required.\",\n  \"priority_level\": $json.priority_level,\n  \"response_message\": \"Stay calm and follow safety protocols. Help is on the way.\",\n  \"timestamp\": new Date().toISOString()\n} }}",
+        "options": {}
+      },
+      "id": "4d4fc52b-b64e-4528-b8b8-6e05b235a27f",
+      "name": "Emergency Response",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [
+        784,
+        -208
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "select",
+        "schema": "public",
+        "table": "tenants",
+        "limit": 5,
+        "options": {}
+      },
+      "id": "41d87158-5d62-453c-8925-6df1ac11b222",
+      "name": "Get Tenant Info1",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2,
+      "position": [
+        -528,
+        384
+      ],
+      "credentials": {
+        "postgres": {
+          "id": "u7j29OmyHuzkVDfZ",
+          "name": "Postgres account"
+        }
+      }
+    }
+  ],
+  "pinData": {
+    "Webhook": [
+      {
+        "json": {
+          "headers": {
+            "host": "boninaurelien.app.n8n.cloud",
+            "user-agent": "axios/1.12.0",
+            "content-length": "178",
+            "accept": "application/json,text/html,application/xhtml+xml,application/xml,text/*;q=0.9, image/*;q=0.8, */*;q=0.7",
+            "accept-encoding": "gzip, br",
+            "cdn-loop": "cloudflare; loops=1; subreqs=1",
+            "cf-connecting-ip": "4.184.78.246",
+            "cf-ew-via": "15",
+            "cf-ipcountry": "DE",
+            "cf-ray": "9b00a5abf72a71d9-FRA",
+            "cf-visitor": "{\"scheme\":\"https\"}",
+            "cf-worker": "n8n.cloud",
+            "content-type": "application/json",
+            "x-forwarded-for": "4.184.78.246, 172.70.243.88",
+            "x-forwarded-host": "boninaurelien.app.n8n.cloud",
+            "x-forwarded-port": "443",
+            "x-forwarded-proto": "https",
+            "x-forwarded-server": "traefik-prod-users-gwc-85-bb845fb9-jxls5",
+            "x-is-trusted": "yes",
+            "x-n8n-api-key": "JzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiYWRtaW4iOnRydWUsImlhdCI6MTUxNjIz",
+            "x-real-ip": "4.184.78.246"
+          },
+          "params": {},
+          "query": {},
+          "body": {
+            "action": "emergency",
+            "tenant_id": "4",
+            "emergency_type": "fire",
+            "description": "Smoke coming from kitchen in apartment 4B",
+            "unit_address": "123 Main St Apt 4B",
+            "severity": "critical"
+          },
+          "webhookUrl": "https://boninaurelien.app.n8n.cloud/webhook/emergency",
+          "executionMode": "production"
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      }
+    ]
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "availableInMCP": true
+  },
+  "shared": [
+    {
+      "updatedAt": "2025-12-18T00:10:59.377Z",
+      "createdAt": "2025-12-18T00:10:59.377Z",
+      "role": "workflow:owner",
+      "workflowId": "aVvNXumUh001P2KK",
+      "projectId": "K5c2PqoZjXPELHVa"
+    }
+  ],
+  "staticData": null,
+  "tags": [],
+  "triggerCount": 1,
+  "updatedAt": "2025-12-18T18:38:55.115Z",
+  "versionId": "7fdd9a9e-7d72-4b93-945a-67b70269fb4c"
+}
