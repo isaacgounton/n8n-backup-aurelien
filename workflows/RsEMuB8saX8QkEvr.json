@@ -1,0 +1,424 @@
+{
+  "active": false,
+  "activeVersion": null,
+  "activeVersionId": null,
+  "connections": {
+    "When Executed by Another Workflow": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Work Orders": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update work orders": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Delete Work Order Record": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get a tenant": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "create_work_order": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "createdAt": "2025-12-17T15:07:56.412Z",
+  "id": "RsEMuB8saX8QkEvr",
+  "isArchived": false,
+  "meta": null,
+  "name": "My workflow 3",
+  "nodes": [
+    {
+      "parameters": {
+        "tableId": "work_orders",
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "address",
+              "fieldValue": "={{ $json.address }}"
+            },
+            {
+              "fieldId": "tenant_name",
+              "fieldValue": "={{ $json.tenant_name }}"
+            },
+            {
+              "fieldId": "issue_type",
+              "fieldValue": "={{ $json.issue_type }}"
+            },
+            {
+              "fieldId": "priority",
+              "fieldValue": "={{ $json.priority }}"
+            },
+            {
+              "fieldId": "status",
+              "fieldValue": "={{ $json.status }}"
+            },
+            {
+              "fieldId": "description",
+              "fieldValue": "={{ $json.description }}"
+            },
+            {
+              "fieldId": "contractor",
+              "fieldValue": "={{ $json.contractor }}"
+            },
+            {
+              "fieldId": "contractor_contact",
+              "fieldValue": "={{ $json.contractor_contact }}"
+            },
+            {
+              "fieldId": "cost",
+              "fieldValue": "={{ $json.cost }}"
+            },
+            {
+              "fieldId": "notes",
+              "fieldValue": "={{ $json.notes }}"
+            },
+            {
+              "fieldId": "media_attachments",
+              "fieldValue": "={{ $json.media_attachments }}"
+            },
+            {
+              "fieldId": "troubleshooting_steps",
+              "fieldValue": "={{ $json.troubleshooting_steps }}"
+            },
+            {
+              "fieldId": "resolution_summary",
+              "fieldValue": "={{ $json.resolution_summary }}"
+            },
+            {
+              "fieldId": "estimated_completion",
+              "fieldValue": "={{ $json.estimated_completion }}"
+            },
+            {
+              "fieldId": "completed_at",
+              "fieldValue": "={{ $json.completed_at }}"
+            },
+            {
+              "fieldId": "tenant_id",
+              "fieldValue": "={{ $json.tenant_id }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        1120,
+        32
+      ],
+      "id": "a372794b-503b-4a91-8bcf-6ee0b1246530",
+      "name": "Create a row",
+      "credentials": {
+        "supabaseApi": {
+          "id": "BQtFgt1crVI69fhf",
+          "name": "Supabase account (JulesAI)"
+        }
+      },
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "inputSource": "passthrough"
+      },
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        -112,
+        -96
+      ],
+      "id": "0454b617-cf13-44b8-921d-5c3d1188ab66",
+      "name": "When Executed by Another Workflow"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.query }}",
+        "options": {
+          "systemMessage": "=You are a work order management assistant for Jules AI. You handle work order records in the Supabase database with strict adherence to data formats and validation rules.\n\n**Database Schema Requirements:**\n- **tenant_id**: UUID referencing tenants(id)\n- **tenant_name**: Full name as string (max 255 chars)\n- **address**: Address as string (max 255 chars)\n- **issue_type**: Issue type as string (max 100 chars, e.g., 'Plumbing', 'Electrical')\n- **description**: Description as text\n- **priority**: Enum value - MUST be exactly one of: 'LOW', 'MEDIUM', 'HIGH', 'URGENT' (all uppercase)\n- **status**: Status as string (max 50 chars, e.g., 'OPEN', 'IN_PROGRESS', 'CLOSED')\n- **troubleshooting_steps**: JSON array of steps\n\n**Critical Formatting Rules:**\n- Always format priority as uppercase: 'LOW', 'MEDIUM', 'HIGH', or 'URGENT'. If not provided or invalid, default to 'MEDIUM'.\n- Convert any user input for priority to the correct enum value (e.g., 'high' -> 'HIGH')\n- Ensure tenant_id is a valid UUID if provided; otherwise, infer from tenant_name or address\n- Validate issue_type and status; use defaults if invalid\n- Ensure all required fields are provided; if missing, use reasonable defaults or infer from context\n\n**Automatic Data Normalization:**\n- Automatically normalize and format all input data according to the above rules before creating or updating work order records.\n- Do not ask for user confirmation or report issues; proceed directly with the corrected, validated data.\n- If data cannot be reasonably normalized, use defaults (e.g., priority 'MEDIUM', status 'OPEN').\n\n**Operations:**\n- Get work order by ID or tenant\n- Create new work order with all required fields (normalize data first)\n- Update existing work order information (normalize data first)\n- Delete work order records (with confirmation)\n\n**Response Guidelines:**\n- Confirm successful operations\n- Report validation errors clearly\n- Use tenant_name or address as unique identifier when ID not available\n- Always validate input against schema before submitting"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        272,
+        -96
+      ],
+      "id": "a891e298-c1e0-4294-90c8-3aecaab9630a",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4.1-mini"
+        },
+        "builtInTools": {},
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        80,
+        112
+      ],
+      "id": "3ba5fb60-53d8-4e41-84cf-6572deb64860",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "vofRqqG7VEHTXxTs",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "getAll",
+        "tableId": "work_orders",
+        "returnAll": true,
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "tenant_id",
+              "condition": "eq",
+              "keyValue": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('conditions0_Field_Value', ``, 'string') }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabaseTool",
+      "typeVersion": 1,
+      "position": [
+        352,
+        112
+      ],
+      "id": "1bbca2be-5df2-4729-b62b-0ee39617e14f",
+      "name": "Get Work Orders",
+      "credentials": {
+        "supabaseApi": {
+          "id": "BQtFgt1crVI69fhf",
+          "name": "Supabase account (JulesAI)"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "tableId": "work_orders",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "tenant_id",
+              "condition": "eq",
+              "keyValue": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('conditions0_Field_Value', ``, 'string') }}"
+            }
+          ]
+        },
+        "dataToSend": "autoMapInputData",
+        "inputsToIgnore": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Inputs_to_Ignore', ``, 'string') }}"
+      },
+      "type": "n8n-nodes-base.supabaseTool",
+      "typeVersion": 1,
+      "position": [
+        496,
+        112
+      ],
+      "id": "2e7c22b4-4186-40ef-a187-6ced2e28b339",
+      "name": "Update work orders",
+      "credentials": {
+        "supabaseApi": {
+          "id": "BQtFgt1crVI69fhf",
+          "name": "Supabase account (JulesAI)"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "delete",
+        "tableId": "work_orders",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "id",
+              "condition": "eq",
+              "keyValue": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('conditions0_Field_Value', ``, 'string') }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabaseTool",
+      "typeVersion": 1,
+      "position": [
+        816,
+        112
+      ],
+      "id": "f84a0285-f496-4948-aa4f-76ce3787923b",
+      "name": "Delete Work Order Record",
+      "credentials": {
+        "supabaseApi": {
+          "id": "BQtFgt1crVI69fhf",
+          "name": "Supabase account (JulesAI)"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "getAll",
+        "tableId": "tenants",
+        "returnAll": true,
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "phone_number",
+              "condition": "eq",
+              "keyValue": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('conditions0_Field_Value', `The phone number to search for`, 'string') }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabaseTool",
+      "typeVersion": 1,
+      "position": [
+        224,
+        112
+      ],
+      "id": "73e6f0a7-1918-4705-b324-e584730b7bbd",
+      "name": "Get a tenant",
+      "credentials": {
+        "supabaseApi": {
+          "id": "BQtFgt1crVI69fhf",
+          "name": "Supabase account (JulesAI)"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "tableId": "work_orders",
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "tenant_name",
+              "fieldValue": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('fieldValues0_Field_Value', `Tenant name`, 'string') }}"
+            },
+            {
+              "fieldId": "address",
+              "fieldValue": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('fieldValues1_Field_Value', `Address`, 'string') }}"
+            },
+            {
+              "fieldId": "issue_type",
+              "fieldValue": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('fieldValues2_Field_Value', `Issue type`, 'string') }}"
+            },
+            {
+              "fieldId": "description",
+              "fieldValue": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('fieldValues3_Field_Value', `Description`, 'string') }}"
+            },
+            {
+              "fieldId": "priority",
+              "fieldValue": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('fieldValues4_Field_Value', `Priority`, 'string') }}"
+            },
+            {
+              "fieldId": "status",
+              "fieldValue": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('fieldValues5_Field_Value', `Status`, 'string') }}"
+            },
+            {
+              "fieldId": "troubleshooting_steps",
+              "fieldValue": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('fieldValues6_Field_Value', `Troubleshooting steps`, 'string') }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabaseTool",
+      "typeVersion": 1,
+      "position": [
+        656,
+        112
+      ],
+      "id": "ee2bc0c7-ff2c-4670-936c-4cf26cbdc3f6",
+      "name": "create_work_order",
+      "credentials": {
+        "supabaseApi": {
+          "id": "BQtFgt1crVI69fhf",
+          "name": "Supabase account (JulesAI)"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1",
+    "availableInMCP": false
+  },
+  "shared": [
+    {
+      "updatedAt": "2025-12-17T15:07:56.418Z",
+      "createdAt": "2025-12-17T15:07:56.418Z",
+      "role": "workflow:owner",
+      "workflowId": "RsEMuB8saX8QkEvr",
+      "projectId": "K5c2PqoZjXPELHVa"
+    }
+  ],
+  "staticData": null,
+  "tags": [],
+  "triggerCount": 0,
+  "updatedAt": "2025-12-17T15:07:56.000Z",
+  "versionId": "ba107f0e-ed8b-447d-bd4a-e83cea2014c8"
+}
