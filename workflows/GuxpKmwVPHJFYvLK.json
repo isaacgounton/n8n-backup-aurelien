@@ -1,0 +1,1304 @@
+{
+  "active": true,
+  "activeVersion": {
+    "updatedAt": "2025-12-30T03:53:03.000Z",
+    "createdAt": "2025-12-30T03:52:59.815Z",
+    "versionId": "1d706503-bb35-48cd-8956-c7a985c8f08e",
+    "workflowId": "GuxpKmwVPHJFYvLK",
+    "nodes": [
+      {
+        "parameters": {
+          "inputSource": "passthrough"
+        },
+        "type": "n8n-nodes-base.executeWorkflowTrigger",
+        "typeVersion": 1.1,
+        "position": [
+          1808,
+          528
+        ],
+        "id": "8bc6183a-7683-413e-bad0-d2801372aef3",
+        "name": "When Executed by Another Workflow"
+      },
+      {
+        "parameters": {
+          "model": {
+            "__rl": true,
+            "mode": "list",
+            "value": "gpt-4.1-mini"
+          },
+          "responsesApiEnabled": false,
+          "options": {}
+        },
+        "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+        "typeVersion": 1.3,
+        "position": [
+          1760,
+          800
+        ],
+        "id": "3c977e44-37f2-4239-8c4d-30eff9e91d3f",
+        "name": "OpenAI Chat Model",
+        "credentials": {
+          "openAiApi": {
+            "id": "vofRqqG7VEHTXxTs",
+            "name": "OpenAi account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "promptType": "define",
+          "text": "={{ $json.query }}",
+          "options": {
+            "systemMessage": "=You are a qualified leads management assistant for Jules AI. You manage rental property lead records with strict data validation and proper lead lifecycle tracking.\n\n**Your Role:**\nManage qualified leads through their entire lifecycle from initial inquiry to application approval/rejection. Ensure data quality, proper status tracking, and timely follow-up coordination.\n\n**Database Schema:**\n- **tenant_name** (required): Lead full name, max 255 chars\n- **contact_info** (required): Phone or email, max 255 chars\n- **unit_interest** (required): Property/unit of interest, max 255 chars\n- **qualification_answers** (required): JSON object with screening responses\n- **status** (optional): Lead status, default \"new\"\n- **email_sent** (optional): Email notification flag, default false\n- **email_recipient** (optional): Email address for notifications\n- **notes** (optional): Additional information and follow-up notes\n- **id, created_at, updated_at**: Auto-generated, do not modify\n\n**Valid Lead Statuses:**\n- **new**: Just created, awaiting initial contact\n- **contacted**: Initial outreach completed\n- **interested**: Lead expressed interest in viewing/applying\n- **application_submitted**: Rental application received\n- **approved**: Application approved, moving to lease\n- **rejected**: Application denied or lead disqualified\n- **inactive**: Lead unresponsive or no longer interested\n\n**Qualification Answers Structure:**\nStore as JSON object with screening question responses:\n```json\n{\n  \"move_in_date\": \"2025-02-01\",\n  \"desired_rent_range\": \"1500-2000\",\n  \"occupancy_count\": 2,\n  \"pets\": \"no\",\n  \"employment_status\": \"employed\",\n  \"monthly_income\": 5500,\n  \"workspace\": \"Google\",\n  \"smoking\": \"no\",\n  \"reason_for_moving\": \"New employment\",\n  \"special_requirements\": \"ground floor unit preferred\"\n}\n```\n\n**Data Validation Rules:**\n1. **Required fields**: tenant_name, contact_info, unit_interest, qualification_answers\n2. **Contact format**: Validate email (name@domain.com) or phone (+15551234567)\n3. **Phone normalization**: Convert (555) 123-4567 to +15551234567\n4. **Email validation**: Verify proper email format for email_recipient\n5. **JSON validation**: Ensure qualification_answers is valid JSON object\n6. **Status validation**: Use only valid status values, default to \"new\"\n\n**Available Tools:**\n1. **Search qualified leads**: Find by tenant name or unit interest (partial match)\n2. **List all qualified leads**: Get up to 20 recent leads\n3. **Create a qualified lead**: Add new lead with required fields\n4. **Update a qualified lead**: Modify existing lead by ID\n5. **Delete a qualified lead**: Remove lead record by ID (permanent)\n\n**Operation Guidelines:**\n\n**Creating Leads:**\n- Validate all required fields before creation\n- Normalize contact information (phone/email)\n- Ensure qualification_answers is properly structured JSON\n- Set status to \"new\" by default\n- Confirm successful creation with lead ID and details\n\n**Updating Leads:**\n- Require lead ID for updates\n- Only update fields that are provided\n- Validate data formats before updating\n- Track status transitions appropriately\n- Update email_sent flag when notifications are sent\n- Confirm updates with modified fields summary\n\n**Searching Leads:**\n- Support partial matching on tenant name and unit interest\n- Return relevant matches with key details\n- Show status and contact information\n- Provide count of matching results\n\n**Status Transitions:**\n- new → contacted (initial outreach made)\n- contacted → interested (lead shows interest)\n- interested → application_submitted (application received)\n- application_submitted → approved/rejected (decision made)\n- any → inactive (lead becomes unresponsive)\n\n**Response Format:**\n- Confirm operations with specific details (ID, name, status)\n- Report validation errors clearly with field names\n- For searches, show count and summarize matches\n- Display contact info in consistent format\n- Include qualification summary when relevant\n- Show dates in readable format (YYYY-MM-DD)\n- Provide next steps or follow-up recommendations\n\n**Error Handling:**\n- Validate required fields before operations\n- Report missing or invalid data clearly\n- Suggest corrections for format errors\n- Confirm deletions to prevent accidental removal\n- Handle duplicate contact information appropriately"
+          }
+        },
+        "type": "@n8n/n8n-nodes-langchain.agent",
+        "typeVersion": 3.1,
+        "position": [
+          2064,
+          528
+        ],
+        "id": "164822e5-9952-4d88-88bc-3da7f8e81de7",
+        "name": "AI Agent"
+      },
+      {
+        "parameters": {
+          "descriptionType": "manual",
+          "toolDescription": "Search qualified leads by tenant name or unit interest. Returns matching qualified lead records with contact info, qualification answers, and status",
+          "operation": "select",
+          "schema": {
+            "__rl": true,
+            "mode": "list",
+            "value": "public"
+          },
+          "table": {
+            "__rl": true,
+            "value": "qualified_leads",
+            "mode": "list",
+            "cachedResultName": "qualified_leads"
+          },
+          "returnAll": true,
+          "where": {
+            "values": [
+              {
+                "column": "tenant_name",
+                "value": "={{ $fromAI('tenant_name', 'Tenant name (partial match)', 'string', '') }}"
+              },
+              {
+                "column": "unit_interest",
+                "condition": "LIKE",
+                "value": "={{ $fromAI('unit_interest', 'Unit or property of interest (partial match)', 'string', '') }}"
+              }
+            ]
+          },
+          "combineConditions": "OR",
+          "options": {}
+        },
+        "id": "00f803bb-a4ea-4d0b-bba3-43d5e243719b",
+        "name": "Search qualified leads",
+        "type": "n8n-nodes-base.postgresTool",
+        "typeVersion": 2.6,
+        "position": [
+          1984,
+          800
+        ],
+        "credentials": {
+          "postgres": {
+            "id": "u7j29OmyHuzkVDfZ",
+            "name": "Postgres account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "descriptionType": "manual",
+          "toolDescription": "List all qualified leads from the database. Returns up to 20 leads with tenant name, contact info, unit interest, qualification answers, status, and email notification status",
+          "operation": "select",
+          "schema": {
+            "__rl": true,
+            "mode": "list",
+            "value": "public"
+          },
+          "table": {
+            "__rl": true,
+            "value": "qualified_leads",
+            "mode": "list",
+            "cachedResultName": "qualified_leads"
+          },
+          "limit": 20,
+          "options": {}
+        },
+        "id": "40b55e5e-5f3a-46f3-bf4e-85cb7339d54d",
+        "name": "List all qualified leads",
+        "type": "n8n-nodes-base.postgresTool",
+        "typeVersion": 2.6,
+        "position": [
+          2144,
+          800
+        ],
+        "credentials": {
+          "postgres": {
+            "id": "u7j29OmyHuzkVDfZ",
+            "name": "Postgres account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "descriptionType": "manual",
+          "toolDescription": "Create a new qualified lead record. Required: tenant_name, contact_info, unit_interest, qualification_answers (JSON object). Optional: status (default: new), notes, email_recipient",
+          "schema": {
+            "__rl": true,
+            "mode": "list",
+            "value": "public"
+          },
+          "table": {
+            "__rl": true,
+            "value": "qualified_leads",
+            "mode": "list",
+            "cachedResultName": "qualified_leads"
+          },
+          "columns": {
+            "mappingMode": "defineBelow",
+            "value": {
+              "tenant_name": "={{ $fromAI('tenant_name', 'Lead full name (required)', 'string') }}",
+              "contact_info": "={{ $fromAI('contact_info', 'Phone number or email address (required)', 'string') }}",
+              "unit_interest": "={{ $fromAI('unit_interest', 'Property or unit of interest (required)', 'string') }}",
+              "qualification_answers": "={{ $fromAI('qualification_answers', 'Qualification screening responses as JSON object (required)', 'json') }}",
+              "status": "={{ $fromAI('status', 'Lead status (new, contacted, interested, application_submitted, approved, rejected, inactive)', 'string', 'new') }}",
+              "notes": "={{ $fromAI('notes', 'Additional notes or follow-up information (optional)', 'string', '') }}",
+              "email_recipient": "={{ $fromAI('email_recipient', 'Email address for notifications (optional)', 'string', '') }}"
+            },
+            "matchingColumns": [
+              "id"
+            ],
+            "schema": [
+              {
+                "id": "id",
+                "displayName": "id",
+                "required": false,
+                "defaultMatch": true,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true,
+                "removed": true
+              },
+              {
+                "id": "tenant_name",
+                "displayName": "tenant_name",
+                "required": true,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true,
+                "removed": false
+              },
+              {
+                "id": "contact_info",
+                "displayName": "contact_info",
+                "required": true,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true,
+                "removed": false
+              },
+              {
+                "id": "unit_interest",
+                "displayName": "unit_interest",
+                "required": true,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true,
+                "removed": false
+              },
+              {
+                "id": "qualification_answers",
+                "displayName": "qualification_answers",
+                "required": true,
+                "defaultMatch": false,
+                "display": true,
+                "type": "object",
+                "canBeUsedToMatch": true,
+                "removed": false
+              },
+              {
+                "id": "email_sent",
+                "displayName": "email_sent",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "boolean",
+                "canBeUsedToMatch": true,
+                "removed": true
+              },
+              {
+                "id": "email_recipient",
+                "displayName": "email_recipient",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true,
+                "removed": false
+              },
+              {
+                "id": "notes",
+                "displayName": "notes",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true,
+                "removed": false
+              },
+              {
+                "id": "status",
+                "displayName": "status",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true,
+                "removed": false
+              },
+              {
+                "id": "created_at",
+                "displayName": "created_at",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "dateTime",
+                "canBeUsedToMatch": true,
+                "removed": true
+              },
+              {
+                "id": "updated_at",
+                "displayName": "updated_at",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "dateTime",
+                "canBeUsedToMatch": true,
+                "removed": true
+              }
+            ],
+            "attemptToConvertTypes": false,
+            "convertFieldsToString": false
+          },
+          "options": {}
+        },
+        "id": "ee1522de-3b41-4639-a851-24e3452a29d4",
+        "name": "Create a qualified lead",
+        "type": "n8n-nodes-base.postgresTool",
+        "typeVersion": 2.6,
+        "position": [
+          2288,
+          800
+        ],
+        "credentials": {
+          "postgres": {
+            "id": "u7j29OmyHuzkVDfZ",
+            "name": "Postgres account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "descriptionType": "manual",
+          "toolDescription": "Update an existing qualified lead by ID. Provide the lead ID and any fields to update (tenant_name, contact_info, unit_interest, qualification_answers, status, notes, email_recipient, email_sent). Only provided fields will be modified",
+          "operation": "update",
+          "schema": {
+            "__rl": true,
+            "mode": "list",
+            "value": "public"
+          },
+          "table": {
+            "__rl": true,
+            "value": "qualified_leads",
+            "mode": "list",
+            "cachedResultName": "qualified_leads"
+          },
+          "columns": {
+            "mappingMode": "defineBelow",
+            "value": {
+              "id": "={{ $fromAI('id', 'Qualified lead ID to update', 'string') }}",
+              "tenant_name": "={{ $fromAI('tenant_name', 'Updated tenant name (optional)', 'string', '') }}",
+              "contact_info": "={{ $fromAI('contact_info', 'Updated contact info (optional)', 'string', '') }}",
+              "unit_interest": "={{ $fromAI('unit_interest', 'Updated unit interest (optional)', 'string', '') }}",
+              "qualification_answers": "={{ $fromAI('qualification_answers', 'Updated qualification answers JSON (optional)', 'json', '') }}",
+              "status": "={{ $fromAI('status', 'Updated lead status (optional)', 'string', '') }}",
+              "notes": "={{ $fromAI('notes', 'Updated notes (optional)', 'string', '') }}",
+              "email_recipient": "={{ $fromAI('email_recipient', 'Updated email recipient (optional)', 'string', '') }}",
+              "email_sent": "={{ $fromAI('email_sent', 'Email sent status (optional)', 'boolean', '') }}"
+            },
+            "matchingColumns": [
+              "id"
+            ],
+            "schema": [
+              {
+                "id": "id",
+                "displayName": "id",
+                "required": false,
+                "defaultMatch": true,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true,
+                "removed": false
+              },
+              {
+                "id": "tenant_name",
+                "displayName": "tenant_name",
+                "required": true,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true,
+                "removed": false
+              },
+              {
+                "id": "contact_info",
+                "displayName": "contact_info",
+                "required": true,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true,
+                "removed": false
+              },
+              {
+                "id": "unit_interest",
+                "displayName": "unit_interest",
+                "required": true,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true,
+                "removed": false
+              },
+              {
+                "id": "qualification_answers",
+                "displayName": "qualification_answers",
+                "required": true,
+                "defaultMatch": false,
+                "display": true,
+                "type": "object",
+                "canBeUsedToMatch": true,
+                "removed": false
+              },
+              {
+                "id": "email_sent",
+                "displayName": "email_sent",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "boolean",
+                "canBeUsedToMatch": true,
+                "removed": false
+              },
+              {
+                "id": "email_recipient",
+                "displayName": "email_recipient",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true,
+                "removed": false
+              },
+              {
+                "id": "notes",
+                "displayName": "notes",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true,
+                "removed": false
+              },
+              {
+                "id": "status",
+                "displayName": "status",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true,
+                "removed": false
+              },
+              {
+                "id": "created_at",
+                "displayName": "created_at",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "dateTime",
+                "canBeUsedToMatch": true,
+                "removed": true
+              },
+              {
+                "id": "updated_at",
+                "displayName": "updated_at",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "dateTime",
+                "canBeUsedToMatch": true,
+                "removed": true
+              }
+            ],
+            "attemptToConvertTypes": false,
+            "convertFieldsToString": false
+          },
+          "options": {}
+        },
+        "id": "1aebc1e6-3dbc-423d-9b7f-288fc81a23e9",
+        "name": "Update a qualified lead",
+        "type": "n8n-nodes-base.postgresTool",
+        "typeVersion": 2.6,
+        "position": [
+          2448,
+          800
+        ],
+        "credentials": {
+          "postgres": {
+            "id": "u7j29OmyHuzkVDfZ",
+            "name": "Postgres account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "descriptionType": "manual",
+          "toolDescription": "Delete a qualified lead record by ID. This action is permanent and cannot be undone. Provide the lead ID to delete",
+          "operation": "deleteTable",
+          "schema": {
+            "__rl": true,
+            "mode": "list",
+            "value": "public"
+          },
+          "table": {
+            "__rl": true,
+            "value": "qualified_leads",
+            "mode": "list",
+            "cachedResultName": "qualified_leads"
+          },
+          "deleteCommand": "delete",
+          "where": {
+            "values": [
+              {
+                "column": "id",
+                "value": "={{ $fromAI('id', 'Qualified lead ID to delete', 'string') }}"
+              }
+            ]
+          },
+          "options": {}
+        },
+        "id": "a673d9a4-d18d-430f-a9a0-0cf2ee49ff8a",
+        "name": "Delete a qualified lead",
+        "type": "n8n-nodes-base.postgresTool",
+        "typeVersion": 2.6,
+        "position": [
+          2592,
+          800
+        ],
+        "credentials": {
+          "postgres": {
+            "id": "u7j29OmyHuzkVDfZ",
+            "name": "Postgres account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "httpMethod": "POST",
+          "path": "qualified_leads",
+          "authentication": "headerAuth",
+          "responseMode": "responseNode",
+          "options": {}
+        },
+        "type": "n8n-nodes-base.webhook",
+        "typeVersion": 2.1,
+        "position": [
+          1584,
+          288
+        ],
+        "id": "512a725b-8975-4dc3-8cac-405ff0e97361",
+        "name": "Webhook",
+        "webhookId": "39219fe0-efcc-427a-ae79-89c69661d140",
+        "credentials": {
+          "httpHeaderAuth": {
+            "id": "0HuFZThSVNVITvy8",
+            "name": "Jules Livekit"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "options": {}
+        },
+        "type": "n8n-nodes-base.respondToWebhook",
+        "typeVersion": 1.5,
+        "position": [
+          2608,
+          528
+        ],
+        "id": "0ebcbdd8-9671-45d3-99ed-a2e00d36764d",
+        "name": "Respond to Webhook"
+      }
+    ],
+    "connections": {
+      "When Executed by Another Workflow": {
+        "main": [
+          [
+            {
+              "node": "AI Agent",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "OpenAI Chat Model": {
+        "ai_languageModel": [
+          [
+            {
+              "node": "AI Agent",
+              "type": "ai_languageModel",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Search qualified leads": {
+        "ai_tool": [
+          [
+            {
+              "node": "AI Agent",
+              "type": "ai_tool",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "List all qualified leads": {
+        "ai_tool": [
+          [
+            {
+              "node": "AI Agent",
+              "type": "ai_tool",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Create a qualified lead": {
+        "ai_tool": [
+          [
+            {
+              "node": "AI Agent",
+              "type": "ai_tool",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Update a qualified lead": {
+        "ai_tool": [
+          [
+            {
+              "node": "AI Agent",
+              "type": "ai_tool",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Delete a qualified lead": {
+        "ai_tool": [
+          [
+            {
+              "node": "AI Agent",
+              "type": "ai_tool",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Webhook": {
+        "main": [
+          []
+        ]
+      },
+      "AI Agent": {
+        "main": [
+          []
+        ]
+      }
+    },
+    "authors": "Aurelien Bonin",
+    "name": "Version 1d706503",
+    "description": "",
+    "autosaved": false
+  },
+  "activeVersionId": "1d706503-bb35-48cd-8956-c7a985c8f08e",
+  "connections": {
+    "When Executed by Another Workflow": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Search qualified leads": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "List all qualified leads": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create a qualified lead": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update a qualified lead": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Delete a qualified lead": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook": {
+      "main": [
+        []
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        []
+      ]
+    }
+  },
+  "createdAt": "2025-12-17T02:58:51.422Z",
+  "id": "GuxpKmwVPHJFYvLK",
+  "isArchived": false,
+  "meta": {
+    "templateCredsSetupCompleted": true
+  },
+  "name": "Qualified leads",
+  "nodes": [
+    {
+      "parameters": {
+        "inputSource": "passthrough"
+      },
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        1808,
+        528
+      ],
+      "id": "8bc6183a-7683-413e-bad0-d2801372aef3",
+      "name": "When Executed by Another Workflow"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4.1-mini"
+        },
+        "responsesApiEnabled": false,
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        1760,
+        800
+      ],
+      "id": "3c977e44-37f2-4239-8c4d-30eff9e91d3f",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "vofRqqG7VEHTXxTs",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.query }}",
+        "options": {
+          "systemMessage": "=You are a qualified leads management assistant for Jules AI. You manage rental property lead records with strict data validation and proper lead lifecycle tracking.\n\n**Your Role:**\nManage qualified leads through their entire lifecycle from initial inquiry to application approval/rejection. Ensure data quality, proper status tracking, and timely follow-up coordination.\n\n**Database Schema:**\n- **tenant_name** (required): Lead full name, max 255 chars\n- **contact_info** (required): Phone or email, max 255 chars\n- **unit_interest** (required): Property/unit of interest, max 255 chars\n- **qualification_answers** (required): JSON object with screening responses\n- **status** (optional): Lead status, default \"new\"\n- **email_sent** (optional): Email notification flag, default false\n- **email_recipient** (optional): Email address for notifications\n- **notes** (optional): Additional information and follow-up notes\n- **id, created_at, updated_at**: Auto-generated, do not modify\n\n**Valid Lead Statuses:**\n- **new**: Just created, awaiting initial contact\n- **contacted**: Initial outreach completed\n- **interested**: Lead expressed interest in viewing/applying\n- **application_submitted**: Rental application received\n- **approved**: Application approved, moving to lease\n- **rejected**: Application denied or lead disqualified\n- **inactive**: Lead unresponsive or no longer interested\n\n**Qualification Answers Structure:**\nStore as JSON object with screening question responses:\n```json\n{\n  \"move_in_date\": \"2025-02-01\",\n  \"desired_rent_range\": \"1500-2000\",\n  \"occupancy_count\": 2,\n  \"pets\": \"no\",\n  \"employment_status\": \"employed\",\n  \"monthly_income\": 5500,\n  \"workspace\": \"Google\",\n  \"smoking\": \"no\",\n  \"reason_for_moving\": \"New employment\",\n  \"special_requirements\": \"ground floor unit preferred\"\n}\n```\n\n**Data Validation Rules:**\n1. **Required fields**: tenant_name, contact_info, unit_interest, qualification_answers\n2. **Contact format**: Validate email (name@domain.com) or phone (+15551234567)\n3. **Phone normalization**: Convert (555) 123-4567 to +15551234567\n4. **Email validation**: Verify proper email format for email_recipient\n5. **JSON validation**: Ensure qualification_answers is valid JSON object\n6. **Status validation**: Use only valid status values, default to \"new\"\n\n**Available Tools:**\n1. **Search qualified leads**: Find by tenant name or unit interest (partial match)\n2. **List all qualified leads**: Get up to 20 recent leads\n3. **Create a qualified lead**: Add new lead with required fields\n4. **Update a qualified lead**: Modify existing lead by ID\n5. **Delete a qualified lead**: Remove lead record by ID (permanent)\n\n**Operation Guidelines:**\n\n**Creating Leads:**\n- Validate all required fields before creation\n- Normalize contact information (phone/email)\n- Ensure qualification_answers is properly structured JSON\n- Set status to \"new\" by default\n- Confirm successful creation with lead ID and details\n\n**Updating Leads:**\n- Require lead ID for updates\n- Only update fields that are provided\n- Validate data formats before updating\n- Track status transitions appropriately\n- Update email_sent flag when notifications are sent\n- Confirm updates with modified fields summary\n\n**Searching Leads:**\n- Support partial matching on tenant name and unit interest\n- Return relevant matches with key details\n- Show status and contact information\n- Provide count of matching results\n\n**Status Transitions:**\n- new → contacted (initial outreach made)\n- contacted → interested (lead shows interest)\n- interested → application_submitted (application received)\n- application_submitted → approved/rejected (decision made)\n- any → inactive (lead becomes unresponsive)\n\n**Response Format:**\n- Confirm operations with specific details (ID, name, status)\n- Report validation errors clearly with field names\n- For searches, show count and summarize matches\n- Display contact info in consistent format\n- Include qualification summary when relevant\n- Show dates in readable format (YYYY-MM-DD)\n- Provide next steps or follow-up recommendations\n\n**Error Handling:**\n- Validate required fields before operations\n- Report missing or invalid data clearly\n- Suggest corrections for format errors\n- Confirm deletions to prevent accidental removal\n- Handle duplicate contact information appropriately"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        2064,
+        528
+      ],
+      "id": "164822e5-9952-4d88-88bc-3da7f8e81de7",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "descriptionType": "manual",
+        "toolDescription": "Search qualified leads by tenant name or unit interest. Returns matching qualified lead records with contact info, qualification answers, and status",
+        "operation": "select",
+        "schema": {
+          "__rl": true,
+          "mode": "list",
+          "value": "public"
+        },
+        "table": {
+          "__rl": true,
+          "value": "qualified_leads",
+          "mode": "list",
+          "cachedResultName": "qualified_leads"
+        },
+        "returnAll": true,
+        "where": {
+          "values": [
+            {
+              "column": "tenant_name",
+              "value": "={{ $fromAI('tenant_name', 'Tenant name (partial match)', 'string', '') }}"
+            },
+            {
+              "column": "unit_interest",
+              "condition": "LIKE",
+              "value": "={{ $fromAI('unit_interest', 'Unit or property of interest (partial match)', 'string', '') }}"
+            }
+          ]
+        },
+        "combineConditions": "OR",
+        "options": {}
+      },
+      "id": "00f803bb-a4ea-4d0b-bba3-43d5e243719b",
+      "name": "Search qualified leads",
+      "type": "n8n-nodes-base.postgresTool",
+      "typeVersion": 2.6,
+      "position": [
+        1984,
+        800
+      ],
+      "credentials": {
+        "postgres": {
+          "id": "u7j29OmyHuzkVDfZ",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "descriptionType": "manual",
+        "toolDescription": "List all qualified leads from the database. Returns up to 20 leads with tenant name, contact info, unit interest, qualification answers, status, and email notification status",
+        "operation": "select",
+        "schema": {
+          "__rl": true,
+          "mode": "list",
+          "value": "public"
+        },
+        "table": {
+          "__rl": true,
+          "value": "qualified_leads",
+          "mode": "list",
+          "cachedResultName": "qualified_leads"
+        },
+        "limit": 20,
+        "options": {}
+      },
+      "id": "40b55e5e-5f3a-46f3-bf4e-85cb7339d54d",
+      "name": "List all qualified leads",
+      "type": "n8n-nodes-base.postgresTool",
+      "typeVersion": 2.6,
+      "position": [
+        2144,
+        800
+      ],
+      "credentials": {
+        "postgres": {
+          "id": "u7j29OmyHuzkVDfZ",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "descriptionType": "manual",
+        "toolDescription": "Create a new qualified lead record. Required: tenant_name, contact_info, unit_interest, qualification_answers (JSON object). Optional: status (default: new), notes, email_recipient",
+        "schema": {
+          "__rl": true,
+          "mode": "list",
+          "value": "public"
+        },
+        "table": {
+          "__rl": true,
+          "value": "qualified_leads",
+          "mode": "list",
+          "cachedResultName": "qualified_leads"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "tenant_name": "={{ $fromAI('tenant_name', 'Lead full name (required)', 'string') }}",
+            "contact_info": "={{ $fromAI('contact_info', 'Phone number or email address (required)', 'string') }}",
+            "unit_interest": "={{ $fromAI('unit_interest', 'Property or unit of interest (required)', 'string') }}",
+            "qualification_answers": "={{ $fromAI('qualification_answers', 'Qualification screening responses as JSON object (required)', 'json') }}",
+            "status": "={{ $fromAI('status', 'Lead status (new, contacted, interested, application_submitted, approved, rejected, inactive)', 'string', 'new') }}",
+            "notes": "={{ $fromAI('notes', 'Additional notes or follow-up information (optional)', 'string', '') }}",
+            "email_recipient": "={{ $fromAI('email_recipient', 'Email address for notifications (optional)', 'string', '') }}"
+          },
+          "matchingColumns": [
+            "id"
+          ],
+          "schema": [
+            {
+              "id": "id",
+              "displayName": "id",
+              "required": false,
+              "defaultMatch": true,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "tenant_name",
+              "displayName": "tenant_name",
+              "required": true,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "contact_info",
+              "displayName": "contact_info",
+              "required": true,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "unit_interest",
+              "displayName": "unit_interest",
+              "required": true,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "qualification_answers",
+              "displayName": "qualification_answers",
+              "required": true,
+              "defaultMatch": false,
+              "display": true,
+              "type": "object",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "email_sent",
+              "displayName": "email_sent",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "boolean",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "email_recipient",
+              "displayName": "email_recipient",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "notes",
+              "displayName": "notes",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "status",
+              "displayName": "status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "created_at",
+              "displayName": "created_at",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "dateTime",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "updated_at",
+              "displayName": "updated_at",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "dateTime",
+              "canBeUsedToMatch": true,
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "id": "ee1522de-3b41-4639-a851-24e3452a29d4",
+      "name": "Create a qualified lead",
+      "type": "n8n-nodes-base.postgresTool",
+      "typeVersion": 2.6,
+      "position": [
+        2288,
+        800
+      ],
+      "credentials": {
+        "postgres": {
+          "id": "u7j29OmyHuzkVDfZ",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "descriptionType": "manual",
+        "toolDescription": "Update an existing qualified lead by ID. Provide the lead ID and any fields to update (tenant_name, contact_info, unit_interest, qualification_answers, status, notes, email_recipient, email_sent). Only provided fields will be modified",
+        "operation": "update",
+        "schema": {
+          "__rl": true,
+          "mode": "list",
+          "value": "public"
+        },
+        "table": {
+          "__rl": true,
+          "value": "qualified_leads",
+          "mode": "list",
+          "cachedResultName": "qualified_leads"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "id": "={{ $fromAI('id', 'Qualified lead ID to update', 'string') }}",
+            "tenant_name": "={{ $fromAI('tenant_name', 'Updated tenant name (optional)', 'string', '') }}",
+            "contact_info": "={{ $fromAI('contact_info', 'Updated contact info (optional)', 'string', '') }}",
+            "unit_interest": "={{ $fromAI('unit_interest', 'Updated unit interest (optional)', 'string', '') }}",
+            "qualification_answers": "={{ $fromAI('qualification_answers', 'Updated qualification answers JSON (optional)', 'json', '') }}",
+            "status": "={{ $fromAI('status', 'Updated lead status (optional)', 'string', '') }}",
+            "notes": "={{ $fromAI('notes', 'Updated notes (optional)', 'string', '') }}",
+            "email_recipient": "={{ $fromAI('email_recipient', 'Updated email recipient (optional)', 'string', '') }}",
+            "email_sent": "={{ $fromAI('email_sent', 'Email sent status (optional)', 'boolean', '') }}"
+          },
+          "matchingColumns": [
+            "id"
+          ],
+          "schema": [
+            {
+              "id": "id",
+              "displayName": "id",
+              "required": false,
+              "defaultMatch": true,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "tenant_name",
+              "displayName": "tenant_name",
+              "required": true,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "contact_info",
+              "displayName": "contact_info",
+              "required": true,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "unit_interest",
+              "displayName": "unit_interest",
+              "required": true,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "qualification_answers",
+              "displayName": "qualification_answers",
+              "required": true,
+              "defaultMatch": false,
+              "display": true,
+              "type": "object",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "email_sent",
+              "displayName": "email_sent",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "boolean",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "email_recipient",
+              "displayName": "email_recipient",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "notes",
+              "displayName": "notes",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "status",
+              "displayName": "status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "created_at",
+              "displayName": "created_at",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "dateTime",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "updated_at",
+              "displayName": "updated_at",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "dateTime",
+              "canBeUsedToMatch": true,
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "id": "1aebc1e6-3dbc-423d-9b7f-288fc81a23e9",
+      "name": "Update a qualified lead",
+      "type": "n8n-nodes-base.postgresTool",
+      "typeVersion": 2.6,
+      "position": [
+        2448,
+        800
+      ],
+      "credentials": {
+        "postgres": {
+          "id": "u7j29OmyHuzkVDfZ",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "descriptionType": "manual",
+        "toolDescription": "Delete a qualified lead record by ID. This action is permanent and cannot be undone. Provide the lead ID to delete",
+        "operation": "deleteTable",
+        "schema": {
+          "__rl": true,
+          "mode": "list",
+          "value": "public"
+        },
+        "table": {
+          "__rl": true,
+          "value": "qualified_leads",
+          "mode": "list",
+          "cachedResultName": "qualified_leads"
+        },
+        "deleteCommand": "delete",
+        "where": {
+          "values": [
+            {
+              "column": "id",
+              "value": "={{ $fromAI('id', 'Qualified lead ID to delete', 'string') }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "a673d9a4-d18d-430f-a9a0-0cf2ee49ff8a",
+      "name": "Delete a qualified lead",
+      "type": "n8n-nodes-base.postgresTool",
+      "typeVersion": 2.6,
+      "position": [
+        2592,
+        800
+      ],
+      "credentials": {
+        "postgres": {
+          "id": "u7j29OmyHuzkVDfZ",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "qualified_leads",
+        "authentication": "headerAuth",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        1584,
+        288
+      ],
+      "id": "512a725b-8975-4dc3-8cac-405ff0e97361",
+      "name": "Webhook",
+      "webhookId": "39219fe0-efcc-427a-ae79-89c69661d140",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "0HuFZThSVNVITvy8",
+          "name": "Jules Livekit"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        2816,
+        272
+      ],
+      "id": "0ebcbdd8-9671-45d3-99ed-a2e00d36764d",
+      "name": "Respond to Webhook"
+    }
+  ],
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1",
+    "availableInMCP": false
+  },
+  "shared": [
+    {
+      "updatedAt": "2025-12-17T02:58:51.427Z",
+      "createdAt": "2025-12-17T02:58:51.427Z",
+      "role": "workflow:owner",
+      "workflowId": "GuxpKmwVPHJFYvLK",
+      "projectId": "K5c2PqoZjXPELHVa"
+    }
+  ],
+  "staticData": null,
+  "tags": [],
+  "triggerCount": 1,
+  "updatedAt": "2026-01-10T23:57:01.311Z",
+  "versionId": "c0a2d7f2-22e3-4f56-94e8-de05f0d5a7b6"
+}
