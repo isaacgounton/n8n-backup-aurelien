@@ -1,0 +1,990 @@
+{
+  "active": false,
+  "activeVersion": null,
+  "activeVersionId": null,
+  "connections": {
+    "Daily 7am Trigger": {
+      "main": [
+        [
+          {
+            "node": "Workflow Configuration",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Workflow Configuration": {
+      "main": [
+        [
+          {
+            "node": "Get All Tasks",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get All Tasks": {
+      "main": [
+        [
+          {
+            "node": "Filter Active and Priority Tasks",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Filter Active and Priority Tasks": {
+      "main": [
+        [
+          {
+            "node": "Format Task List for Email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Format Task List for Email": {
+      "main": [
+        [
+          {
+            "node": "Send Daily Digest Email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "On Sheet Row Update": {
+      "main": [
+        [
+          {
+            "node": "Check if Status Changed",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check if Status Changed": {
+      "main": [
+        [
+          {
+            "node": "Send Status Change Notification",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "On Email from Me": {
+      "main": [
+        [
+          {
+            "node": "Parse Email Commands",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse Email Commands": {
+      "main": [
+        [
+          {
+            "node": "Route by Command Type",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Route by Command Type": {
+      "main": [
+        [
+          {
+            "node": "Update Existing Task",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Create New Task",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update Existing Task": {
+      "main": [
+        [
+          {
+            "node": "Merge Update Results",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create New Task": {
+      "main": [
+        [
+          {
+            "node": "Merge Update Results",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Merge Update Results": {
+      "main": [
+        [
+          {
+            "node": "Send Confirmation Email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Every 6 Hours Trigger": {
+      "main": [
+        [
+          {
+            "node": "Get All Tasks for Reminders",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get All Tasks for Reminders": {
+      "main": [
+        [
+          {
+            "node": "Calculate Stale Tasks",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Calculate Stale Tasks": {
+      "main": [
+        [
+          {
+            "node": "Filter Stale Tasks",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Filter Stale Tasks": {
+      "main": [
+        [
+          {
+            "node": "Send Reminder Email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send Reminder Email": {
+      "main": [
+        [
+          {
+            "node": "Update Reminder Timestamp",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "createdAt": "2025-11-24T02:19:15.323Z",
+  "id": "9Zt9yRzVJlwsk5bO",
+  "isArchived": false,
+  "meta": null,
+  "name": "Google Sheets Task Manager with Email Control and Daily Digests",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "triggerAtHour": 7
+            }
+          ]
+        }
+      },
+      "id": "12bdd9c6-ebb9-4d34-9b8f-6c093c60b0cc",
+      "name": "Daily 7am Trigger",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        0,
+        416
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "id-1",
+              "name": "yourEmail",
+              "value": "<__PLACEHOLDER_VALUE__Your email address__>",
+              "type": "string"
+            },
+            {
+              "id": "id-2",
+              "name": "sheetId",
+              "value": "<__PLACEHOLDER_VALUE__Google Sheet ID__>",
+              "type": "string"
+            }
+          ]
+        },
+        "includeOtherFields": true,
+        "options": {}
+      },
+      "id": "42cf2e03-5da8-43df-95a0-95d4c3ee15d6",
+      "name": "Workflow Configuration",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        224,
+        416
+      ]
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ $('Workflow Configuration').first().json.sheetId }}"
+        },
+        "sheetName": {
+          "__rl": true,
+          "mode": "name",
+          "value": "Sheet1"
+        },
+        "options": {}
+      },
+      "id": "62b823b0-8755-4fa3-99f9-e07f005c807e",
+      "name": "Get All Tasks",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        448,
+        416
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "aTGWDwc4d28BUxCQ",
+          "name": "Google Sheets (Isaac)"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": false,
+            "leftValue": "",
+            "typeValidation": "loose"
+          },
+          "conditions": [
+            {
+              "id": "id-1",
+              "leftValue": "={{ $json.Status }}",
+              "rightValue": "Done",
+              "operator": {
+                "type": "string",
+                "operation": "notEquals"
+              }
+            },
+            {
+              "id": "id-2",
+              "leftValue": "={{ $json.Priority }}",
+              "rightValue": "High",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            },
+            {
+              "id": "id-3",
+              "leftValue": "={{ $json['Due Date'] }}",
+              "rightValue": "={{ $today }}",
+              "operator": {
+                "type": "dateTime",
+                "operation": "beforeOrEquals"
+              }
+            }
+          ],
+          "combinator": "or"
+        },
+        "options": {}
+      },
+      "id": "21bfff20-8045-467d-9736-d7a5a82382f6",
+      "name": "Filter Active and Priority Tasks",
+      "type": "n8n-nodes-base.filter",
+      "typeVersion": 2.2,
+      "position": [
+        672,
+        416
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Format tasks into HTML email template\nconst items = $input.all();\n\nif (items.length === 0) {\n  return [{\n    json: {\n      htmlBody: '<p>No active priority tasks for today.</p>',\n      taskCount: 0\n    }\n  }];\n}\n\n// Build HTML table\nlet htmlBody = `\n<h2>Daily Task Digest</h2>\n<p>You have ${items.length} active priority task(s):</p>\n<table border=\"1\" cellpadding=\"8\" cellspacing=\"0\" style=\"border-collapse: collapse; width: 100%; font-family: Arial, sans-serif;\">\n  <thead>\n    <tr style=\"background-color: #4CAF50; color: white;\">\n      <th>Task Name</th>\n      <th>Property</th>\n      <th>Assigned To</th>\n      <th>Status</th>\n      <th>Priority</th>\n      <th>Due Date</th>\n      <th>Notes</th>\n    </tr>\n  </thead>\n  <tbody>\n`;\n\n// Add each task as a row\nfor (const item of items) {\n  const task = item.json;\n  const priorityColor = task.priority === 'High' ? '#ff4444' : task.priority === 'Medium' ? '#ffaa00' : '#44ff44';\n  \n  htmlBody += `\n    <tr>\n      <td>${task.taskName || ''}</td>\n      <td>${task.property || ''}</td>\n      <td>${task.assignedTo || ''}</td>\n      <td>${task.status || ''}</td>\n      <td style=\"color: ${priorityColor}; font-weight: bold;\">${task.priority || ''}</td>\n      <td>${task.dueDate || ''}</td>\n      <td>${task.notes || ''}</td>\n    </tr>\n  `;\n}\n\nhtmlBody += `\n  </tbody>\n</table>\n<p style=\"margin-top: 20px; color: #666;\">This is your automated daily task digest.</p>\n`;\n\nreturn [{\n  json: {\n    htmlBody: htmlBody,\n    taskCount: items.length\n  }\n}];"
+      },
+      "id": "d0f0b259-05e0-4c4a-bc62-a4ae8433f876",
+      "name": "Format Task List for Email",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        896,
+        416
+      ]
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $('Workflow Configuration').first().json.yourEmail }}",
+        "subject": "=Daily Task Digest - {{ $now.format('MMMM d, yyyy') }}",
+        "message": "={{ $json.emailBody }}",
+        "options": {}
+      },
+      "id": "7c88eda4-b102-4c39-aa81-5c5b1cc74d4c",
+      "name": "Send Daily Digest Email",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        1120,
+        416
+      ],
+      "webhookId": "94378d51-d23c-4885-a67c-afef02b15b4c",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "YSTb77wGllPGaj7e",
+          "name": "Gmail (Isaac)"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyMinute"
+            }
+          ]
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "<__PLACEHOLDER_VALUE__Google Sheet ID__>"
+        },
+        "sheetName": {
+          "__rl": true,
+          "mode": "id",
+          "value": "Sheet1"
+        },
+        "event": "rowUpdate",
+        "options": {}
+      },
+      "id": "6117dbe1-1964-4f22-a2d5-af92fc5f3dcc",
+      "name": "On Sheet Row Update",
+      "type": "n8n-nodes-base.googleSheetsTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        640
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "id-1",
+              "leftValue": "={{ $('On Sheet Row Update').item.json.Status }}",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "4d7c7d67-5960-467d-8926-18b609b66c25",
+      "name": "Check if Status Changed",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        224,
+        640
+      ]
+    },
+    {
+      "parameters": {
+        "sendTo": "<__PLACEHOLDER_VALUE__Your email address__>",
+        "subject": "=Task Status Update: {{ $json['Task Name'] }}",
+        "message": "=Task \"{{ $json['Task Name'] }}\" status changed to: {{ $json.Status }}",
+        "options": {}
+      },
+      "id": "6709a32f-c422-4b6c-8876-00145d316914",
+      "name": "Send Status Change Notification",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        448,
+        640
+      ],
+      "webhookId": "c7608634-54e3-416b-9c16-39cb7118725e",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "YSTb77wGllPGaj7e",
+          "name": "Gmail (Isaac)"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyMinute"
+            }
+          ]
+        },
+        "filters": {
+          "q": "from:me subject:TASK UPDATE"
+        }
+      },
+      "id": "5271a038-1a52-407b-8464-70109b8ea918",
+      "name": "On Email from Me",
+      "type": "n8n-nodes-base.gmailTrigger",
+      "typeVersion": 1.3,
+      "position": [
+        0,
+        96
+      ],
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "YSTb77wGllPGaj7e",
+          "name": "Gmail (Isaac)"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "// Parse email body for task management commands\nconst emailBody = $input.item.json.body || $input.item.json.snippet || '';\nconst subject = $input.item.json.subject || '';\n\n// Initialize result object\nconst result = {\n  commandType: null,\n  taskName: null,\n  status: null,\n  priority: null,\n  assignedTo: null,\n  dueDate: null,\n  notes: null\n};\n\n// Check if this is a NEW TASK command\nif (emailBody.match(/NEW TASK:/i) || subject.match(/NEW TASK:/i)) {\n  result.commandType = 'create';\n  \n  // Extract task name (text after NEW TASK:)\n  const taskNameMatch = emailBody.match(/NEW TASK:\\s*([^\\n]+)/i) || subject.match(/NEW TASK:\\s*([^\\n]+)/i);\n  if (taskNameMatch) {\n    result.taskName = taskNameMatch[1].trim();\n  }\n} else {\n  // This is an UPDATE command\n  result.commandType = 'update';\n  \n  // Extract task name from subject or first line\n  const taskNameMatch = subject.match(/(?:RE:|FW:|Update)\\s*:?\\s*(.+)/i) || emailBody.match(/^([^\\n]+)/i);\n  if (taskNameMatch) {\n    result.taskName = taskNameMatch[1].trim();\n  }\n}\n\n// Extract status (e.g., \"status: done\", \"status:in progress\")\nconst statusMatch = emailBody.match(/status:\\s*([^\\n,]+)/i);\nif (statusMatch) {\n  result.status = statusMatch[1].trim();\n}\n\n// Extract priority (e.g., \"priority: high\", \"priority:low\")\nconst priorityMatch = emailBody.match(/priority:\\s*([^\\n,]+)/i);\nif (priorityMatch) {\n  result.priority = priorityMatch[1].trim();\n}\n\n// Extract assigned to (e.g., \"assigned to: John\", \"assigned:Jane\")\nconst assignedMatch = emailBody.match(/assigned(?:\\s+to)?:\\s*([^\\n,]+)/i);\nif (assignedMatch) {\n  result.assignedTo = assignedMatch[1].trim();\n}\n\n// Extract due date (e.g., \"due: 2024-01-15\", \"due date: tomorrow\")\nconst dueDateMatch = emailBody.match(/due(?:\\s+date)?:\\s*([^\\n,]+)/i);\nif (dueDateMatch) {\n  result.dueDate = dueDateMatch[1].trim();\n}\n\n// Extract notes (e.g., \"notes: some text\", everything after \"notes:\")\nconst notesMatch = emailBody.match(/notes:\\s*([\\s\\S]*?)(?=\\n(?:status|priority|assigned|due)|$)/i);\nif (notesMatch) {\n  result.notes = notesMatch[1].trim();\n}\n\n// Return the parsed command\nreturn {\n  json: {\n    ...result,\n    originalSubject: subject,\n    originalBody: emailBody,\n    parsedAt: new Date().toISOString()\n  }\n};"
+      },
+      "id": "aeda5eaf-3576-458c-9cb6-2b797b45e2bd",
+      "name": "Parse Email Commands",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        224,
+        96
+      ]
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.commandType }}",
+                    "rightValue": "update",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "11525d91-a6cf-41d7-9076-8277f383602f"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Update"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.commandType }}",
+                    "rightValue": "create",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "cd4bb1ac-43b4-4229-9189-056bc331b5e3"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Create"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "fb9c25f7-35e1-4b6b-b8ef-e780832ba1ad",
+      "name": "Route by Command Type",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.3,
+      "position": [
+        448,
+        96
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "value": "14SmQgfia54RTX8AZk9IkcuuwBbPPQmP-Ore78JVwjEI",
+          "mode": "list",
+          "cachedResultName": "Tasks Management",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/14SmQgfia54RTX8AZk9IkcuuwBbPPQmP-Ore78JVwjEI/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "mode": "name",
+          "value": "Sheet1"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Task Name": "={{ $json.taskName }}",
+            "Status": "={{ $json.status }}",
+            "Last Updated": "={{ $now.toISO() }}"
+          },
+          "matchingColumns": [
+            "Task Name"
+          ],
+          "schema": [
+            {
+              "id": "Task Name",
+              "displayName": "Task Name",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Status",
+              "displayName": "Status",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Last Updated",
+              "displayName": "Last Updated",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "d566f9ce-fd51-43c3-a7bf-699fe6d3f694",
+      "name": "Update Existing Task",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        672,
+        0
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "aTGWDwc4d28BUxCQ",
+          "name": "Google Sheets (Isaac)"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "appendOrUpdate",
+        "documentId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "<__PLACEHOLDER_VALUE__Google Sheet ID__>"
+        },
+        "sheetName": {
+          "__rl": true,
+          "mode": "name",
+          "value": "Sheet1"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Task Name": "={{ $json.taskName }}",
+            "Property": "={{ $json.property }}",
+            "Assigned To": "={{ $json.assignedTo }}",
+            "Status": "={{ $json.status }}",
+            "Priority": "={{ $json.priority }}",
+            "Due Date": "={{ $json.dueDate }}",
+            "Notes": "={{ $json.notes }}",
+            "Date Created": "={{ $now.toISO() }}",
+            "Last Updated": "={{ $now.toISO() }}"
+          },
+          "matchingColumns": [
+            "Task Name"
+          ],
+          "schema": [
+            {
+              "id": "Task Name",
+              "displayName": "Task Name",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Property",
+              "displayName": "Property",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Assigned To",
+              "displayName": "Assigned To",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Status",
+              "displayName": "Status",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Priority",
+              "displayName": "Priority",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Due Date",
+              "displayName": "Due Date",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Notes",
+              "displayName": "Notes",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Date Created",
+              "displayName": "Date Created",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Last Updated",
+              "displayName": "Last Updated",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "674f7702-a5f1-4031-aff4-b529aad8f3bd",
+      "name": "Create New Task",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        672,
+        192
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "aTGWDwc4d28BUxCQ",
+          "name": "Google Sheets (Isaac)"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "id": "70b098e8-4dbf-4974-8d57-b37a01c8bbbf",
+      "name": "Merge Update Results",
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        896,
+        96
+      ]
+    },
+    {
+      "parameters": {
+        "sendTo": "<__PLACEHOLDER_VALUE__Your email address__>",
+        "subject": "Task Update Confirmation",
+        "message": "=Your task update has been processed successfully. Task: {{ $json.taskName }}",
+        "options": {}
+      },
+      "id": "86b2e3c1-5a55-4aa8-a7da-376edede248c",
+      "name": "Send Confirmation Email",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        1120,
+        96
+      ],
+      "webhookId": "cc70d717-9bbe-4ddf-a9cc-dc93b0069991",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "YSTb77wGllPGaj7e",
+          "name": "Gmail (Isaac)"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "hours",
+              "hoursInterval": 6
+            }
+          ]
+        }
+      },
+      "id": "16b11a0c-0ba2-4253-a20c-e6d6f08f7055",
+      "name": "Every 6 Hours Trigger",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        0,
+        864
+      ]
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "<__PLACEHOLDER_VALUE__Google Sheet ID__>"
+        },
+        "sheetName": {
+          "__rl": true,
+          "mode": "name",
+          "value": "Sheet1"
+        },
+        "options": {
+          "returnFirstMatch": false
+        }
+      },
+      "id": "d5653c87-5090-4a27-a4b8-83e6606992e7",
+      "name": "Get All Tasks for Reminders",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        224,
+        864
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "aTGWDwc4d28BUxCQ",
+          "name": "Google Sheets (Isaac)"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "// Calculate hours since last update for each task\nconst item = $input.item.json;\n\n// Get the last update timestamp (assuming it's in a field like 'lastUpdate' or 'updatedAt')\nconst lastUpdate = item.lastUpdate || item.updatedAt || item.lastModified;\n\n// Calculate hours since last update\nlet hoursSince = null;\n\nif (lastUpdate) {\n  const lastUpdateDate = new Date(lastUpdate);\n  const now = new Date();\n  const diffMs = now - lastUpdateDate;\n  hoursSince = Math.floor(diffMs / (1000 * 60 * 60)); // Convert milliseconds to hours\n}\n\n// Return the item with the new hoursSince field\nreturn {\n  ...item,\n  hoursSince: hoursSince\n};"
+      },
+      "id": "c3751c3a-5adf-4513-93f5-7389393ab096",
+      "name": "Calculate Stale Tasks",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        448,
+        864
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": false,
+            "leftValue": "",
+            "typeValidation": "loose"
+          },
+          "conditions": [
+            {
+              "id": "id-1",
+              "leftValue": "={{ $('Calculate Stale Tasks').item.json.Status }}",
+              "rightValue": "Done",
+              "operator": {
+                "type": "string",
+                "operation": "notEquals"
+              }
+            },
+            {
+              "id": "id-2",
+              "leftValue": "={{ $('Calculate Stale Tasks').item.json.hoursSince }}",
+              "rightValue": "48",
+              "operator": {
+                "type": "number",
+                "operation": "gt"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "40307ef9-0993-4251-b7ea-3053d545dffd",
+      "name": "Filter Stale Tasks",
+      "type": "n8n-nodes-base.filter",
+      "typeVersion": 2.2,
+      "position": [
+        672,
+        864
+      ]
+    },
+    {
+      "parameters": {
+        "sendTo": "<__PLACEHOLDER_VALUE__Your email address__>",
+        "subject": "=Reminder: Task {{ $json['Task Name'] }} needs attention",
+        "message": "=Task \"{{ $json['Task Name'] }}\" has not been updated in {{ Math.floor($json.hoursSince) }} hours. Please review.",
+        "options": {}
+      },
+      "id": "6ed1d4de-398c-48ba-b40b-5d35b7de7b00",
+      "name": "Send Reminder Email",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        896,
+        864
+      ],
+      "webhookId": "725b0eaa-08b8-499f-a35b-b4597b04d810",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "YSTb77wGllPGaj7e",
+          "name": "Gmail (Isaac)"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "<__PLACEHOLDER_VALUE__Google Sheet ID__>"
+        },
+        "sheetName": {
+          "__rl": true,
+          "mode": "name",
+          "value": "Sheet1"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Task Name": "={{ $json['Task Name'] }}",
+            "Last Updated": "={{ $now.toISO() }}"
+          },
+          "matchingColumns": [
+            "Task Name"
+          ],
+          "schema": [
+            {
+              "id": "Task Name",
+              "displayName": "Task Name",
+              "required": false,
+              "defaultMatch": true,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Last Updated",
+              "displayName": "Last Updated",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "acca5b03-cd69-4c08-b935-68b5d9d0f6f1",
+      "name": "Update Reminder Timestamp",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        1120,
+        864
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "aTGWDwc4d28BUxCQ",
+          "name": "Google Sheets (Isaac)"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "shared": [
+    {
+      "updatedAt": "2025-11-24T02:19:15.327Z",
+      "createdAt": "2025-11-24T02:19:15.327Z",
+      "role": "workflow:owner",
+      "workflowId": "9Zt9yRzVJlwsk5bO",
+      "projectId": "K5c2PqoZjXPELHVa"
+    }
+  ],
+  "staticData": null,
+  "tags": [],
+  "triggerCount": 0,
+  "updatedAt": "2025-11-24T02:29:03.000Z",
+  "versionId": "e0fa4daf-1700-49a9-aee0-888a1ddf1657"
+}
