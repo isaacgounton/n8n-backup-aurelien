@@ -1,0 +1,3802 @@
+{
+  "active": true,
+  "activeVersion": {
+    "updatedAt": "2026-02-23T13:49:54.000Z",
+    "createdAt": "2026-02-23T13:49:52.510Z",
+    "versionId": "3e5232b7-978e-4e60-ba29-3fef49c99d38",
+    "workflowId": "bFoDok1p4MFdsnYD",
+    "nodes": [
+      {
+        "parameters": {
+          "rule": {
+            "interval": [
+              {
+                "triggerAtHour": 9,
+                "triggerAtMinute": 15
+              }
+            ]
+          }
+        },
+        "type": "n8n-nodes-base.scheduleTrigger",
+        "typeVersion": 1.2,
+        "position": [
+          7808,
+          6800
+        ],
+        "id": "ec648ced-9799-4eaa-8d62-75c9e94c0619",
+        "name": "Schedule Trigger"
+      },
+      {
+        "parameters": {
+          "promptType": "define",
+          "text": "=Provide temperatures in Celsius for Miramichi NB and London ON and one sentence about precipitations\n\n<WeatherForecast>\n{{ JSON.stringify($json.weather_forecast_miramichi) }}\n--\n{{ JSON.stringify($json.weather_forecast_london) }}\n</WeatherForecast>"
+        },
+        "type": "@n8n/n8n-nodes-langchain.chainLlm",
+        "typeVersion": 1.5,
+        "position": [
+          9344,
+          6528
+        ],
+        "id": "6cdcd7f8-6bbf-40b0-838a-439c27906c82",
+        "name": "Basic LLM Chain1"
+      },
+      {
+        "parameters": {
+          "model": {
+            "__rl": true,
+            "value": "gpt-4.1-mini",
+            "mode": "list",
+            "cachedResultName": "gpt-4.1-mini"
+          },
+          "options": {}
+        },
+        "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+        "typeVersion": 1.2,
+        "position": [
+          9424,
+          6752
+        ],
+        "id": "ef699941-c23b-45a1-912b-608a0fab40d0",
+        "name": "OpenAI Chat Model1",
+        "credentials": {
+          "openAiApi": {
+            "id": "vofRqqG7VEHTXxTs",
+            "name": "OpenAi account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "assignments": {
+            "assignments": [
+              {
+                "id": "0dfe8ddb-2165-43d1-9114-4abffc3ecfbc",
+                "name": "weather_forecast",
+                "value": "={{ $json.text.replace(/<think>[\\s\\S]*?<\\/think>/g, '').trim() }}",
+                "type": "string"
+              }
+            ]
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.set",
+        "typeVersion": 3.4,
+        "position": [
+          10048,
+          6528
+        ],
+        "id": "3c57ceb0-1347-4f90-87c5-4f68a8267907",
+        "name": "Edit Fields2"
+      },
+      {
+        "parameters": {
+          "content": "# Weather",
+          "height": 600,
+          "width": 1720
+        },
+        "type": "n8n-nodes-base.stickyNote",
+        "typeVersion": 1,
+        "position": [
+          8560,
+          6288
+        ],
+        "id": "8b5cac67-c7a2-469d-a7cf-64525ee497a8",
+        "name": "Sticky Note1"
+      },
+      {
+        "parameters": {
+          "assignments": {
+            "assignments": [
+              {
+                "id": "bd27db88-18db-4bee-817f-14697dddac87",
+                "name": "mailbox",
+                "value": "={{ $json.to.value[0].address }}",
+                "type": "string"
+              },
+              {
+                "id": "c5d24917-c196-4979-b118-40bedcf0511a",
+                "name": "email",
+                "value": "={{ $json.text }}",
+                "type": "string"
+              },
+              {
+                "id": "f99c070e-5e12-4b9f-8a46-84cad215c4d5",
+                "name": "from",
+                "value": "={{ $json.from.value }}",
+                "type": "array"
+              }
+            ]
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.set",
+        "typeVersion": 3.4,
+        "position": [
+          9120,
+          7200
+        ],
+        "id": "87bad074-0681-455b-81eb-168a9fde22f7",
+        "name": "Edit Fields3"
+      },
+      {
+        "parameters": {
+          "aggregate": "aggregateAllItemData",
+          "destinationFieldName": "emails",
+          "options": {}
+        },
+        "type": "n8n-nodes-base.aggregate",
+        "typeVersion": 1,
+        "position": [
+          9408,
+          7200
+        ],
+        "id": "cc9990f7-6dd7-4831-af48-14e5dc1898ac",
+        "name": "Aggregate2"
+      },
+      {
+        "parameters": {
+          "promptType": "define",
+          "text": "=Extract all the emails that were sent by humans and aren't newsletters or system updates or calendar updates and summarize the emails in one sentence for a digest and add who (name + email) sent the email.\n\nGroup the emails by mailbox so it's clear which mailbox each email was sent to.\n\n<emails>\n{{ $json.emails.map(item => `\\n<email>\\n<mailbox>\\n${item.mailbox}\\n</mailbox>\\n<from>\\n${JSON.stringify(item.from)}\\n</from>\\n<body>\\n${item.email}\\n</body>\\n</email>\\n`).join('') }}\n</emails>\n",
+          "hasOutputParser": true
+        },
+        "type": "@n8n/n8n-nodes-langchain.chainLlm",
+        "typeVersion": 1.5,
+        "position": [
+          9696,
+          7200
+        ],
+        "id": "4f104f46-d6b8-4fcc-9fdf-7ba554ab34d6",
+        "name": "Basic LLM Chain2"
+      },
+      {
+        "parameters": {
+          "model": {
+            "__rl": true,
+            "value": "gpt-4.1",
+            "mode": "list",
+            "cachedResultName": "gpt-4.1"
+          },
+          "options": {}
+        },
+        "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+        "typeVersion": 1.2,
+        "position": [
+          9712,
+          7424
+        ],
+        "id": "b91c3f59-b514-46a6-9ff8-074e7b2915b6",
+        "name": "OpenAI Chat Model2",
+        "credentials": {
+          "openAiApi": {
+            "id": "vofRqqG7VEHTXxTs",
+            "name": "OpenAi account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "jsonSchemaExample": "{\n\t\"mailboxes\": [\n\t\t{\n\t\t\t\"mailbox\": \"mailbox email address\",\n\t\t\t\"emails\": [\"email 1 summary\", \"email 2 summary\"]\n\t\t}\n\t]\n}"
+        },
+        "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+        "typeVersion": 1.2,
+        "position": [
+          9840,
+          7424
+        ],
+        "id": "ff6340ef-69db-476d-81e8-d53f28bb2f6d",
+        "name": "Structured Output Parser"
+      },
+      {
+        "parameters": {
+          "assignments": {
+            "assignments": [
+              {
+                "id": "8b795abf-c0d7-42f9-aa3d-f5a4ed47dda1",
+                "name": "emails",
+                "value": "={{ JSON.stringify($json.output.mailboxes) }}",
+                "type": "string"
+              }
+            ]
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.set",
+        "typeVersion": 3.4,
+        "position": [
+          10048,
+          7200
+        ],
+        "id": "1fbff149-890e-43c9-83d1-87861f7f80bc",
+        "name": "Edit Fields4"
+      },
+      {
+        "parameters": {
+          "content": "# Emails",
+          "height": 480,
+          "width": 1500
+        },
+        "type": "n8n-nodes-base.stickyNote",
+        "typeVersion": 1,
+        "position": [
+          8544,
+          7264
+        ],
+        "id": "795299fe-e169-4326-9d41-98c59b5b7cc2",
+        "name": "Sticky Note2"
+      },
+      {
+        "parameters": {
+          "fieldsToAggregate": {
+            "fieldToAggregate": [
+              {
+                "fieldToAggregate": "news"
+              },
+              {
+                "fieldToAggregate": "weather_forecast"
+              },
+              {
+                "fieldToAggregate": "emails"
+              },
+              {
+                "fieldToAggregate": "calendar_events"
+              },
+              {
+                "fieldToAggregate": "quotes"
+              },
+              {
+                "fieldToAggregate": "yearlyTheme"
+              },
+              {
+                "fieldToAggregate": "longevity_research"
+              }
+            ]
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.aggregate",
+        "typeVersion": 1,
+        "position": [
+          10832,
+          6800
+        ],
+        "id": "8eecf773-fbf4-42a2-acba-0684a1a188f0",
+        "name": "Aggregate4"
+      },
+      {
+        "parameters": {
+          "assignments": {
+            "assignments": [
+              {
+                "id": "68158149-a655-4cba-857d-e1b289bd750f",
+                "name": "news",
+                "value": "={{ $json.news[0] }}",
+                "type": "string"
+              },
+              {
+                "id": "c3d828f7-f9a5-47b4-9e0f-03eea9e4b7bb",
+                "name": "weather_forecast",
+                "value": "={{ $json.weather_forecast[0] }}",
+                "type": "string"
+              },
+              {
+                "id": "531afbd6-339e-4408-bfc4-7c2daca1a751",
+                "name": "emails",
+                "value": "={{ $json.emails[0] }}",
+                "type": "string"
+              },
+              {
+                "id": "05bb70c2-ec0a-4b38-a08c-6d5c3bd44d06",
+                "name": "calendar_events",
+                "value": "={{ $json.calendar_events[0] }}",
+                "type": "string"
+              },
+              {
+                "id": "id-5",
+                "name": "quotes",
+                "value": "={{ $json.quotes[0] }}",
+                "type": "string"
+              },
+              {
+                "id": "id-6",
+                "name": "yearlyTheme",
+                "value": "={{ $json.yearlyTheme[0] }}",
+                "type": "string"
+              },
+              {
+                "id": "id-7",
+                "name": "longevity_research",
+                "value": "={{ $json.longevity_research[0] }}",
+                "type": "string"
+              }
+            ]
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.set",
+        "typeVersion": 3.4,
+        "position": [
+          11008,
+          6800
+        ],
+        "id": "1f50425f-f59a-41b4-8146-607d19456426",
+        "name": "Edit Fields7"
+      },
+      {
+        "parameters": {
+          "promptType": "define",
+          "text": "=Create a daily digest from the data below.\nUse a personal, light-hearted tone (2nd person).\n\nThe elements to include (from the source data):\n1. Weather forecast\n2. Unread emails\n3. 4 motivational quotes\n4. Priorities: Today priorities\n5. Yearly theme reminder\n6. Longevity Research: Latest advances in longevity and anti-aging science\n\n<DataSource>\n<WeatherForecast>\n{{ $('Edit Fields7').item.json.weather_forecast }}\n</WeatherForecast>\n<Emails>\n{{ $('Edit Fields7').item.json.emails }}\n</Emails>\n<Quotes>\n{{ $('Edit Fields7').item.json.quotes }}\n</Quotes>\n<Priorities>\n{{ $json.tomorrow_priorities }}\n</Priorities>\n<YearlyTheme>\n{{ $('Edit Fields7').item.json.yearlyTheme }}\n</YearlyTheme>\n<LongevityResearch>\n{{ $('Edit Fields7').item.json.longevity_research }}\n</LongevityResearch>\n</DataSource>\n\nMake sure to format the message as raw text with proper new lines, separating everything.\nDo not use any markdown - as it will be read on mobile. Don't use any bold, other styling.\n\nExample formatting:\n\nBonjour,\n\nToday's weather\n- forecast\n- clothing recommendations\n\nToday's meetings\n- meeting 1 at time\n- meeting 2 at time\n\nUnread emails\n- email 1\n- email 2\n\nMotivational quotes:\n\n\"quote 1\"\n- Author 1\n\n\"quote 2\"\n- Author 2\n\n\"quote 3\"\n- Author 3\n\nPriorities for today:\n- priority 1\n- priority 2\n\nYearly theme: [theme]\n\nLatest in Longevity Research:\n- finding 1\n- finding 2\n- finding 3\n\nHave a great day!",
+          "hasOutputParser": true,
+          "options": {}
+        },
+        "type": "@n8n/n8n-nodes-langchain.agent",
+        "typeVersion": 1.7,
+        "position": [
+          11424,
+          6800
+        ],
+        "id": "0f64441a-f1dc-4e71-addd-575fb6c891ae",
+        "name": "AI Agent"
+      },
+      {
+        "parameters": {
+          "model": {
+            "__rl": true,
+            "value": "gpt-4.1-mini",
+            "mode": "list",
+            "cachedResultName": "gpt-4.1-mini"
+          },
+          "options": {}
+        },
+        "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+        "typeVersion": 1.2,
+        "position": [
+          11424,
+          6928
+        ],
+        "id": "82713cf5-bea2-4761-b398-43ae57f7102a",
+        "name": "OpenAI Chat Model3",
+        "credentials": {
+          "openAiApi": {
+            "id": "vofRqqG7VEHTXxTs",
+            "name": "OpenAi account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "sendTo": "boninaurelien@gmail.com",
+          "subject": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Subject', ``, 'string') }}",
+          "emailType": "text",
+          "message": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Message', ``, 'string') }}",
+          "options": {
+            "appendAttribution": false
+          }
+        },
+        "type": "n8n-nodes-base.gmailTool",
+        "typeVersion": 2.1,
+        "position": [
+          10736,
+          8160
+        ],
+        "id": "374e4763-02bd-417f-949e-2c741bd77082",
+        "name": "send_digest",
+        "webhookId": "162a213b-823b-4420-8c95-05e882822299",
+        "credentials": {
+          "gmailOAuth2": {
+            "id": "pcIKnGBryHHONrSG",
+            "name": "Relay"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "content": "# Build and send digest",
+          "height": 500,
+          "width": 640,
+          "color": 4
+        },
+        "type": "n8n-nodes-base.stickyNote",
+        "typeVersion": 1,
+        "position": [
+          9664,
+          7440
+        ],
+        "id": "cebc6fb0-be73-4026-bd54-2b75c68cc7eb",
+        "name": "Sticky Note4"
+      },
+      {
+        "parameters": {
+          "content": "# Prepare the data",
+          "height": 460,
+          "width": 720
+        },
+        "type": "n8n-nodes-base.stickyNote",
+        "typeVersion": 1,
+        "position": [
+          10768,
+          12112
+        ],
+        "id": "f65226b4-6cf1-4f36-a252-b804751008df",
+        "name": "Sticky Note5"
+      },
+      {
+        "parameters": {
+          "content": "# 📚 [Join our Skool community for support, premium content and more!](https://www.skool.com/ai-agents-az/about?w2)\n\n## Be part of a growing community and help us create more content like this",
+          "height": 220,
+          "width": 860,
+          "color": 6
+        },
+        "type": "n8n-nodes-base.stickyNote",
+        "typeVersion": 1,
+        "position": [
+          8288,
+          15024
+        ],
+        "id": "cee99b02-e04e-462c-a8d1-2ee4698522eb",
+        "name": "Sticky Note6"
+      },
+      {
+        "parameters": {
+          "assignments": {
+            "assignments": [
+              {
+                "id": "id-1",
+                "name": "quotes",
+                "value": "={{ JSON.stringify($json.output[0].content[0].text) }}",
+                "type": "string"
+              },
+              {
+                "id": "id-2",
+                "name": "yearlyTheme",
+                "value": "Have fun and take care of your girls",
+                "type": "string"
+              }
+            ]
+          },
+          "options": {}
+        },
+        "id": "da4e991f-2e4c-4002-a83c-561393d30538",
+        "name": "Add Quotes and Theme",
+        "type": "n8n-nodes-base.set",
+        "typeVersion": 3.4,
+        "position": [
+          10016,
+          6352
+        ]
+      },
+      {
+        "parameters": {
+          "content": "# Quotes",
+          "height": 540,
+          "width": 1064
+        },
+        "type": "n8n-nodes-base.stickyNote",
+        "typeVersion": 1,
+        "position": [
+          9504,
+          5936
+        ],
+        "id": "a67ccafb-bbd8-49d9-b36f-d5860ad14eee",
+        "name": "Sticky Note7"
+      },
+      {
+        "parameters": {
+          "rule": {
+            "interval": [
+              {
+                "triggerAtHour": 16,
+                "triggerAtMinute": 5
+              }
+            ]
+          }
+        },
+        "type": "n8n-nodes-base.scheduleTrigger",
+        "typeVersion": 1.2,
+        "position": [
+          8448,
+          8112
+        ],
+        "id": "00229615-c6bb-4c72-954a-30523e94371f",
+        "name": "Schedule Trigger1"
+      },
+      {
+        "parameters": {
+          "operation": "getAll",
+          "calendar": {
+            "__rl": true,
+            "value": "boninaurelien@googlemail.com",
+            "mode": "list",
+            "cachedResultName": "boninaurelien@googlemail.com"
+          },
+          "timeMax": "={{ $now.plus({ days: 1 }) }}",
+          "options": {}
+        },
+        "type": "n8n-nodes-base.googleCalendar",
+        "typeVersion": 1.3,
+        "position": [
+          8672,
+          8112
+        ],
+        "id": "2b321570-d2ce-462e-a2b0-f3cfd16a6723",
+        "name": "Google Calendar1",
+        "credentials": {
+          "googleCalendarOAuth2Api": {
+            "id": "BZjwIyJznKSWyCWp",
+            "name": "AB Calendar"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "assignments": {
+            "assignments": [
+              {
+                "id": "c2ed0b62-fb10-4d36-a53e-b448f385b93f",
+                "name": "summary",
+                "value": "={{ $json.summary }}",
+                "type": "string"
+              },
+              {
+                "id": "a224249f-f845-43a2-b50c-805212713481",
+                "name": "startDate",
+                "value": "={{ $json.start.dateTime }}",
+                "type": "string"
+              },
+              {
+                "id": "60793d7b-ba96-4114-9682-b722d7402f7a",
+                "name": "timezone",
+                "value": "={{ $json.start.timeZone }}",
+                "type": "string"
+              }
+            ]
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.set",
+        "typeVersion": 3.4,
+        "position": [
+          8896,
+          8112
+        ],
+        "id": "525acc7a-0382-4ff2-abf6-73c419d2052a",
+        "name": "Edit Fields8"
+      },
+      {
+        "parameters": {
+          "aggregate": "aggregateAllItemData",
+          "destinationFieldName": "calendar_events",
+          "options": {}
+        },
+        "type": "n8n-nodes-base.aggregate",
+        "typeVersion": 1,
+        "position": [
+          9120,
+          8112
+        ],
+        "id": "f3efc562-94d4-49eb-8549-b0acc1db1370",
+        "name": "Aggregate5"
+      },
+      {
+        "parameters": {
+          "assignments": {
+            "assignments": [
+              {
+                "id": "768d5214-4d37-4b8f-9cbb-e34305e68381",
+                "name": "calendar_events",
+                "value": "={{ JSON.stringify($json.calendar_events) }}",
+                "type": "string"
+              }
+            ]
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.set",
+        "typeVersion": 3.4,
+        "position": [
+          9344,
+          8112
+        ],
+        "id": "eac1b8e5-c08a-4628-946f-00a3ead93e6e",
+        "name": "Edit Fields9"
+      },
+      {
+        "parameters": {
+          "content": "# Calendar",
+          "height": 440,
+          "width": 1120
+        },
+        "type": "n8n-nodes-base.stickyNote",
+        "typeVersion": 1,
+        "position": [
+          8496,
+          7840
+        ],
+        "id": "540853cd-2831-485a-b63f-f704ee341ddc",
+        "name": "Sticky Note8"
+      },
+      {
+        "parameters": {
+          "promptType": "define",
+          "text": "=Create a notification from the data below.\nUse a personal, light-hearted tone (2nd person). \n\nThe elements to include (from the source data):\n1. Tomorrow's calendar events\n2. Prompt: What are your priorities for tomorrow?\n\n<DataSource>\n<CalendarEvents>\n{{ $json.calendar_events }}\n</CalendarEvents>\n</DataSource>\n\nMake sure to format the message as raw text with proper new lines, separating everything.\nDo not use any markdown - as it will be read on mobile. Don't use any bold, other styling.\n\nExample formatting:\nBonjour,\n\nTomorrow's meetings\n- meeting 1 at time\n- meeting 2 at time\n\nWhat are your priorities for tomorrow?\n\nHave a great afternoon!\n",
+          "hasOutputParser": true,
+          "options": {}
+        },
+        "type": "@n8n/n8n-nodes-langchain.agent",
+        "typeVersion": 1.7,
+        "position": [
+          9568,
+          8112
+        ],
+        "id": "2ae820d7-8573-4c23-8b6e-7c796815baac",
+        "name": "AI Agent1"
+      },
+      {
+        "parameters": {
+          "model": {
+            "__rl": true,
+            "value": "gpt-4o",
+            "mode": "list",
+            "cachedResultName": "gpt-4o"
+          },
+          "options": {}
+        },
+        "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+        "typeVersion": 1.2,
+        "position": [
+          9552,
+          8256
+        ],
+        "id": "d32d64b2-5bc9-413d-8f91-edf5b3d8b491",
+        "name": "OpenAI Chat Model4",
+        "credentials": {
+          "openAiApi": {
+            "id": "vofRqqG7VEHTXxTs",
+            "name": "OpenAi account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "content": "# Build and send digest",
+          "height": 500,
+          "width": 640,
+          "color": 4
+        },
+        "type": "n8n-nodes-base.stickyNote",
+        "typeVersion": 1,
+        "position": [
+          9552,
+          7984
+        ],
+        "id": "0153ebdc-1f4b-4252-aa26-e10f174621d7",
+        "name": "Sticky Note9"
+      },
+      {
+        "parameters": {
+          "dataTableId": {
+            "__rl": true,
+            "value": "8m5nTm1qs3ksq14c",
+            "mode": "list",
+            "cachedResultName": "Daily Digest Table",
+            "cachedResultUrl": "/projects/K5c2PqoZjXPELHVa/datatables/8m5nTm1qs3ksq14c"
+          },
+          "columns": {
+            "mappingMode": "defineBelow",
+            "value": {
+              "priority_id": "={{ $today }}",
+              "tomorrow_priorities": "={{ $json.data.text }}"
+            },
+            "matchingColumns": [],
+            "schema": [
+              {
+                "id": "priority_id",
+                "displayName": "priority_id",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "readOnly": false,
+                "removed": false
+              },
+              {
+                "id": "tomorrow_priorities",
+                "displayName": "tomorrow_priorities",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "readOnly": false,
+                "removed": false
+              }
+            ],
+            "attemptToConvertTypes": false,
+            "convertFieldsToString": false
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.dataTable",
+        "typeVersion": 1.1,
+        "position": [
+          10064,
+          8112
+        ],
+        "id": "8bdad821-3fea-4803-9740-b347ed3c6b71",
+        "name": "Insert row"
+      },
+      {
+        "parameters": {
+          "jsonSchemaExample": "{\n    \"subject\": \"The email subject\",\n\t\"email\": \"The email content\"\n}"
+        },
+        "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+        "typeVersion": 1.3,
+        "position": [
+          9728,
+          8256
+        ],
+        "id": "5dec6e11-99ad-4b69-bb2b-a64f2081576a",
+        "name": "Structured Output Parser1"
+      },
+      {
+        "parameters": {
+          "operation": "get",
+          "dataTableId": {
+            "__rl": true,
+            "value": "8m5nTm1qs3ksq14c",
+            "mode": "list",
+            "cachedResultName": "Daily Digest Table",
+            "cachedResultUrl": "/projects/K5c2PqoZjXPELHVa/datatables/8m5nTm1qs3ksq14c"
+          },
+          "filters": {
+            "conditions": [
+              {
+                "keyName": "priority_id",
+                "keyValue": "={{ $today.minus({ days: 1 }) }}"
+              }
+            ]
+          },
+          "limit": 1
+        },
+        "type": "n8n-nodes-base.dataTable",
+        "typeVersion": 1.1,
+        "position": [
+          11200,
+          6800
+        ],
+        "id": "301763dd-b1fd-4080-bc0d-77faa6d2d881",
+        "name": "Get row(s)",
+        "alwaysOutputData": true,
+        "onError": "continueRegularOutput"
+      },
+      {
+        "parameters": {
+          "mode": "combine",
+          "combineBy": "combineByPosition",
+          "options": {}
+        },
+        "type": "n8n-nodes-base.merge",
+        "typeVersion": 3.2,
+        "position": [
+          9120,
+          6528
+        ],
+        "id": "7b9e4ee0-64c3-42c0-97c3-e712e23ef3b6",
+        "name": "Merge2"
+      },
+      {
+        "parameters": {
+          "assignments": {
+            "assignments": [
+              {
+                "id": "18d72036-2c0a-45cd-a197-49493c556bbd",
+                "name": "weather_forecast_london",
+                "value": "={{ $json }}",
+                "type": "object"
+              }
+            ]
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.set",
+        "typeVersion": 3.4,
+        "position": [
+          8896,
+          6624
+        ],
+        "id": "b5ce6bdf-a283-4b49-912b-56c212297a21",
+        "name": "weather_forecast_london"
+      },
+      {
+        "parameters": {
+          "assignments": {
+            "assignments": [
+              {
+                "id": "70521f17-6b6a-4dc7-a00b-b4deb05b9463",
+                "name": "weather_forecast_miramichi",
+                "value": "={{ $json }}",
+                "type": "object"
+              }
+            ]
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.set",
+        "typeVersion": 3.4,
+        "position": [
+          8896,
+          6432
+        ],
+        "id": "9774124d-4b99-4078-a94b-eac72cc76dd2",
+        "name": "weather_forecast_miramichi"
+      },
+      {
+        "parameters": {
+          "modelId": {
+            "__rl": true,
+            "value": "gpt-4.1",
+            "mode": "list",
+            "cachedResultName": "GPT-4.1"
+          },
+          "responses": {
+            "values": [
+              {
+                "content": "=You are a motivational quote generator. Your task is to generate exactly 4 inspirational quotes, each from a different category of thought leader.\n\nGenerate one quote from each of the following categories:\n\n1. **Billionaire Entrepreneur** - Generate a quote in the style of successful billionaires who focus on business wisdom, wealth creation, strategic thinking, and entrepreneurial mindset (e.g., Warren Buffett, Ray Dalio, Charlie Munger, Elon Musk, Jeff Bezos)\n\n2. **Mindset Coach** - Generate a quote in the style of renowned mindset coaches who focus on personal transformation, taking massive action, and peak performance (e.g., Tony Robbins, Wayne Dyer, Jack Canfield, Jim Rohn, Brendon Burchard)\n\n3. **Mindfulness Expert** - Generate a quote in the style of Buddhist teachers and mindfulness practitioners who focus on present-moment awareness, inner peace, meditation, and compassionate living (e.g., Ajahn Brahm, Ajahn Sona, Jon Kabat-Zinn, Thich Nhat Hanh, Jack Kornfield)\n\n4. **Catholic Scholar** - Generate an inspirational quote that either:\n   - Reflects on a meaningful fact about Jesus Christ's life\n   - Shares a powerful excerpt or interpretation from the Bible\n   - Offers an inspiring perspective on Catholic faith, theology, or spirituality\n   \nEach quote should be motivational, actionable, and thought-provoking. The quotes should capture the essence of each category's philosophy while being authentic to their respective wisdom traditions.\n\nFORMAT: Output each quote followed by attribution to a SPECIFIC author name from that category. Use this exact format:\n\n\"[Quote text]\"\n— [Specific Author Name]\n\nExample:\n\"Success comes from execution, not just ideas.\"\n— Warren Buffett\n\nDo not include any other text, introductions, category labels, or explanations. Just the 4 quotes with their specific author attributions."
+              }
+            ]
+          },
+          "builtInTools": {
+            "webSearch": {
+              "searchContextSize": "medium"
+            }
+          },
+          "options": {}
+        },
+        "type": "@n8n/n8n-nodes-langchain.openAi",
+        "typeVersion": 2.1,
+        "position": [
+          9728,
+          6352
+        ],
+        "id": "28b0c415-fe48-4d4b-938c-18a9c37dcf5e",
+        "name": "Message a model",
+        "credentials": {
+          "openAiApi": {
+            "id": "vofRqqG7VEHTXxTs",
+            "name": "OpenAi account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "operation": "sendAndWait",
+          "chatId": "7509217634",
+          "message": "={{ $json.output.email }}",
+          "responseType": "freeText",
+          "options": {
+            "limitWaitTime": {
+              "values": {
+                "resumeAmount": 45,
+                "resumeUnit": "minutes"
+              }
+            },
+            "appendAttribution": false
+          }
+        },
+        "type": "n8n-nodes-base.telegram",
+        "typeVersion": 1.2,
+        "position": [
+          10304,
+          8112
+        ],
+        "id": "27711b8d-32c8-406b-aa23-2f716e814793",
+        "name": "Send message and wait for response1",
+        "webhookId": "a19bef6a-453b-45a3-846e-b9553c241345",
+        "credentials": {
+          "telegramApi": {
+            "id": "31CT2zfW1Xx9YgF8",
+            "name": "Telegram (JulesAI)"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "operation": "getAll",
+          "limit": 10,
+          "simple": false,
+          "filters": {
+            "labelIds": [
+              "INBOX"
+            ],
+            "readStatus": "unread",
+            "receivedAfter": "={{ $now.minus(1, \"day\") }}"
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.gmail",
+        "typeVersion": 2.1,
+        "position": [
+          8672,
+          7200
+        ],
+        "id": "f5d12f93-b4e6-43a9-bedf-3a7b30f42221",
+        "name": "Relay",
+        "webhookId": "c485b21f-207d-4efb-9e85-566ff2e3de15",
+        "credentials": {
+          "gmailOAuth2": {
+            "id": "pcIKnGBryHHONrSG",
+            "name": "Relay"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "operation": "getAll",
+          "limit": 10,
+          "simple": false,
+          "filters": {
+            "labelIds": [
+              "INBOX"
+            ],
+            "readStatus": "unread",
+            "receivedAfter": "={{ $now.minus(1, \"day\") }}"
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.gmail",
+        "typeVersion": 2.1,
+        "position": [
+          8672,
+          7584
+        ],
+        "id": "a346f816-0b62-48ae-82db-b32a47c66dd6",
+        "name": "London",
+        "webhookId": "c485b21f-207d-4efb-9e85-566ff2e3de15",
+        "credentials": {
+          "gmailOAuth2": {
+            "id": "qn4S7KqPDs2UcaO5",
+            "name": "London"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "operation": "getAll",
+          "limit": 10,
+          "simple": false,
+          "filters": {
+            "labelIds": [
+              "INBOX"
+            ],
+            "readStatus": "unread",
+            "receivedAfter": "={{ $now.minus(1, \"day\") }}"
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.gmail",
+        "typeVersion": 2.1,
+        "position": [
+          8672,
+          6816
+        ],
+        "id": "1637ec15-9b3f-488c-8edc-b8524694e640",
+        "name": "Main",
+        "webhookId": "c485b21f-207d-4efb-9e85-566ff2e3de15",
+        "credentials": {
+          "gmailOAuth2": {
+            "id": "yaTtxbJsj8fscFQV",
+            "name": "MainGmail"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "operation": "getAll",
+          "limit": 10,
+          "simple": false,
+          "filters": {
+            "labelIds": [
+              "INBOX"
+            ],
+            "readStatus": "unread",
+            "receivedAfter": "={{ $now.minus(1, \"day\") }}"
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.gmail",
+        "typeVersion": 2.1,
+        "position": [
+          8672,
+          7008
+        ],
+        "id": "cd1ba33f-06d7-45d8-84a4-66bf03de6d9f",
+        "name": "Mira",
+        "webhookId": "c485b21f-207d-4efb-9e85-566ff2e3de15",
+        "credentials": {
+          "gmailOAuth2": {
+            "id": "HHXkrw8hyI2Xmkuh",
+            "name": "Mira"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "operation": "getAll",
+          "limit": 10,
+          "simple": false,
+          "filters": {
+            "labelIds": [
+              "INBOX"
+            ],
+            "readStatus": "unread",
+            "receivedAfter": "={{ $now.minus(1, \"day\") }}"
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.gmail",
+        "typeVersion": 2.1,
+        "position": [
+          8672,
+          7392
+        ],
+        "id": "a4d5a0b3-1a7c-4086-a7f9-e98fed97cc5a",
+        "name": "Des",
+        "webhookId": "c485b21f-207d-4efb-9e85-566ff2e3de15",
+        "credentials": {
+          "gmailOAuth2": {
+            "id": "YqSn5D2YTWcoeiLR",
+            "name": "Des"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "mode": "combine",
+          "combineBy": "combineByPosition",
+          "numberInputs": 5,
+          "options": {
+            "includeUnpaired": true
+          }
+        },
+        "type": "n8n-nodes-base.merge",
+        "typeVersion": 3,
+        "position": [
+          8960,
+          7136
+        ],
+        "id": "6eefb927-060d-4af5-a706-270117a0cd44",
+        "name": "Merge3"
+      },
+      {
+        "parameters": {
+          "chatId": "7509217634",
+          "text": "={{ $json.output }}",
+          "additionalFields": {
+            "appendAttribution": false
+          }
+        },
+        "type": "n8n-nodes-base.telegram",
+        "typeVersion": 1.2,
+        "position": [
+          12112,
+          6800
+        ],
+        "id": "3ecc9b40-7fd5-4cf7-8b56-55b44e9217e4",
+        "name": "Send a text message",
+        "webhookId": "a19bef6a-453b-45a3-846e-b9553c241345",
+        "credentials": {
+          "telegramApi": {
+            "id": "31CT2zfW1Xx9YgF8",
+            "name": "Telegram (JulesAI)"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "cityName": "miramichi,ca",
+          "language": "en"
+        },
+        "type": "n8n-nodes-base.openWeatherMap",
+        "typeVersion": 1,
+        "position": [
+          8672,
+          6432
+        ],
+        "id": "9fd67524-a5dc-4a74-8db6-9e7091aaab6e",
+        "name": "OpenWeatherMap2",
+        "credentials": {
+          "openWeatherMapApi": {
+            "id": "egnq05UaP0U8ukKO",
+            "name": "OpenWeatherMap account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "cityName": "london,ca",
+          "language": "en"
+        },
+        "type": "n8n-nodes-base.openWeatherMap",
+        "typeVersion": 1,
+        "position": [
+          8672,
+          6624
+        ],
+        "id": "77ae53ac-8485-4eb5-83eb-0bb8aee6b2cc",
+        "name": "OpenWeatherMap3",
+        "credentials": {
+          "openWeatherMapApi": {
+            "id": "egnq05UaP0U8ukKO",
+            "name": "OpenWeatherMap account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "modelId": {
+            "__rl": true,
+            "value": "gpt-5-mini",
+            "mode": "list",
+            "cachedResultName": "GPT-5-MINI"
+          },
+          "responses": {
+            "values": [
+              {
+                "content": "Search the web for the latest advances and breakthroughs in longevity research, anti-aging science, and life extension. Focus on recent discoveries from the past 30 days. Summarize the top 3-5 most significant findings in a concise, digestible format suitable for a daily digest. Include the key discovery, why it matters, and any practical implications."
+              }
+            ]
+          },
+          "builtInTools": {
+            "webSearch": {
+              "searchContextSize": "medium"
+            }
+          },
+          "options": {}
+        },
+        "id": "6be514c5-aace-4d3f-8782-3e9cfd684a7a",
+        "name": "Search Longevity Research",
+        "type": "@n8n/n8n-nodes-langchain.openAi",
+        "typeVersion": 2.1,
+        "position": [
+          9728,
+          6176
+        ],
+        "credentials": {
+          "openAiApi": {
+            "id": "vofRqqG7VEHTXxTs",
+            "name": "OpenAi account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "assignments": {
+            "assignments": [
+              {
+                "id": "id-1",
+                "name": "longevity_research",
+                "value": "={{ $json.output[0].content[0].text }}",
+                "type": "string"
+              }
+            ]
+          },
+          "options": {}
+        },
+        "id": "d8c9bada-d08e-4cee-b837-8b9904583c74",
+        "name": "Format Longevity Summary",
+        "type": "n8n-nodes-base.set",
+        "typeVersion": 3.4,
+        "position": [
+          10016,
+          6176
+        ]
+      },
+      {
+        "parameters": {
+          "mode": "combine",
+          "combineBy": "combineByPosition",
+          "numberInputs": 4,
+          "options": {}
+        },
+        "id": "840a4f75-d869-4b05-b276-e8a071c2014a",
+        "name": "Merge4",
+        "type": "n8n-nodes-base.merge",
+        "typeVersion": 3,
+        "position": [
+          10624,
+          6768
+        ]
+      },
+      {
+        "parameters": {
+          "promptType": "define",
+          "text": "Search the web for the latest advances and breakthroughs in longevity research, anti-aging science, and life extension. Focus on recent discoveries from the past 30 days. Summarize the top 3-5 most significant findings in a concise, digestible format suitable for a daily digest. Include the key discovery, why it matters, and any practical implications.",
+          "options": {}
+        },
+        "type": "@n8n/n8n-nodes-langchain.agent",
+        "typeVersion": 3.1,
+        "position": [
+          10752,
+          5696
+        ],
+        "id": "5a4b5a59-dea3-4410-b28d-fd95211a6198",
+        "name": "AI Agent2"
+      },
+      {
+        "parameters": {
+          "model": {
+            "__rl": true,
+            "mode": "list",
+            "value": "gpt-4.1-mini"
+          },
+          "builtInTools": {
+            "webSearch": {
+              "searchContextSize": "medium"
+            }
+          },
+          "options": {}
+        },
+        "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+        "typeVersion": 1.3,
+        "position": [
+          10784,
+          5872
+        ],
+        "id": "a82da5f6-41e0-4e9c-9310-ff8c4738f500",
+        "name": "OpenAI Chat Model",
+        "credentials": {
+          "openAiApi": {
+            "id": "vofRqqG7VEHTXxTs",
+            "name": "OpenAi account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "sendTo": "boninaurelien@gmail.com",
+          "subject": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Subject', ``, 'string') }}",
+          "emailType": "text",
+          "message": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Message', ``, 'string') }}",
+          "options": {
+            "appendAttribution": false
+          }
+        },
+        "type": "n8n-nodes-base.gmailTool",
+        "typeVersion": 2.1,
+        "position": [
+          11632,
+          7152
+        ],
+        "id": "3dcb4382-3f1f-4318-a5f2-edb3b943d494",
+        "name": "send_digest1",
+        "webhookId": "162a213b-823b-4420-8c95-05e882822299",
+        "credentials": {
+          "gmailOAuth2": {
+            "id": "yaTtxbJsj8fscFQV",
+            "name": "MainGmail"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "operation": "sendAndWait",
+          "sendTo": "boninaurelien@gmail.com",
+          "subject": "={{ $json.output.subject }}",
+          "message": "={{ $json.output.email }}",
+          "responseType": "freeText",
+          "options": {
+            "limitWaitTime": {
+              "values": {
+                "resumeAmount": 45,
+                "resumeUnit": "minutes"
+              }
+            }
+          }
+        },
+        "type": "n8n-nodes-base.gmail",
+        "typeVersion": 2.2,
+        "position": [
+          9872,
+          8112
+        ],
+        "id": "ffe4db60-eb48-4353-aa49-f689163e5827",
+        "name": "Send message and wait for response",
+        "webhookId": "ae755b3d-f27e-4656-91d9-f38c0588b07c",
+        "credentials": {
+          "gmailOAuth2": {
+            "id": "yaTtxbJsj8fscFQV",
+            "name": "MainGmail"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "jsonSchemaExample": "{\n    \"subject\": \"The email subject\",\n\t\"email\": \"The email content\"\n}"
+        },
+        "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+        "typeVersion": 1.3,
+        "position": [
+          11568,
+          6928
+        ],
+        "id": "a5e07cb3-a0a2-4c6d-a943-ea43966396c7",
+        "name": "Structured Output Parser2"
+      },
+      {
+        "parameters": {
+          "sendTo": "boninaurelien@gmail.com",
+          "subject": "={{ $json.output.subject }}",
+          "emailType": "text",
+          "message": "={{ $json.output.email }}",
+          "options": {
+            "appendAttribution": false
+          }
+        },
+        "type": "n8n-nodes-base.gmail",
+        "typeVersion": 2.2,
+        "position": [
+          11760,
+          6800
+        ],
+        "id": "5849e47c-a3d8-48ae-863d-575ff17feb2c",
+        "name": "Send a message",
+        "webhookId": "ae755b3d-f27e-4656-91d9-f38c0588b07c",
+        "credentials": {
+          "gmailOAuth2": {
+            "id": "yaTtxbJsj8fscFQV",
+            "name": "MainGmail"
+          }
+        }
+      }
+    ],
+    "connections": {
+      "Schedule Trigger": {
+        "main": [
+          [
+            {
+              "node": "Relay",
+              "type": "main",
+              "index": 0
+            },
+            {
+              "node": "London",
+              "type": "main",
+              "index": 0
+            },
+            {
+              "node": "Mira",
+              "type": "main",
+              "index": 0
+            },
+            {
+              "node": "Des",
+              "type": "main",
+              "index": 0
+            },
+            {
+              "node": "Main",
+              "type": "main",
+              "index": 0
+            },
+            {
+              "node": "Message a model",
+              "type": "main",
+              "index": 0
+            },
+            {
+              "node": "OpenWeatherMap2",
+              "type": "main",
+              "index": 0
+            },
+            {
+              "node": "OpenWeatherMap3",
+              "type": "main",
+              "index": 0
+            },
+            {
+              "node": "Search Longevity Research",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Basic LLM Chain1": {
+        "main": [
+          [
+            {
+              "node": "Edit Fields2",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "OpenAI Chat Model1": {
+        "ai_languageModel": [
+          [
+            {
+              "node": "Basic LLM Chain1",
+              "type": "ai_languageModel",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Edit Fields2": {
+        "main": [
+          [
+            {
+              "node": "Merge4",
+              "type": "main",
+              "index": 2
+            }
+          ]
+        ]
+      },
+      "Edit Fields3": {
+        "main": [
+          [
+            {
+              "node": "Aggregate2",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Aggregate2": {
+        "main": [
+          [
+            {
+              "node": "Basic LLM Chain2",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Basic LLM Chain2": {
+        "main": [
+          [
+            {
+              "node": "Edit Fields4",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "OpenAI Chat Model2": {
+        "ai_languageModel": [
+          [
+            {
+              "node": "Basic LLM Chain2",
+              "type": "ai_languageModel",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Structured Output Parser": {
+        "ai_outputParser": [
+          [
+            {
+              "node": "Basic LLM Chain2",
+              "type": "ai_outputParser",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Edit Fields4": {
+        "main": [
+          [
+            {
+              "node": "Merge4",
+              "type": "main",
+              "index": 3
+            }
+          ]
+        ]
+      },
+      "Aggregate4": {
+        "main": [
+          [
+            {
+              "node": "Edit Fields7",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Edit Fields7": {
+        "main": [
+          [
+            {
+              "node": "Get row(s)",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "OpenAI Chat Model3": {
+        "ai_languageModel": [
+          [
+            {
+              "node": "AI Agent",
+              "type": "ai_languageModel",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Add Quotes and Theme": {
+        "main": [
+          [
+            {
+              "node": "Merge4",
+              "type": "main",
+              "index": 1
+            }
+          ]
+        ]
+      },
+      "Schedule Trigger1": {
+        "main": [
+          [
+            {
+              "node": "Google Calendar1",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Google Calendar1": {
+        "main": [
+          [
+            {
+              "node": "Edit Fields8",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Edit Fields8": {
+        "main": [
+          [
+            {
+              "node": "Aggregate5",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Aggregate5": {
+        "main": [
+          [
+            {
+              "node": "Edit Fields9",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "OpenAI Chat Model4": {
+        "ai_languageModel": [
+          [
+            {
+              "node": "AI Agent1",
+              "type": "ai_languageModel",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Edit Fields9": {
+        "main": [
+          [
+            {
+              "node": "AI Agent1",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "AI Agent1": {
+        "main": [
+          [
+            {
+              "node": "Send message and wait for response",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Structured Output Parser1": {
+        "ai_outputParser": [
+          [
+            {
+              "node": "AI Agent1",
+              "type": "ai_outputParser",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Merge2": {
+        "main": [
+          [
+            {
+              "node": "Basic LLM Chain1",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "weather_forecast_london": {
+        "main": [
+          [
+            {
+              "node": "Merge2",
+              "type": "main",
+              "index": 1
+            }
+          ]
+        ]
+      },
+      "weather_forecast_miramichi": {
+        "main": [
+          [
+            {
+              "node": "Merge2",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Message a model": {
+        "main": [
+          [
+            {
+              "node": "Add Quotes and Theme",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Send message and wait for response1": {
+        "main": [
+          []
+        ]
+      },
+      "Relay": {
+        "main": [
+          [
+            {
+              "node": "Merge3",
+              "type": "main",
+              "index": 1
+            }
+          ]
+        ]
+      },
+      "Main": {
+        "main": [
+          [
+            {
+              "node": "Merge3",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "London": {
+        "main": [
+          [
+            {
+              "node": "Merge3",
+              "type": "main",
+              "index": 2
+            }
+          ]
+        ]
+      },
+      "Mira": {
+        "main": [
+          [
+            {
+              "node": "Merge3",
+              "type": "main",
+              "index": 3
+            }
+          ]
+        ]
+      },
+      "Des": {
+        "main": [
+          [
+            {
+              "node": "Merge3",
+              "type": "main",
+              "index": 4
+            }
+          ]
+        ]
+      },
+      "Merge3": {
+        "main": [
+          [
+            {
+              "node": "Edit Fields3",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Get row(s)": {
+        "main": [
+          [
+            {
+              "node": "AI Agent",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "AI Agent": {
+        "main": [
+          [
+            {
+              "node": "Send a message",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "OpenWeatherMap2": {
+        "main": [
+          [
+            {
+              "node": "weather_forecast_miramichi",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "OpenWeatherMap3": {
+        "main": [
+          [
+            {
+              "node": "weather_forecast_london",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Search Longevity Research": {
+        "main": [
+          [
+            {
+              "node": "Format Longevity Summary",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Format Longevity Summary": {
+        "main": [
+          [
+            {
+              "node": "Merge4",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Merge4": {
+        "main": [
+          [
+            {
+              "node": "Aggregate4",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "OpenAI Chat Model": {
+        "ai_languageModel": [
+          [
+            {
+              "node": "AI Agent2",
+              "type": "ai_languageModel",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "send_digest1": {
+        "ai_tool": [
+          []
+        ]
+      },
+      "Send message and wait for response": {
+        "main": [
+          [
+            {
+              "node": "Insert row",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Structured Output Parser2": {
+        "ai_outputParser": [
+          [
+            {
+              "node": "AI Agent",
+              "type": "ai_outputParser",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    },
+    "authors": "Aurelien Bonin",
+    "name": "Version 3e5232b7",
+    "description": "",
+    "autosaved": false
+  },
+  "activeVersionId": "3e5232b7-978e-4e60-ba29-3fef49c99d38",
+  "connections": {
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "Relay",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "London",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Mira",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Des",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Main",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Message a model",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "OpenWeatherMap2",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "OpenWeatherMap3",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Search Longevity Research",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Basic LLM Chain1": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Basic LLM Chain1",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields2": {
+      "main": [
+        [
+          {
+            "node": "Merge4",
+            "type": "main",
+            "index": 2
+          }
+        ]
+      ]
+    },
+    "Edit Fields3": {
+      "main": [
+        [
+          {
+            "node": "Aggregate2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Aggregate2": {
+      "main": [
+        [
+          {
+            "node": "Basic LLM Chain2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Basic LLM Chain2": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields4",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model2": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Basic LLM Chain2",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Structured Output Parser": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "Basic LLM Chain2",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields4": {
+      "main": [
+        [
+          {
+            "node": "Merge4",
+            "type": "main",
+            "index": 3
+          }
+        ]
+      ]
+    },
+    "Aggregate4": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields7",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields7": {
+      "main": [
+        [
+          {
+            "node": "Get row(s)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model3": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Add Quotes and Theme": {
+      "main": [
+        [
+          {
+            "node": "Merge4",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Schedule Trigger1": {
+      "main": [
+        [
+          {
+            "node": "Google Calendar1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Calendar1": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields8",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields8": {
+      "main": [
+        [
+          {
+            "node": "Aggregate5",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Aggregate5": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields9",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model4": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields9": {
+      "main": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent1": {
+      "main": [
+        [
+          {
+            "node": "Send message and wait for response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Structured Output Parser1": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge2": {
+      "main": [
+        [
+          {
+            "node": "Basic LLM Chain1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "weather_forecast_london": {
+      "main": [
+        [
+          {
+            "node": "Merge2",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "weather_forecast_miramichi": {
+      "main": [
+        [
+          {
+            "node": "Merge2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Message a model": {
+      "main": [
+        [
+          {
+            "node": "Add Quotes and Theme",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send message and wait for response1": {
+      "main": [
+        []
+      ]
+    },
+    "Relay": {
+      "main": [
+        [
+          {
+            "node": "Merge3",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Main": {
+      "main": [
+        [
+          {
+            "node": "Merge3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "London": {
+      "main": [
+        [
+          {
+            "node": "Merge3",
+            "type": "main",
+            "index": 2
+          }
+        ]
+      ]
+    },
+    "Mira": {
+      "main": [
+        [
+          {
+            "node": "Merge3",
+            "type": "main",
+            "index": 3
+          }
+        ]
+      ]
+    },
+    "Des": {
+      "main": [
+        [
+          {
+            "node": "Merge3",
+            "type": "main",
+            "index": 4
+          }
+        ]
+      ]
+    },
+    "Merge3": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get row(s)": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenWeatherMap2": {
+      "main": [
+        [
+          {
+            "node": "weather_forecast_miramichi",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenWeatherMap3": {
+      "main": [
+        [
+          {
+            "node": "weather_forecast_london",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Search Longevity Research": {
+      "main": [
+        [
+          {
+            "node": "Format Longevity Summary",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Format Longevity Summary": {
+      "main": [
+        [
+          {
+            "node": "Merge4",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge4": {
+      "main": [
+        [
+          {
+            "node": "Aggregate4",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent2",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "send_digest1": {
+      "ai_tool": [
+        []
+      ]
+    },
+    "Send message and wait for response": {
+      "main": [
+        [
+          {
+            "node": "Insert row",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Structured Output Parser2": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "createdAt": "2026-01-04T22:27:45.009Z",
+  "id": "bFoDok1p4MFdsnYD",
+  "isArchived": false,
+  "meta": {
+    "templateCredsSetupCompleted": true
+  },
+  "name": "Daily News Digest",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "triggerAtHour": 9,
+              "triggerAtMinute": 15
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        7808,
+        6800
+      ],
+      "id": "ec648ced-9799-4eaa-8d62-75c9e94c0619",
+      "name": "Schedule Trigger"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Provide temperatures in Celsius for Miramichi NB and London ON and one sentence about precipitations\n\n<WeatherForecast>\n{{ JSON.stringify($json.weather_forecast_miramichi) }}\n--\n{{ JSON.stringify($json.weather_forecast_london) }}\n</WeatherForecast>"
+      },
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.5,
+      "position": [
+        9344,
+        6528
+      ],
+      "id": "6cdcd7f8-6bbf-40b0-838a-439c27906c82",
+      "name": "Basic LLM Chain1"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "gpt-4.1-mini",
+          "mode": "list",
+          "cachedResultName": "gpt-4.1-mini"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        9424,
+        6752
+      ],
+      "id": "ef699941-c23b-45a1-912b-608a0fab40d0",
+      "name": "OpenAI Chat Model1",
+      "credentials": {
+        "openAiApi": {
+          "id": "vofRqqG7VEHTXxTs",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "0dfe8ddb-2165-43d1-9114-4abffc3ecfbc",
+              "name": "weather_forecast",
+              "value": "={{ $json.text.replace(/<think>[\\s\\S]*?<\\/think>/g, '').trim() }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        10048,
+        6528
+      ],
+      "id": "3c57ceb0-1347-4f90-87c5-4f68a8267907",
+      "name": "Edit Fields2"
+    },
+    {
+      "parameters": {
+        "content": "# Weather",
+        "height": 600,
+        "width": 1720
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        8560,
+        6288
+      ],
+      "id": "8b5cac67-c7a2-469d-a7cf-64525ee497a8",
+      "name": "Sticky Note1"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "bd27db88-18db-4bee-817f-14697dddac87",
+              "name": "mailbox",
+              "value": "={{ $json.to.value[0].address }}",
+              "type": "string"
+            },
+            {
+              "id": "c5d24917-c196-4979-b118-40bedcf0511a",
+              "name": "email",
+              "value": "={{ $json.text }}",
+              "type": "string"
+            },
+            {
+              "id": "f99c070e-5e12-4b9f-8a46-84cad215c4d5",
+              "name": "from",
+              "value": "={{ $json.from.value }}",
+              "type": "array"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        9120,
+        7200
+      ],
+      "id": "87bad074-0681-455b-81eb-168a9fde22f7",
+      "name": "Edit Fields3"
+    },
+    {
+      "parameters": {
+        "aggregate": "aggregateAllItemData",
+        "destinationFieldName": "emails",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.aggregate",
+      "typeVersion": 1,
+      "position": [
+        9408,
+        7200
+      ],
+      "id": "cc9990f7-6dd7-4831-af48-14e5dc1898ac",
+      "name": "Aggregate2"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Extract all the emails that were sent by humans and aren't newsletters or system updates or calendar updates and summarize the emails in one sentence for a digest and add who (name + email) sent the email.\n\nGroup the emails by mailbox so it's clear which mailbox each email was sent to.\n\n<emails>\n{{ $json.emails.map(item => `\\n<email>\\n<mailbox>\\n${item.mailbox}\\n</mailbox>\\n<from>\\n${JSON.stringify(item.from)}\\n</from>\\n<body>\\n${item.email}\\n</body>\\n</email>\\n`).join('') }}\n</emails>\n",
+        "hasOutputParser": true
+      },
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.5,
+      "position": [
+        9696,
+        7200
+      ],
+      "id": "4f104f46-d6b8-4fcc-9fdf-7ba554ab34d6",
+      "name": "Basic LLM Chain2"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "gpt-4.1",
+          "mode": "list",
+          "cachedResultName": "gpt-4.1"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        9712,
+        7424
+      ],
+      "id": "b91c3f59-b514-46a6-9ff8-074e7b2915b6",
+      "name": "OpenAI Chat Model2",
+      "credentials": {
+        "openAiApi": {
+          "id": "vofRqqG7VEHTXxTs",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsonSchemaExample": "{\n\t\"mailboxes\": [\n\t\t{\n\t\t\t\"mailbox\": \"mailbox email address\",\n\t\t\t\"emails\": [\"email 1 summary\", \"email 2 summary\"]\n\t\t}\n\t]\n}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.2,
+      "position": [
+        9840,
+        7424
+      ],
+      "id": "ff6340ef-69db-476d-81e8-d53f28bb2f6d",
+      "name": "Structured Output Parser"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "8b795abf-c0d7-42f9-aa3d-f5a4ed47dda1",
+              "name": "emails",
+              "value": "={{ JSON.stringify($json.output.mailboxes) }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        10048,
+        7200
+      ],
+      "id": "1fbff149-890e-43c9-83d1-87861f7f80bc",
+      "name": "Edit Fields4"
+    },
+    {
+      "parameters": {
+        "content": "# Emails",
+        "height": 480,
+        "width": 1500
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        8544,
+        7264
+      ],
+      "id": "795299fe-e169-4326-9d41-98c59b5b7cc2",
+      "name": "Sticky Note2"
+    },
+    {
+      "parameters": {
+        "fieldsToAggregate": {
+          "fieldToAggregate": [
+            {
+              "fieldToAggregate": "news"
+            },
+            {
+              "fieldToAggregate": "weather_forecast"
+            },
+            {
+              "fieldToAggregate": "emails"
+            },
+            {
+              "fieldToAggregate": "calendar_events"
+            },
+            {
+              "fieldToAggregate": "quotes"
+            },
+            {
+              "fieldToAggregate": "yearlyTheme"
+            },
+            {
+              "fieldToAggregate": "longevity_research"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.aggregate",
+      "typeVersion": 1,
+      "position": [
+        10832,
+        6800
+      ],
+      "id": "8eecf773-fbf4-42a2-acba-0684a1a188f0",
+      "name": "Aggregate4"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "68158149-a655-4cba-857d-e1b289bd750f",
+              "name": "news",
+              "value": "={{ $json.news[0] }}",
+              "type": "string"
+            },
+            {
+              "id": "c3d828f7-f9a5-47b4-9e0f-03eea9e4b7bb",
+              "name": "weather_forecast",
+              "value": "={{ $json.weather_forecast[0] }}",
+              "type": "string"
+            },
+            {
+              "id": "531afbd6-339e-4408-bfc4-7c2daca1a751",
+              "name": "emails",
+              "value": "={{ $json.emails[0] }}",
+              "type": "string"
+            },
+            {
+              "id": "05bb70c2-ec0a-4b38-a08c-6d5c3bd44d06",
+              "name": "calendar_events",
+              "value": "={{ $json.calendar_events[0] }}",
+              "type": "string"
+            },
+            {
+              "id": "id-5",
+              "name": "quotes",
+              "value": "={{ $json.quotes[0] }}",
+              "type": "string"
+            },
+            {
+              "id": "id-6",
+              "name": "yearlyTheme",
+              "value": "={{ $json.yearlyTheme[0] }}",
+              "type": "string"
+            },
+            {
+              "id": "id-7",
+              "name": "longevity_research",
+              "value": "={{ $json.longevity_research[0] }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        11008,
+        6800
+      ],
+      "id": "1f50425f-f59a-41b4-8146-607d19456426",
+      "name": "Edit Fields7"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Create a daily digest from the data below.\nUse a personal, light-hearted tone (2nd person).\n\nThe elements to include (from the source data):\n1. Weather forecast\n2. Unread emails\n3. 4 motivational quotes\n4. Priorities: Today priorities\n5. Yearly theme reminder\n6. Longevity Research: Latest advances in longevity and anti-aging science\n\n<DataSource>\n<WeatherForecast>\n{{ $('Edit Fields7').item.json.weather_forecast }}\n</WeatherForecast>\n<Emails>\n{{ $('Edit Fields7').item.json.emails }}\n</Emails>\n<Quotes>\n{{ $('Edit Fields7').item.json.quotes }}\n</Quotes>\n<Priorities>\n{{ $json.tomorrow_priorities }}\n</Priorities>\n<YearlyTheme>\n{{ $('Edit Fields7').item.json.yearlyTheme }}\n</YearlyTheme>\n<LongevityResearch>\n{{ $('Edit Fields7').item.json.longevity_research }}\n</LongevityResearch>\n</DataSource>\n\nMake sure to format the message as raw text with proper new lines, separating everything.\nDo not use any markdown - as it will be read on mobile. Don't use any bold, other styling.\n\nExample formatting:\n\nBonjour,\n\nToday's weather\n- forecast\n- clothing recommendations\n\nToday's meetings\n- meeting 1 at time\n- meeting 2 at time\n\nUnread emails\n- email 1\n- email 2\n\nMotivational quotes:\n\n\"quote 1\"\n- Author 1\n\n\"quote 2\"\n- Author 2\n\n\"quote 3\"\n- Author 3\n\nPriorities for today:\n- priority 1\n- priority 2\n\nYearly theme: [theme]\n\nLatest in Longevity Research:\n- finding 1\n- finding 2\n- finding 3\n\nHave a great day!",
+        "hasOutputParser": true,
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.7,
+      "position": [
+        11424,
+        6800
+      ],
+      "id": "0f64441a-f1dc-4e71-addd-575fb6c891ae",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "gpt-4.1-mini",
+          "mode": "list",
+          "cachedResultName": "gpt-4.1-mini"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        11424,
+        6928
+      ],
+      "id": "82713cf5-bea2-4761-b398-43ae57f7102a",
+      "name": "OpenAI Chat Model3",
+      "credentials": {
+        "openAiApi": {
+          "id": "vofRqqG7VEHTXxTs",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "boninaurelien@gmail.com",
+        "subject": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Subject', ``, 'string') }}",
+        "emailType": "text",
+        "message": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Message', ``, 'string') }}",
+        "options": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.gmailTool",
+      "typeVersion": 2.1,
+      "position": [
+        10736,
+        8160
+      ],
+      "id": "374e4763-02bd-417f-949e-2c741bd77082",
+      "name": "send_digest",
+      "webhookId": "162a213b-823b-4420-8c95-05e882822299",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "pcIKnGBryHHONrSG",
+          "name": "Relay"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "# Build and send digest",
+        "height": 500,
+        "width": 640,
+        "color": 4
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        9664,
+        7440
+      ],
+      "id": "cebc6fb0-be73-4026-bd54-2b75c68cc7eb",
+      "name": "Sticky Note4"
+    },
+    {
+      "parameters": {
+        "content": "# Prepare the data",
+        "height": 460,
+        "width": 720
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        10768,
+        12112
+      ],
+      "id": "f65226b4-6cf1-4f36-a252-b804751008df",
+      "name": "Sticky Note5"
+    },
+    {
+      "parameters": {
+        "content": "# 📚 [Join our Skool community for support, premium content and more!](https://www.skool.com/ai-agents-az/about?w2)\n\n## Be part of a growing community and help us create more content like this",
+        "height": 220,
+        "width": 860,
+        "color": 6
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        8288,
+        15024
+      ],
+      "id": "cee99b02-e04e-462c-a8d1-2ee4698522eb",
+      "name": "Sticky Note6"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "id-1",
+              "name": "quotes",
+              "value": "={{ JSON.stringify($json.output[0].content[0].text) }}",
+              "type": "string"
+            },
+            {
+              "id": "id-2",
+              "name": "yearlyTheme",
+              "value": "Have fun and take care of your girls",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "da4e991f-2e4c-4002-a83c-561393d30538",
+      "name": "Add Quotes and Theme",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        10016,
+        6352
+      ]
+    },
+    {
+      "parameters": {
+        "content": "# Quotes",
+        "height": 540,
+        "width": 1064
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        9504,
+        5936
+      ],
+      "id": "a67ccafb-bbd8-49d9-b36f-d5860ad14eee",
+      "name": "Sticky Note7"
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "triggerAtHour": 16,
+              "triggerAtMinute": 5
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        8448,
+        8112
+      ],
+      "id": "00229615-c6bb-4c72-954a-30523e94371f",
+      "name": "Schedule Trigger1"
+    },
+    {
+      "parameters": {
+        "operation": "getAll",
+        "calendar": {
+          "__rl": true,
+          "value": "boninaurelien@googlemail.com",
+          "mode": "list",
+          "cachedResultName": "boninaurelien@googlemail.com"
+        },
+        "timeMax": "={{ $now.plus({ days: 1 }) }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleCalendar",
+      "typeVersion": 1.3,
+      "position": [
+        8672,
+        8112
+      ],
+      "id": "2b321570-d2ce-462e-a2b0-f3cfd16a6723",
+      "name": "Google Calendar1",
+      "credentials": {
+        "googleCalendarOAuth2Api": {
+          "id": "BZjwIyJznKSWyCWp",
+          "name": "AB Calendar"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "c2ed0b62-fb10-4d36-a53e-b448f385b93f",
+              "name": "summary",
+              "value": "={{ $json.summary }}",
+              "type": "string"
+            },
+            {
+              "id": "a224249f-f845-43a2-b50c-805212713481",
+              "name": "startDate",
+              "value": "={{ $json.start.dateTime }}",
+              "type": "string"
+            },
+            {
+              "id": "60793d7b-ba96-4114-9682-b722d7402f7a",
+              "name": "timezone",
+              "value": "={{ $json.start.timeZone }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        8896,
+        8112
+      ],
+      "id": "525acc7a-0382-4ff2-abf6-73c419d2052a",
+      "name": "Edit Fields8"
+    },
+    {
+      "parameters": {
+        "aggregate": "aggregateAllItemData",
+        "destinationFieldName": "calendar_events",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.aggregate",
+      "typeVersion": 1,
+      "position": [
+        9120,
+        8112
+      ],
+      "id": "f3efc562-94d4-49eb-8549-b0acc1db1370",
+      "name": "Aggregate5"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "768d5214-4d37-4b8f-9cbb-e34305e68381",
+              "name": "calendar_events",
+              "value": "={{ JSON.stringify($json.calendar_events) }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        9344,
+        8112
+      ],
+      "id": "eac1b8e5-c08a-4628-946f-00a3ead93e6e",
+      "name": "Edit Fields9"
+    },
+    {
+      "parameters": {
+        "content": "# Calendar",
+        "height": 440,
+        "width": 1120
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        8496,
+        7840
+      ],
+      "id": "540853cd-2831-485a-b63f-f704ee341ddc",
+      "name": "Sticky Note8"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Create a notification from the data below.\nUse a personal, light-hearted tone (2nd person). \n\nThe elements to include (from the source data):\n1. Tomorrow's calendar events\n2. Prompt: What are your priorities for tomorrow?\n\n<DataSource>\n<CalendarEvents>\n{{ $json.calendar_events }}\n</CalendarEvents>\n</DataSource>\n\nMake sure to format the message as raw text with proper new lines, separating everything.\nDo not use any markdown - as it will be read on mobile. Don't use any bold, other styling.\n\nExample formatting:\nBonjour,\n\nTomorrow's meetings\n- meeting 1 at time\n- meeting 2 at time\n\nWhat are your priorities for tomorrow?\n\nHave a great afternoon!\n",
+        "hasOutputParser": true,
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.7,
+      "position": [
+        9568,
+        8112
+      ],
+      "id": "2ae820d7-8573-4c23-8b6e-7c796815baac",
+      "name": "AI Agent1"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "gpt-4o",
+          "mode": "list",
+          "cachedResultName": "gpt-4o"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        9552,
+        8256
+      ],
+      "id": "d32d64b2-5bc9-413d-8f91-edf5b3d8b491",
+      "name": "OpenAI Chat Model4",
+      "credentials": {
+        "openAiApi": {
+          "id": "vofRqqG7VEHTXxTs",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "# Build and send digest",
+        "height": 500,
+        "width": 640,
+        "color": 4
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        9552,
+        7984
+      ],
+      "id": "0153ebdc-1f4b-4252-aa26-e10f174621d7",
+      "name": "Sticky Note9"
+    },
+    {
+      "parameters": {
+        "dataTableId": {
+          "__rl": true,
+          "value": "8m5nTm1qs3ksq14c",
+          "mode": "list",
+          "cachedResultName": "Daily Digest Table",
+          "cachedResultUrl": "/projects/K5c2PqoZjXPELHVa/datatables/8m5nTm1qs3ksq14c"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "priority_id": "={{ $today }}",
+            "tomorrow_priorities": "={{ $json.data.text }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "priority_id",
+              "displayName": "priority_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "tomorrow_priorities",
+              "displayName": "tomorrow_priorities",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        10064,
+        8112
+      ],
+      "id": "8bdad821-3fea-4803-9740-b347ed3c6b71",
+      "name": "Insert row"
+    },
+    {
+      "parameters": {
+        "jsonSchemaExample": "{\n    \"subject\": \"The email subject\",\n\t\"email\": \"The email content\"\n}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.3,
+      "position": [
+        9728,
+        8256
+      ],
+      "id": "5dec6e11-99ad-4b69-bb2b-a64f2081576a",
+      "name": "Structured Output Parser1"
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "dataTableId": {
+          "__rl": true,
+          "value": "8m5nTm1qs3ksq14c",
+          "mode": "list",
+          "cachedResultName": "Daily Digest Table",
+          "cachedResultUrl": "/projects/K5c2PqoZjXPELHVa/datatables/8m5nTm1qs3ksq14c"
+        },
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "priority_id",
+              "keyValue": "={{ $today.minus({ days: 1 }) }}"
+            }
+          ]
+        },
+        "limit": 1
+      },
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        11200,
+        6800
+      ],
+      "id": "301763dd-b1fd-4080-bc0d-77faa6d2d881",
+      "name": "Get row(s)",
+      "alwaysOutputData": true,
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combineBy": "combineByPosition",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        9120,
+        6528
+      ],
+      "id": "7b9e4ee0-64c3-42c0-97c3-e712e23ef3b6",
+      "name": "Merge2"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "18d72036-2c0a-45cd-a197-49493c556bbd",
+              "name": "weather_forecast_london",
+              "value": "={{ $json }}",
+              "type": "object"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        8896,
+        6624
+      ],
+      "id": "b5ce6bdf-a283-4b49-912b-56c212297a21",
+      "name": "weather_forecast_london"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "70521f17-6b6a-4dc7-a00b-b4deb05b9463",
+              "name": "weather_forecast_miramichi",
+              "value": "={{ $json }}",
+              "type": "object"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        8896,
+        6432
+      ],
+      "id": "9774124d-4b99-4078-a94b-eac72cc76dd2",
+      "name": "weather_forecast_miramichi"
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "gpt-4.1",
+          "mode": "list",
+          "cachedResultName": "GPT-4.1"
+        },
+        "responses": {
+          "values": [
+            {
+              "content": "=You are a motivational quote generator. Your task is to generate exactly 4 inspirational quotes, each from a different category of thought leader.\n\nGenerate one quote from each of the following categories:\n\n1. **Billionaire Entrepreneur** - Generate a quote in the style of successful billionaires who focus on business wisdom, wealth creation, strategic thinking, and entrepreneurial mindset (e.g., Warren Buffett, Ray Dalio, Charlie Munger, Elon Musk, Jeff Bezos)\n\n2. **Mindset Coach** - Generate a quote in the style of renowned mindset coaches who focus on personal transformation, taking massive action, and peak performance (e.g., Tony Robbins, Wayne Dyer, Jack Canfield, Jim Rohn, Brendon Burchard)\n\n3. **Mindfulness Expert** - Generate a quote in the style of Buddhist teachers and mindfulness practitioners who focus on present-moment awareness, inner peace, meditation, and compassionate living (e.g., Ajahn Brahm, Ajahn Sona, Jon Kabat-Zinn, Thich Nhat Hanh, Jack Kornfield)\n\n4. **Catholic Scholar** - Generate an inspirational quote that either:\n   - Reflects on a meaningful fact about Jesus Christ's life\n   - Shares a powerful excerpt or interpretation from the Bible\n   - Offers an inspiring perspective on Catholic faith, theology, or spirituality\n   \nEach quote should be motivational, actionable, and thought-provoking. The quotes should capture the essence of each category's philosophy while being authentic to their respective wisdom traditions.\n\nFORMAT: Output each quote followed by attribution to a SPECIFIC author name from that category. Use this exact format:\n\n\"[Quote text]\"\n— [Specific Author Name]\n\nExample:\n\"Success comes from execution, not just ideas.\"\n— Warren Buffett\n\nDo not include any other text, introductions, category labels, or explanations. Just the 4 quotes with their specific author attributions."
+            }
+          ]
+        },
+        "builtInTools": {
+          "webSearch": {
+            "searchContextSize": "medium"
+          }
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 2.1,
+      "position": [
+        9728,
+        6352
+      ],
+      "id": "28b0c415-fe48-4d4b-938c-18a9c37dcf5e",
+      "name": "Message a model",
+      "credentials": {
+        "openAiApi": {
+          "id": "vofRqqG7VEHTXxTs",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "sendAndWait",
+        "chatId": "7509217634",
+        "message": "={{ $json.output.email }}",
+        "responseType": "freeText",
+        "options": {
+          "limitWaitTime": {
+            "values": {
+              "resumeAmount": 45,
+              "resumeUnit": "minutes"
+            }
+          },
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        10304,
+        8112
+      ],
+      "id": "27711b8d-32c8-406b-aa23-2f716e814793",
+      "name": "Send message and wait for response1",
+      "webhookId": "a19bef6a-453b-45a3-846e-b9553c241345",
+      "credentials": {
+        "telegramApi": {
+          "id": "31CT2zfW1Xx9YgF8",
+          "name": "Telegram (JulesAI)"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "getAll",
+        "limit": 10,
+        "simple": false,
+        "filters": {
+          "labelIds": [
+            "INBOX"
+          ],
+          "readStatus": "unread",
+          "receivedAfter": "={{ $now.minus(1, \"day\") }}"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        8672,
+        7200
+      ],
+      "id": "f5d12f93-b4e6-43a9-bedf-3a7b30f42221",
+      "name": "Relay",
+      "webhookId": "c485b21f-207d-4efb-9e85-566ff2e3de15",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "pcIKnGBryHHONrSG",
+          "name": "Relay"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "getAll",
+        "limit": 10,
+        "simple": false,
+        "filters": {
+          "labelIds": [
+            "INBOX"
+          ],
+          "readStatus": "unread",
+          "receivedAfter": "={{ $now.minus(1, \"day\") }}"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        8672,
+        7584
+      ],
+      "id": "a346f816-0b62-48ae-82db-b32a47c66dd6",
+      "name": "London",
+      "webhookId": "c485b21f-207d-4efb-9e85-566ff2e3de15",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "qn4S7KqPDs2UcaO5",
+          "name": "London"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "getAll",
+        "limit": 10,
+        "simple": false,
+        "filters": {
+          "labelIds": [
+            "INBOX"
+          ],
+          "readStatus": "unread",
+          "receivedAfter": "={{ $now.minus(1, \"day\") }}"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        8672,
+        6816
+      ],
+      "id": "1637ec15-9b3f-488c-8edc-b8524694e640",
+      "name": "Main",
+      "webhookId": "c485b21f-207d-4efb-9e85-566ff2e3de15",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "yaTtxbJsj8fscFQV",
+          "name": "MainGmail"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "getAll",
+        "limit": 10,
+        "simple": false,
+        "filters": {
+          "labelIds": [
+            "INBOX"
+          ],
+          "readStatus": "unread",
+          "receivedAfter": "={{ $now.minus(1, \"day\") }}"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        8672,
+        7008
+      ],
+      "id": "cd1ba33f-06d7-45d8-84a4-66bf03de6d9f",
+      "name": "Mira",
+      "webhookId": "c485b21f-207d-4efb-9e85-566ff2e3de15",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "HHXkrw8hyI2Xmkuh",
+          "name": "Mira"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "getAll",
+        "limit": 10,
+        "simple": false,
+        "filters": {
+          "labelIds": [
+            "INBOX"
+          ],
+          "readStatus": "unread",
+          "receivedAfter": "={{ $now.minus(1, \"day\") }}"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        8672,
+        7392
+      ],
+      "id": "a4d5a0b3-1a7c-4086-a7f9-e98fed97cc5a",
+      "name": "Des",
+      "webhookId": "c485b21f-207d-4efb-9e85-566ff2e3de15",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "YqSn5D2YTWcoeiLR",
+          "name": "Des"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combineBy": "combineByPosition",
+        "numberInputs": 5,
+        "options": {
+          "includeUnpaired": true
+        }
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3,
+      "position": [
+        8960,
+        7136
+      ],
+      "id": "6eefb927-060d-4af5-a706-270117a0cd44",
+      "name": "Merge3"
+    },
+    {
+      "parameters": {
+        "chatId": "7509217634",
+        "text": "={{ $json.output }}",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        12112,
+        6800
+      ],
+      "id": "3ecc9b40-7fd5-4cf7-8b56-55b44e9217e4",
+      "name": "Send a text message",
+      "webhookId": "a19bef6a-453b-45a3-846e-b9553c241345",
+      "credentials": {
+        "telegramApi": {
+          "id": "31CT2zfW1Xx9YgF8",
+          "name": "Telegram (JulesAI)"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "cityName": "miramichi,ca",
+        "language": "en"
+      },
+      "type": "n8n-nodes-base.openWeatherMap",
+      "typeVersion": 1,
+      "position": [
+        8672,
+        6432
+      ],
+      "id": "9fd67524-a5dc-4a74-8db6-9e7091aaab6e",
+      "name": "OpenWeatherMap2",
+      "credentials": {
+        "openWeatherMapApi": {
+          "id": "egnq05UaP0U8ukKO",
+          "name": "OpenWeatherMap account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "cityName": "london,ca",
+        "language": "en"
+      },
+      "type": "n8n-nodes-base.openWeatherMap",
+      "typeVersion": 1,
+      "position": [
+        8672,
+        6624
+      ],
+      "id": "77ae53ac-8485-4eb5-83eb-0bb8aee6b2cc",
+      "name": "OpenWeatherMap3",
+      "credentials": {
+        "openWeatherMapApi": {
+          "id": "egnq05UaP0U8ukKO",
+          "name": "OpenWeatherMap account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "gpt-5-mini",
+          "mode": "list",
+          "cachedResultName": "GPT-5-MINI"
+        },
+        "responses": {
+          "values": [
+            {
+              "content": "Search the web for the latest advances and breakthroughs in longevity research, anti-aging science, and life extension. Focus on recent discoveries from the past 30 days. Summarize the top 3-5 most significant findings in a concise, digestible format suitable for a daily digest. Include the key discovery, why it matters, and any practical implications."
+            }
+          ]
+        },
+        "builtInTools": {
+          "webSearch": {
+            "searchContextSize": "medium"
+          }
+        },
+        "options": {}
+      },
+      "id": "6be514c5-aace-4d3f-8782-3e9cfd684a7a",
+      "name": "Search Longevity Research",
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 2.1,
+      "position": [
+        9728,
+        6176
+      ],
+      "credentials": {
+        "openAiApi": {
+          "id": "vofRqqG7VEHTXxTs",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "id-1",
+              "name": "longevity_research",
+              "value": "={{ $json.output[0].content[0].text }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "d8c9bada-d08e-4cee-b837-8b9904583c74",
+      "name": "Format Longevity Summary",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        10016,
+        6176
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combineBy": "combineByPosition",
+        "numberInputs": 4,
+        "options": {}
+      },
+      "id": "840a4f75-d869-4b05-b276-e8a071c2014a",
+      "name": "Merge4",
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3,
+      "position": [
+        10624,
+        6768
+      ]
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "Search the web for the latest advances and breakthroughs in longevity research, anti-aging science, and life extension. Focus on recent discoveries from the past 30 days. Summarize the top 3-5 most significant findings in a concise, digestible format suitable for a daily digest. Include the key discovery, why it matters, and any practical implications.",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        10752,
+        5696
+      ],
+      "id": "5a4b5a59-dea3-4410-b28d-fd95211a6198",
+      "name": "AI Agent2"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4.1-mini"
+        },
+        "builtInTools": {
+          "webSearch": {
+            "searchContextSize": "medium"
+          }
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        10784,
+        5872
+      ],
+      "id": "a82da5f6-41e0-4e9c-9310-ff8c4738f500",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "vofRqqG7VEHTXxTs",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "boninaurelien@gmail.com",
+        "subject": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Subject', ``, 'string') }}",
+        "emailType": "text",
+        "message": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Message', ``, 'string') }}",
+        "options": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.gmailTool",
+      "typeVersion": 2.1,
+      "position": [
+        11632,
+        7152
+      ],
+      "id": "3dcb4382-3f1f-4318-a5f2-edb3b943d494",
+      "name": "send_digest1",
+      "webhookId": "162a213b-823b-4420-8c95-05e882822299",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "yaTtxbJsj8fscFQV",
+          "name": "MainGmail"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "sendAndWait",
+        "sendTo": "boninaurelien@gmail.com",
+        "subject": "={{ $json.output.subject }}",
+        "message": "={{ $json.output.email }}",
+        "responseType": "freeText",
+        "options": {
+          "limitWaitTime": {
+            "values": {
+              "resumeAmount": 45,
+              "resumeUnit": "minutes"
+            }
+          }
+        }
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        9872,
+        8112
+      ],
+      "id": "ffe4db60-eb48-4353-aa49-f689163e5827",
+      "name": "Send message and wait for response",
+      "webhookId": "ae755b3d-f27e-4656-91d9-f38c0588b07c",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "yaTtxbJsj8fscFQV",
+          "name": "MainGmail"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsonSchemaExample": "{\n    \"subject\": \"The email subject\",\n\t\"email\": \"The email content\"\n}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.3,
+      "position": [
+        11568,
+        6928
+      ],
+      "id": "a5e07cb3-a0a2-4c6d-a943-ea43966396c7",
+      "name": "Structured Output Parser2"
+    },
+    {
+      "parameters": {
+        "sendTo": "boninaurelien@gmail.com",
+        "subject": "={{ $json.output.subject }}",
+        "emailType": "text",
+        "message": "={{ $json.output.email }}",
+        "options": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        11760,
+        6800
+      ],
+      "id": "5849e47c-a3d8-48ae-863d-575ff17feb2c",
+      "name": "Send a message",
+      "webhookId": "ae755b3d-f27e-4656-91d9-f38c0588b07c",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "yaTtxbJsj8fscFQV",
+          "name": "MainGmail"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1",
+    "availableInMCP": false,
+    "timeSavedMode": "fixed",
+    "saveExecutionProgress": true,
+    "callerPolicy": "workflowsFromSameOwner"
+  },
+  "shared": [
+    {
+      "updatedAt": "2026-01-04T22:27:45.019Z",
+      "createdAt": "2026-01-04T22:27:45.019Z",
+      "role": "workflow:owner",
+      "workflowId": "bFoDok1p4MFdsnYD",
+      "projectId": "K5c2PqoZjXPELHVa"
+    }
+  ],
+  "staticData": {
+    "node:Schedule Trigger": {
+      "recurrenceRules": []
+    },
+    "node:Schedule Trigger1": {
+      "recurrenceRules": []
+    }
+  },
+  "tags": [],
+  "triggerCount": 2,
+  "updatedAt": "2026-02-23T13:49:52.508Z",
+  "versionId": "3e5232b7-978e-4e60-ba29-3fef49c99d38"
+}
