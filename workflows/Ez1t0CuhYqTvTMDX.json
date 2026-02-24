@@ -1,0 +1,1058 @@
+{
+  "active": false,
+  "activeVersion": null,
+  "activeVersionId": null,
+  "connections": {
+    "Log to Google Sheets": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory1": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model2": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get a thread1": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Gmail Trigger": {
+      "main": [
+        [
+          {
+            "node": "Limit",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "ClassifyResponse",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        []
+      ]
+    },
+    "ClassifyResponse": {
+      "main": [
+        [
+          {
+            "node": "Email Classification Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update row in sheet": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Reply to a message": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Search Gmail": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Needs Reply?": {
+      "main": [
+        [
+          {
+            "node": "Prepare for Rental Agent",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Log Filtered Email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Email Classification Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare for Rental Agent": {
+      "main": [
+        [
+          {
+            "node": "Log to Google Sheets",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Email Classification Agent": {
+      "main": [
+        [
+          {
+            "node": "Needs Reply?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Structured Output Parser1": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "Email Classification Agent",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Limit": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send a message": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "createdAt": "2025-08-11T15:47:15.890Z",
+  "id": "Ez1t0CuhYqTvTMDX",
+  "isArchived": false,
+  "meta": {
+    "templateCredsSetupCompleted": true
+  },
+  "name": "Tenant Screening",
+  "nodes": [
+    {
+      "parameters": {
+        "operation": "appendOrUpdate",
+        "documentId": {
+          "__rl": true,
+          "value": "11UkuTgKmjjfmiKQwfic14-yxGwtBHE-f-j7zLMTRDHQ",
+          "mode": "list",
+          "cachedResultName": "Tenant Screening",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/11UkuTgKmjjfmiKQwfic14-yxGwtBHE-f-j7zLMTRDHQ/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/11UkuTgKmjjfmiKQwfic14-yxGwtBHE-f-j7zLMTRDHQ/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "threadId": "={{ $('ClassifyResponse').item.json.threadId }}",
+            "name": "={{ $('ClassifyResponse').item.json.from.value[0].name }}",
+            "id": "={{ $('ClassifyResponse').item.json.messageID }}",
+            "emailSummary": "=Subject: {{ $json.subject }}\nMessage: {{ $json.message }}",
+            "to": "={{ $('ClassifyResponse').item.json.to.value[0].address }}",
+            "from": "={{ $('ClassifyResponse').item.json.from.value[0].address }}"
+          },
+          "matchingColumns": [
+            "id"
+          ],
+          "schema": [
+            {
+              "id": "id",
+              "displayName": "id",
+              "required": false,
+              "defaultMatch": true,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "threadId",
+              "displayName": "threadId",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "from",
+              "displayName": "from",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "to",
+              "displayName": "to",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "name",
+              "displayName": "name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "moveInDate",
+              "displayName": "moveInDate",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "occupants",
+              "displayName": "occupants",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "employment",
+              "displayName": "employment",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "reason",
+              "displayName": "reason",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "emailSummary",
+              "displayName": "emailSummary",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "hasAllInfo",
+              "displayName": "hasAllInfo",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "id": "431bb28c-eb7a-42c7-85ee-8359c9b4c7f2",
+      "name": "Log to Google Sheets",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.6,
+      "position": [
+        4240,
+        464
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "aTGWDwc4d28BUxCQ",
+          "name": "Google Sheets (Isaac)"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "={{ $('Gmail Trigger').item.json.id }}",
+        "contextWindowLength": 20
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        4448,
+        672
+      ],
+      "id": "2184bc51-d094-44a8-90cf-8ad6d4349753",
+      "name": "Simple Memory1"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "gpt-5-mini",
+          "mode": "list",
+          "cachedResultName": "gpt-5-mini"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        4336,
+        672
+      ],
+      "id": "ab772d2c-f9c8-4da3-a6fd-778eb3358040",
+      "name": "OpenAI Chat Model2",
+      "credentials": {
+        "openAiApi": {
+          "id": "vofRqqG7VEHTXxTs",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "thread",
+        "operation": "get",
+        "threadId": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Thread_ID', ``, 'string') }}",
+        "options": {
+          "returnOnlyMessages": true
+        }
+      },
+      "type": "n8n-nodes-base.gmailTool",
+      "typeVersion": 2.1,
+      "position": [
+        4672,
+        672
+      ],
+      "id": "3b1443d7-011b-41c6-8038-417f29188637",
+      "name": "Get a thread1",
+      "webhookId": "25201c05-0198-48f0-b4b7-82f1d25b1856",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "RQgLPouTAfMwqrsw",
+          "name": "Gmail account 3"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyMinute"
+            }
+          ]
+        },
+        "simple": false,
+        "filters": {
+          "sender": "@rts.kijiji.ca"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmailTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        2704,
+        496
+      ],
+      "id": "aa32c5ce-3ab4-4b19-a9b1-20899ba44f2f",
+      "name": "Gmail Trigger",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "ZUZLdJUCU7wpTjw3",
+          "name": "Gmail account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "d457d868-a747-47c7-ad9b-438fa47d7ad2",
+              "leftValue": "={{ $json.text }}",
+              "rightValue": "rental",
+              "operator": {
+                "type": "string",
+                "operation": "contains"
+              }
+            },
+            {
+              "id": "16810e28-3e6c-4aed-94b4-e8b53346f53b",
+              "leftValue": "={{ $json.text }}",
+              "rightValue": "application",
+              "operator": {
+                "type": "string",
+                "operation": "contains"
+              }
+            },
+            {
+              "id": "c87d3eb7-489d-4c4f-81af-12cc21a05c05",
+              "leftValue": "={{ $json.text }}",
+              "rightValue": "interested in the unit",
+              "operator": {
+                "type": "string",
+                "operation": "contains"
+              }
+            },
+            {
+              "id": "4c1b10c1-548e-4969-b2c6-154cae6e17fe",
+              "leftValue": "={{ $json.text }}",
+              "rightValue": "Kijiji",
+              "operator": {
+                "type": "string",
+                "operation": "contains"
+              }
+            }
+          ],
+          "combinator": "or"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        3040,
+        496
+      ],
+      "id": "39c530c8-3945-4cf1-8a69-7ef4f8eb13ad",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "e4f9cace-7233-4bb0-844e-ae056a5175c5",
+              "name": "subject",
+              "value": "={{ $('Gmail Trigger').item.json.subject }}",
+              "type": "string"
+            },
+            {
+              "id": "e68baaac-075b-494d-9c00-2eb89d0cea06",
+              "name": "date",
+              "value": "={{ $('Gmail Trigger').item.json.date }}",
+              "type": "string"
+            },
+            {
+              "id": "dbec4e9a-006c-476b-bdbc-8280736e79ad",
+              "name": "to",
+              "value": "={{ $('Gmail Trigger').item.json.to }}",
+              "type": "object"
+            },
+            {
+              "id": "6c32166d-8df0-48e7-8eda-2554f9baf327",
+              "name": "from",
+              "value": "={{ $('Gmail Trigger').item.json.from }}",
+              "type": "object"
+            },
+            {
+              "id": "a897c32a-bb8e-417f-bfaf-61a44282fe63",
+              "name": "message",
+              "value": "={{ $('Gmail Trigger').item.json.textAsHtml }}",
+              "type": "string"
+            },
+            {
+              "id": "4856f1f8-c56c-4e16-bdfd-949866a3b9ba",
+              "name": "messageID",
+              "value": "={{ $('Gmail Trigger').item.json.id }}",
+              "type": "string"
+            },
+            {
+              "id": "26407726-cf2e-4738-a9dd-c3fe0131a00f",
+              "name": "threadId",
+              "value": "={{ $('Gmail Trigger').item.json.threadId }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        3264,
+        480
+      ],
+      "id": "c4e30186-e360-4b21-970d-d2fb1be7738b",
+      "name": "ClassifyResponse"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "value": "11UkuTgKmjjfmiKQwfic14-yxGwtBHE-f-j7zLMTRDHQ",
+          "mode": "list",
+          "cachedResultName": "Tenant Screening",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/11UkuTgKmjjfmiKQwfic14-yxGwtBHE-f-j7zLMTRDHQ/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/11UkuTgKmjjfmiKQwfic14-yxGwtBHE-f-j7zLMTRDHQ/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "id": "={{ $json.id }}",
+            "moveInDate": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('moveInDate', ``, 'string') }}",
+            "occupants": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('occupants', ``, 'string') }}",
+            "employment": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('employment', ``, 'string') }}",
+            "reason": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('reason', ``, 'string') }}",
+            "hasAllInfo": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('hasAllInfo', ``, 'string') }}"
+          },
+          "matchingColumns": [
+            "id"
+          ],
+          "schema": [
+            {
+              "id": "id",
+              "displayName": "id",
+              "required": false,
+              "defaultMatch": true,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "threadId",
+              "displayName": "threadId",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "from",
+              "displayName": "from",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "to",
+              "displayName": "to",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "name",
+              "displayName": "name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "moveInDate",
+              "displayName": "moveInDate",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "occupants",
+              "displayName": "occupants",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "employment",
+              "displayName": "employment",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "reason",
+              "displayName": "reason",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "emailSummary",
+              "displayName": "emailSummary",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "hasAllInfo",
+              "displayName": "hasAllInfo",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "row_number",
+              "displayName": "row_number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true,
+              "readOnly": true,
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheetsTool",
+      "typeVersion": 4.6,
+      "position": [
+        5072,
+        672
+      ],
+      "id": "79e22953-fbfd-43de-9dff-2df79b45bdc9",
+      "name": "Update row in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "aTGWDwc4d28BUxCQ",
+          "name": "Google Sheets (Isaac)"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "thread",
+        "operation": "reply",
+        "threadId": "={{ $json.threadId }}",
+        "messageId": "={{ $json.id }}",
+        "message": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Message', ``, 'string') }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmailTool",
+      "typeVersion": 2.1,
+      "position": [
+        4800,
+        672
+      ],
+      "id": "3f959999-2d63-468a-beee-bf358b0bc0fc",
+      "name": "Reply to a message",
+      "webhookId": "961e474e-4fc7-4f71-bb3c-2ad3ebc399ba",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "RQgLPouTAfMwqrsw",
+          "name": "Gmail account 3"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Client info:\n{{ $('Log to Google Sheets').item.json.toJsonString() }}",
+        "options": {
+          "systemMessage": "=You are a professional rental property assistant helping process rental inquiries. You work for London ON Ride Share.\nYour role is to gather essential tenant information and guide applicants through the rental application process.\n\n## Available Tools\nYou have access to four essential tools:\n1. **Get a Thread Tool** - Use this to retrieve previous messages in the conversation thread\n2. **Reply to a Message Tool** - Use this to send your response back to the applicant\n3. **Update Row in Sheet Tool** - Use this to update the applicant's information in the tracking spreadsheet\n4. **Send a Message Tool** - Use this to send notification emails to the property owner.\n\n## Workflow Process\n**ALWAYS follow this sequence:**\n1. **First, use the \"Get a Thread\" tool** to check for any previous messages in the conversation\n2. **Review the conversation history** to understand the context and what information has already been exchanged\n3. **Analyze the current user info** to determine what information is still needed\n4. **Use the \"Reply to a Message\" tool** to send the appropriate response based on the conversation context, message language and missing information.\n5. **Use the \"Update Row in Sheet\" tool** to update the applicant's status and information in the tracking spreadsheet\n6. **When all information is complete (`hasAllInfo` becomes true), use the \"Send a Message\" tool** to notify the property owner.\n\n## Core Information Required\nYou must collect these 4 key pieces of information from every applicant:\n1. **Move-in Date** (`moveInDate`) - When they want to move in\n2. **Occupants** (`occupants`) - Who will be living in the property\n3. **Employment** (`employment`) - Their work/occupation details\n4. **Reason** (`reason`) - Why they are moving\n\n## Response Logic\n\n### For New Inquiries (when `hasAllInfo` is false)\nSend the introduction message and ask for missing information:\n\n```\nHi there,\n\nThank you for your interest in our rental property! To help us process your application efficiently, I'll need some basic information:\n\n1. **When are you looking to move in?** (Preferred move-in date)\n2. **Who would be moving with you?** (Number of occupants, relationship)\n3. **Where do you work?** (Employer/occupation details)\n4. **Why are you moving?** (Reason for relocation)\n\nOnce I have this information, I can provide you with next steps for viewing and applying.\n\nBest regards,\nProperty Management Team\n```\n\n### For Incomplete Information (when some fields show \"Not provided\")\nSend a polite follow-up requesting only the missing information:\n\n```\nHi [Name if available],\n\nThank you for getting back to me! I have most of the information I need, but I'm still missing a few details:\n\n[List only the missing items from below:]\n- **Move-in date:** When are you looking to move in?\n- **Occupants:** Who will be living in the property with you?\n- **Employment:** Where do you work or what is your occupation?\n- **Reason for moving:** What's prompting your move?\n\nOnce I have these final details, I can move forward with your application.\n\nBest regards,\nProperty Management Team\n```\n\n### For Complete Information (when `hasAllInfo` is true)\nSend confirmation and next steps, then notify the owner:\n\n```\nHi [Name if available],\n\nPerfect! I have all the information I need for your rental application:\n\n✓ Move-in date: [moveInDate]\n✓ Occupants: [occupants]\n✓ Employment: [employment]\n✓ Reason for moving: [reason]\n\nYour application is now ready for processing. Here are the next steps:\n\n1. **Property viewing** - We'll arrange a viewing time that works for you\n2. **Application form** - You'll receive a formal application to complete\n3. **Documentation** - We'll need proof of income and references\n4. **Decision** - We'll review and get back to you within 48 hours\n\nThe property owner has been notified of your complete application and will be in touch shortly with viewing availability. Thank you for your interest!\n\nBest regards,\nProperty Management Team\n```\n\n## Tool Usage Instructions\n\n### When to Update the Sheet\n**ALWAYS use the \"Update Row in Sheet\" tool** after sending any reply to update the applicant's information and status. This includes:\n- Updating any newly collected information (moveInDate, occupants, employment, reason)\n- Setting `hasAllInfo` to \"true\" when all 4 pieces of information are collected\n- Setting `hasAllInfo` to \"false\" when information is still missing\n\n### When All Information is Complete\nWhen `hasAllInfo` becomes true (all 4 required fields are filled):\n1. Send the completion confirmation message to the client using \"Reply to a Message\" tool\n2. Update the sheet with `hasAllInfo` set to \"true\" using \"Update Row in Sheet\" tool\n3. **Send notification email to the owner using \"Send a Message\" tool** with:\n   - **Subject:** \"New Complete Rental Application - [Client Name/Email]\"\n   - **Message:** Include all collected client information (name, email, move-in date, occupants, employment, reason) and request next steps for property viewing\n\n## General Instructions\n- **ALWAYS start by using the \"Get a Thread\" tool** to check previous conversation history\n- Review the conversation context before determining your response\n- Only ask for information that's actually missing AND hasn't been recently requested\n- Maintain a professional, friendly tone throughout\n- Personalize with the applicant's name when available\n- Keep responses concise but informative\n- Use the exact field names from the user info object to check what's missing\n- **Always use the \"Update Row in Sheet\" tool** after every interaction to keep the tracking spreadsheet current\n- **Always use the \"Reply to a Message\" tool** to send your response"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.1,
+      "position": [
+        4496,
+        464
+      ],
+      "id": "834c6cd4-a828-41a2-9264-4e73e207d4ec",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "operation": "getAll",
+        "limit": 10,
+        "filters": {
+          "q": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Search', ``, 'string') }}"
+        }
+      },
+      "type": "n8n-nodes-base.gmailTool",
+      "typeVersion": 2.1,
+      "position": [
+        4560,
+        672
+      ],
+      "id": "8c178a52-84be-4e66-9e9d-6fbec518e34c",
+      "name": "Search Gmail",
+      "webhookId": "e76b7b09-cf2d-4be6-9885-b16ee1d9b37e",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "RQgLPouTAfMwqrsw",
+          "name": "Gmail account 3"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 1
+          },
+          "conditions": [
+            {
+              "id": "8c2c18ae-c9b5-4533-9e96-f515d1c0a3f3",
+              "leftValue": "={{ $('Email Classification Agent').item.json.output.NEED_REPLY }}",
+              "rightValue": "Yes",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        3744,
+        480
+      ],
+      "id": "f6fa6604-96cf-407c-98d8-d7d9a9416b21",
+      "name": "Needs Reply?"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "classification-result",
+              "name": "message",
+              "value": "={{ $json.output.MESSAGE }}",
+              "type": "string"
+            },
+            {
+              "id": "email-subject",
+              "name": "subject",
+              "value": "={{ $('ClassifyResponse').item.json.subject }}",
+              "type": "string"
+            },
+            {
+              "id": "email-from",
+              "name": "from",
+              "value": "={{ $('ClassifyResponse').item.json.from }}",
+              "type": "object"
+            },
+            {
+              "id": "timestamp",
+              "name": "processedAt",
+              "value": "={{ new Date().toISOString() }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        4032,
+        464
+      ],
+      "id": "1a3e695f-2ae6-4513-994f-7dda6c2481e8",
+      "name": "Prepare for Rental Agent"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "classification-result",
+              "name": "classification",
+              "value": "={{ $('Email Classification Agent').item.json.output }}",
+              "type": "string"
+            },
+            {
+              "id": "email-subject",
+              "name": "subject",
+              "value": "={{ $('ClassifyResponse').item.json.subject }}",
+              "type": "string"
+            },
+            {
+              "id": "email-from",
+              "name": "from",
+              "value": "={{ $('ClassifyResponse').item.json.from }}",
+              "type": "object"
+            },
+            {
+              "id": "reason",
+              "name": "reason",
+              "value": "Email filtered out - no reply needed (automated/spam/informational)",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        3888,
+        640
+      ],
+      "id": "cc70da45-0e2b-48b6-a535-a99c65150e7a",
+      "name": "Log Filtered Email"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4.1-mini"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        3440,
+        640
+      ],
+      "id": "927b91de-9f64-4ff5-81b2-ca7f3b28446b",
+      "name": "OpenAI Chat Model1",
+      "credentials": {
+        "openAiApi": {
+          "id": "vofRqqG7VEHTXxTs",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Email Analysis Request:\n\nSubject: {{ $('ClassifyResponse').item.json.subject }}\nFrom: {{ $json.from.value[0].name || 'Unknown' }} - {{ $('ClassifyResponse').item.json.from.value[0].address || 'Unknown' }}\nDate: {{ $('ClassifyResponse').item.json.date }}\nMessage: {{ $('ClassifyResponse').item.json.message }}\n\nPlease analyze if this email requires a reply.\n",
+        "hasOutputParser": true,
+        "options": {
+          "systemMessage": "=You are an intelligent email classification assistant for London ON Ride Share rental property management.\n\nYour task is to analyze incoming emails and determine whether they require a human response or can be filtered out. Additionally, extract the main message content by removing HTML tags, boilerplate text, disclaimers, and any irrelevant content, keeping only the core conversational message.\n\n## Classification Categories\n\n### NEEDS REPLY (set NEED_REPLY to \"Yes\")\n**Rental Inquiries & Applications:**\n- New rental property inquiries\n- Application submissions or questions\n- Requests for property viewings\n- Questions about rental terms, pricing, or availability\n- Tenant application follow-ups\n- Maintenance requests from current tenants\n- Lease-related questions or concerns\n\n**Business Communications:**\n- Client questions requiring specific information\n- Vendor inquiries or proposals\n- Partner communications\n- Complaint or concern emails\n- Meeting requests or scheduling\n- Any email with specific questions that need answers\n\n**Personal Communications:**\n- Direct personal messages to staff\n- Messages from known contacts requiring response\n- Follow-up requests or clarifications\n\n### NO REPLY NEEDED (set NEED_REPLY to \"No\")\n**Automated Messages:**\n- System notifications\n- Auto-responders and out-of-office messages\n- Delivery confirmations\n- Newsletter subscriptions or unsubscribe confirmations\n- Social media notifications\n- Marketing automation emails\n- Server alerts or technical notifications\n\n**Spam & Promotional:**\n- Obvious spam or phishing attempts\n- Unsolicited marketing emails\n- Generic promotional content\n- Cold sales pitches unrelated to rental business\n- Suspicious or fraudulent messages\n\n**Informational Only:**\n- News updates or newsletters\n- Event announcements (unless RSVP required)\n- General industry updates\n- FYI messages with no action required\n- Calendar reminders\n- Backup/archive notifications\n\n## Analysis Instructions\n\n1. **Read the entire email content carefully**\n2. **Identify the sender** - Is it from a known contact, potential client, or automated system?\n3. **Analyze the subject line** - Does it indicate a request, question, or automated message?\n4. **Examine the message content** for:\n   - Direct questions\n   - Requests for information or action\n   - Expressions of interest in rental properties\n   - Complaints or concerns\n   - Personal communication tone\n5. **Look for automation indicators** such as:\n   - \"Do not reply\" language\n   - Unsubscribe links\n   - System-generated formatting\n   - Generic, templated content\n6. **Extract the main message** by removing:\n   - HTML tags and formatting\n   - Email headers and metadata\n   - Boilerplate text (safety tips, disclaimers, links)\n   - Automated signatures and footers\n   - Keep only the core human-readable message content\n\n## Response Format\n\nRespond with a JSON object containing exactly two fields:\n- **NEED_REPLY**: Either \"Yes\" or \"No\"\n- **MESSAGE**: The cleaned and extracted main message content as plain text\n\nExample response:\n{\"NEED_REPLY\": \"Yes\", \"MESSAGE\": \"Thanks how long before I get an answer from you for my reference I'm really interested\"}\n\n## Edge Cases\n- When in doubt, err on the side of **REPLY_REQUIRED** to avoid missing important communications\n- If an email contains both automated and human elements, classify as **REPLY_REQUIRED**\n- Newsletters or updates from business partners may need replies if they contain action items\n- For extracted_message, if there's no clear main message, use an empty string or summarize the key content\n\n## Examples\n\n**REPLY_REQUIRED Examples:**\n- \"Hi, I'm interested in your 2-bedroom rental on Oak Street\"\n- \"When is the earliest move-in date for your property?\"\n- \"I submitted an application last week, what's the status?\"\n- \"The heating in unit 3B isn't working properly\"\n- \"Can we schedule a viewing for this weekend?\"\n\n**NO_REPLY Examples:**\n- \"This is an automated confirmation that your email was received\"\n- \"Unsubscribe successful - you will no longer receive our newsletter\"\n- \"System backup completed successfully at 2:00 AM\"\n- \"SPAM: You've won $1,000,000! Click here to claim\"\n- \"Weekly industry newsletter - Week of January 15th\""
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.1,
+      "position": [
+        3440,
+        480
+      ],
+      "id": "546840cf-e464-40b1-b43d-6a67df3eee0e",
+      "name": "Email Classification Agent"
+    },
+    {
+      "parameters": {
+        "jsonSchemaExample": "{\n  \"NEED_REPLY\": \"Yes or No\",\n  \"MESSAGE\": \"the extracted message content\"\n}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.3,
+      "position": [
+        3600,
+        640
+      ],
+      "id": "4ac5d174-923c-49a5-8626-5b5741397848",
+      "name": "Structured Output Parser1"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.limit",
+      "typeVersion": 1,
+      "position": [
+        2880,
+        496
+      ],
+      "id": "75dd994b-22ca-4ef6-a981-9005894a98dd",
+      "name": "Limit"
+    },
+    {
+      "parameters": {
+        "sendTo": "boninaurelien@googlemail.com",
+        "subject": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Subject', ``, 'string') }}",
+        "emailType": "text",
+        "message": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Message', ``, 'string') }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmailTool",
+      "typeVersion": 2.1,
+      "position": [
+        4928,
+        672
+      ],
+      "id": "8f5e14bb-4f60-4411-a1ac-c7c381f3161d",
+      "name": "Send a message",
+      "webhookId": "961e474e-4fc7-4f71-bb3c-2ad3ebc399ba",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "RQgLPouTAfMwqrsw",
+          "name": "Gmail account 3"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "shared": [
+    {
+      "updatedAt": "2025-08-18T15:40:28.755Z",
+      "createdAt": "2025-08-18T15:40:28.755Z",
+      "role": "workflow:owner",
+      "workflowId": "Ez1t0CuhYqTvTMDX",
+      "projectId": "K5c2PqoZjXPELHVa"
+    }
+  ],
+  "staticData": {
+    "node:Gmail Trigger": {
+      "Gmail Trigger": {
+        "lastTimeChecked": 1764007290,
+        "possibleDuplicates": [
+          "19ab7072c2756895",
+          "19ab6e829341a641"
+        ]
+      }
+    }
+  },
+  "tags": [],
+  "triggerCount": 1,
+  "updatedAt": "2025-11-26T02:25:23.000Z",
+  "versionId": "6687f7bf-bd17-4fb4-ac1d-9a189b660cbb"
+}
