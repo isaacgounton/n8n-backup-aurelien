@@ -1,0 +1,1586 @@
+{
+  "active": true,
+  "activeVersion": {
+    "updatedAt": "2025-12-30T03:48:25.000Z",
+    "createdAt": "2025-12-30T03:48:05.100Z",
+    "versionId": "5e839667-16b1-4951-a15e-5c3e59b255db",
+    "workflowId": "vo5VLUs8I0HxXplU",
+    "nodes": [
+      {
+        "parameters": {
+          "inputSource": "passthrough"
+        },
+        "type": "n8n-nodes-base.executeWorkflowTrigger",
+        "typeVersion": 1.1,
+        "position": [
+          1616,
+          240
+        ],
+        "id": "4520c760-4d4f-47e2-9afa-ff5ccc49c6aa",
+        "name": "When Executed by Another Workflow"
+      },
+      {
+        "parameters": {
+          "promptType": "define",
+          "text": "={{ $json.query }}",
+          "options": {
+            "systemMessage": "=You are a rental listings assistant for Jules AI. You help users search, view, create, update, and delete rental property listings in the database.\n\n**Database Schema for rental_listings:**\n- **address**: Full property address as string (max 255 chars) - REQUIRED\n- **bedrooms**: Number of bedrooms as integer - REQUIRED\n- **bathrooms**: Number of bathrooms as decimal/float - REQUIRED\n- **monthly_rent**: Monthly rent amount as decimal/float - REQUIRED\n- **square_feet**: Property size in square feet as integer (optional)\n- **neighborhood**: Neighborhood name as string (max 255 chars) - REQUIRED\n- **description**: Property description as text - REQUIRED\n- **unit_type**: Type of unit as string (e.g., Studio, 1 Bedroom, 2 Bedroom, Apartment, House, Condo) (optional)\n- **availability_date**: Date when property becomes available (ISO format: YYYY-MM-DD) (optional)\n- **is_available**: Boolean indicating if property is currently available (true/false)\n\n**Operations:**\n\n**SEARCH LISTINGS:**\n- Search by address, bedrooms, bathrooms, rent range, neighborhood\n- Use partial matching for address and neighborhood\n- Return matching listings with all details\n\n**VIEW ALL AVAILABLE LISTINGS:**\n- Retrieve all listings where is_available = true\n- Display key details: address, bedrooms, bathrooms, monthly_rent, neighborhood\n\n**CREATE LISTING:**\n- Required fields: address, bedrooms, bathrooms, monthly_rent, neighborhood, description\n- Optional fields: square_feet, unit_type, availability_date\n- is_available defaults to true\n- Return success with listing details including the generated id\n- When the content you received is a URL, use the Firecrawl tool to extract the URL page to obtain the proper text content to use.\n\n**UPDATE LISTING:**\n- Identify listing by id (required)\n- Update any specified fields\n- Only provided fields will be updated\n- Return updated listing details\n\n**DELETE LISTING:**\n- Identify listing by id (required)\n- Permanently remove from database\n- Confirm deletion with listing id\n\n**Response Guidelines:**\n- Present listings in a clear, readable format\n- Include key details: id, address, bedrooms/bathrooms, monthly_rent, neighborhood\n- For searches, summarize number of results found\n- Provide helpful suggestions when no results match criteria\n- Always include the listing id in responses for reference"
+          }
+        },
+        "type": "@n8n/n8n-nodes-langchain.agent",
+        "typeVersion": 3.1,
+        "position": [
+          1792,
+          240
+        ],
+        "id": "3d910e26-b1e0-4963-8e85-79dc363b4346",
+        "name": "AI Agent"
+      },
+      {
+        "parameters": {
+          "model": {
+            "__rl": true,
+            "mode": "list",
+            "value": "gpt-4.1-mini"
+          },
+          "responsesApiEnabled": false,
+          "options": {}
+        },
+        "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+        "typeVersion": 1.3,
+        "position": [
+          1600,
+          512
+        ],
+        "id": "5ec99f4f-48c4-4f57-a24e-7ee1e58710a4",
+        "name": "OpenAI Chat Model",
+        "credentials": {
+          "openAiApi": {
+            "id": "vofRqqG7VEHTXxTs",
+            "name": "OpenAi account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "descriptionType": "manual",
+          "toolDescription": "Retrieves all available rental listings from the database. Returns property details including address, bedrooms, bathrooms, rent, neighborhood, and availability information",
+          "operation": "select",
+          "schema": {
+            "__rl": true,
+            "mode": "list",
+            "value": "public"
+          },
+          "table": {
+            "__rl": true,
+            "value": "rental_listings",
+            "mode": "list",
+            "cachedResultName": "rental_listings"
+          },
+          "returnAll": true,
+          "where": {
+            "values": [
+              {
+                "column": "is_available",
+                "value": "true"
+              }
+            ]
+          },
+          "options": {}
+        },
+        "id": "b3882c7f-d30c-41fb-b1cd-ac10be7d5b6a",
+        "name": "List ALL Available Listings",
+        "type": "n8n-nodes-base.postgresTool",
+        "typeVersion": 2.6,
+        "position": [
+          1888,
+          512
+        ],
+        "credentials": {
+          "postgres": {
+            "id": "u7j29OmyHuzkVDfZ",
+            "name": "Postgres account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "descriptionType": "manual",
+          "toolDescription": "Creates a new rental listing in the database with property details including address, bedrooms, bathrooms, rent, neighborhood, description, and availability information",
+          "schema": {
+            "__rl": true,
+            "mode": "list",
+            "value": "public"
+          },
+          "table": {
+            "__rl": true,
+            "value": "rental_listings",
+            "mode": "list",
+            "cachedResultName": "rental_listings"
+          },
+          "columns": {
+            "mappingMode": "defineBelow",
+            "value": {
+              "address": "={{ $fromAI('address', 'Full property address', 'string') }}",
+              "bedrooms": "={{ $fromAI('bedrooms', 'Number of bedrooms', 'number') }}",
+              "bathrooms": "={{ $fromAI('bathrooms', 'Number of bathrooms', 'number') }}",
+              "monthly_rent": "={{ $fromAI('monthly_rent', 'Monthly rent amount', 'number') }}",
+              "square_feet": "={{ $fromAI('square_feet', 'Property size in square feet (optional)', 'number') }}",
+              "neighborhood": "={{ $fromAI('neighborhood', 'Neighborhood name', 'string') }}",
+              "description": "={{ $fromAI('description', 'Property description', 'string') }}",
+              "unit_type": "={{ $fromAI('unit_type', 'Type of unit (e.g., Apartment, House, Condo)', 'string') }}",
+              "availability_date": "={{ $fromAI('availability_date', `Date when property becomes available (YYYY-MM-DD)`, 'string') }}",
+              "is_available": true
+            },
+            "matchingColumns": [
+              "id"
+            ],
+            "schema": [
+              {
+                "id": "id",
+                "displayName": "id",
+                "required": false,
+                "defaultMatch": true,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true,
+                "removed": true
+              },
+              {
+                "id": "address",
+                "displayName": "address",
+                "required": true,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true,
+                "removed": false
+              },
+              {
+                "id": "bedrooms",
+                "displayName": "bedrooms",
+                "required": true,
+                "defaultMatch": false,
+                "display": true,
+                "type": "number",
+                "canBeUsedToMatch": true,
+                "removed": false
+              },
+              {
+                "id": "bathrooms",
+                "displayName": "bathrooms",
+                "required": true,
+                "defaultMatch": false,
+                "display": true,
+                "type": "number",
+                "canBeUsedToMatch": true,
+                "removed": false
+              },
+              {
+                "id": "monthly_rent",
+                "displayName": "monthly_rent",
+                "required": true,
+                "defaultMatch": false,
+                "display": true,
+                "type": "number",
+                "canBeUsedToMatch": true,
+                "removed": false
+              },
+              {
+                "id": "square_feet",
+                "displayName": "square_feet",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "number",
+                "canBeUsedToMatch": true,
+                "removed": false
+              },
+              {
+                "id": "neighborhood",
+                "displayName": "neighborhood",
+                "required": true,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true,
+                "removed": false
+              },
+              {
+                "id": "description",
+                "displayName": "description",
+                "required": true,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true,
+                "removed": false
+              },
+              {
+                "id": "unit_type",
+                "displayName": "unit_type",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true,
+                "removed": false
+              },
+              {
+                "id": "availability_date",
+                "displayName": "availability_date",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "dateTime",
+                "canBeUsedToMatch": true,
+                "removed": false
+              },
+              {
+                "id": "amenities",
+                "displayName": "amenities",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "object",
+                "canBeUsedToMatch": true,
+                "removed": true
+              },
+              {
+                "id": "photos",
+                "displayName": "photos",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "object",
+                "canBeUsedToMatch": true,
+                "removed": true
+              },
+              {
+                "id": "is_available",
+                "displayName": "is_available",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "boolean",
+                "canBeUsedToMatch": true,
+                "removed": false
+              },
+              {
+                "id": "created_at",
+                "displayName": "created_at",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "dateTime",
+                "canBeUsedToMatch": true,
+                "removed": true
+              },
+              {
+                "id": "updated_at",
+                "displayName": "updated_at",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "dateTime",
+                "canBeUsedToMatch": true,
+                "removed": true
+              }
+            ],
+            "attemptToConvertTypes": false,
+            "convertFieldsToString": false
+          },
+          "options": {}
+        },
+        "id": "a2409504-b223-4283-a124-82bd900c945a",
+        "name": "Create a listing",
+        "type": "n8n-nodes-base.postgresTool",
+        "typeVersion": 2.6,
+        "position": [
+          2016,
+          512
+        ],
+        "credentials": {
+          "postgres": {
+            "id": "u7j29OmyHuzkVDfZ",
+            "name": "Postgres account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "descriptionType": "manual",
+          "toolDescription": "Updates an existing rental listing in the database. Provide the listing ID to identify the property and any fields you want to update. Only provided fields will be updated",
+          "operation": "update",
+          "schema": {
+            "__rl": true,
+            "mode": "list",
+            "value": "public"
+          },
+          "table": {
+            "__rl": true,
+            "value": "rental_listings",
+            "mode": "list",
+            "cachedResultName": "rental_listings"
+          },
+          "columns": {
+            "mappingMode": "defineBelow",
+            "value": {
+              "id": "={{ $fromAI('id', 'Listing ID to update', 'string') }}",
+              "address": "={{ $fromAI('address', 'Updated property address (optional)', 'string') }}",
+              "bedrooms": "={{ $fromAI('bedrooms', 'Updated number of bedrooms (optional)', 'number') }}",
+              "bathrooms": "={{ $fromAI('bathrooms', 'Updated number of bathrooms (optional)', 'number') }}",
+              "monthly_rent": "={{ $fromAI('monthly_rent', 'Updated monthly rent (optional)', 'number') }}",
+              "square_feet": "={{ $fromAI('square_feet', 'Updated square feet (optional)', 'number') }}",
+              "neighborhood": "={{ $fromAI('neighborhood', 'Updated neighborhood (optional)', 'string') }}",
+              "description": "={{ $fromAI('description', 'Updated description (optional)', 'string') }}",
+              "unit_type": "={{ $fromAI('unit_type', 'Updated unit type (optional)', 'string') }}",
+              "availability_date": "={{ $fromAI('availability_date', 'Updated availability date (optional)', 'string') }}",
+              "is_available": "={{ $fromAI('is_available', 'Updated availability status (optional)', 'boolean') }}"
+            },
+            "matchingColumns": [
+              "id"
+            ],
+            "schema": [
+              {
+                "id": "id",
+                "displayName": "id",
+                "required": false,
+                "defaultMatch": true,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true,
+                "removed": false
+              },
+              {
+                "id": "address",
+                "displayName": "address",
+                "required": true,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true
+              },
+              {
+                "id": "bedrooms",
+                "displayName": "bedrooms",
+                "required": true,
+                "defaultMatch": false,
+                "display": true,
+                "type": "number",
+                "canBeUsedToMatch": true
+              },
+              {
+                "id": "bathrooms",
+                "displayName": "bathrooms",
+                "required": true,
+                "defaultMatch": false,
+                "display": true,
+                "type": "number",
+                "canBeUsedToMatch": true
+              },
+              {
+                "id": "monthly_rent",
+                "displayName": "monthly_rent",
+                "required": true,
+                "defaultMatch": false,
+                "display": true,
+                "type": "number",
+                "canBeUsedToMatch": true
+              },
+              {
+                "id": "square_feet",
+                "displayName": "square_feet",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "number",
+                "canBeUsedToMatch": true
+              },
+              {
+                "id": "neighborhood",
+                "displayName": "neighborhood",
+                "required": true,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true
+              },
+              {
+                "id": "description",
+                "displayName": "description",
+                "required": true,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true
+              },
+              {
+                "id": "unit_type",
+                "displayName": "unit_type",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true
+              },
+              {
+                "id": "availability_date",
+                "displayName": "availability_date",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "dateTime",
+                "canBeUsedToMatch": true
+              },
+              {
+                "id": "amenities",
+                "displayName": "amenities",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "object",
+                "canBeUsedToMatch": true,
+                "removed": true
+              },
+              {
+                "id": "photos",
+                "displayName": "photos",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "object",
+                "canBeUsedToMatch": true,
+                "removed": true
+              },
+              {
+                "id": "is_available",
+                "displayName": "is_available",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "boolean",
+                "canBeUsedToMatch": true
+              },
+              {
+                "id": "created_at",
+                "displayName": "created_at",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "dateTime",
+                "canBeUsedToMatch": true,
+                "removed": true
+              },
+              {
+                "id": "updated_at",
+                "displayName": "updated_at",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "dateTime",
+                "canBeUsedToMatch": true,
+                "removed": true
+              }
+            ],
+            "attemptToConvertTypes": false,
+            "convertFieldsToString": false
+          },
+          "options": {}
+        },
+        "id": "eff8bb98-516c-402b-a392-8b5e65a7c00b",
+        "name": "Update a listing",
+        "type": "n8n-nodes-base.postgresTool",
+        "typeVersion": 2.6,
+        "position": [
+          2288,
+          512
+        ],
+        "credentials": {
+          "postgres": {
+            "id": "u7j29OmyHuzkVDfZ",
+            "name": "Postgres account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "descriptionType": "manual",
+          "toolDescription": "Deletes a rental listing from the database by listing ID. This action is permanent and cannot be undone",
+          "operation": "deleteTable",
+          "schema": {
+            "__rl": true,
+            "mode": "list",
+            "value": "public"
+          },
+          "table": {
+            "__rl": true,
+            "value": "rental_listings",
+            "mode": "list",
+            "cachedResultName": "rental_listings"
+          },
+          "deleteCommand": "delete",
+          "where": {
+            "values": [
+              {
+                "column": "id",
+                "value": "={{ $fromAI('id', 'Listing ID to delete', 'string') }}"
+              }
+            ]
+          },
+          "options": {}
+        },
+        "id": "88021b5c-1abc-43c6-a2e8-db0904f63190",
+        "name": "Delete a listing",
+        "type": "n8n-nodes-base.postgresTool",
+        "typeVersion": 2.6,
+        "position": [
+          2400,
+          512
+        ],
+        "credentials": {
+          "postgres": {
+            "id": "u7j29OmyHuzkVDfZ",
+            "name": "Postgres account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "descriptionType": "manual",
+          "toolDescription": "Searches for rental listings by address, bedrooms, bathrooms, rent amount, or neighborhood. Returns matching property details",
+          "operation": "select",
+          "schema": {
+            "__rl": true,
+            "mode": "list",
+            "value": "public"
+          },
+          "table": {
+            "__rl": true,
+            "value": "rental_listings",
+            "mode": "list",
+            "cachedResultName": "rental_listings"
+          },
+          "returnAll": true,
+          "where": {
+            "values": [
+              {
+                "column": "address",
+                "condition": "LIKE",
+                "value": "={{ $fromAI('address', 'Property address to search (partial match)', 'string') }}"
+              },
+              {
+                "column": "bedrooms",
+                "value": "={{ $fromAI('bedrooms', 'Number of bedrooms', 'number') }}"
+              },
+              {
+                "column": "bathrooms",
+                "value": "={{ $fromAI('bathrooms', 'Number of bathrooms', 'number') }}"
+              },
+              {
+                "column": "monthly_rent",
+                "condition": "<=",
+                "value": "={{ $fromAI('max_rent', 'Maximum monthly rent', 'number') }}"
+              },
+              {
+                "column": "neighborhood",
+                "value": "={{ $fromAI('neighborhood', 'Neighborhood name (partial match)', 'string') }}"
+              }
+            ]
+          },
+          "combineConditions": "OR",
+          "options": {}
+        },
+        "id": "97466d57-10d0-4b63-80aa-40bd1ff139b9",
+        "name": "Search listings",
+        "type": "n8n-nodes-base.postgresTool",
+        "typeVersion": 2.6,
+        "position": [
+          1744,
+          512
+        ],
+        "credentials": {
+          "postgres": {
+            "id": "u7j29OmyHuzkVDfZ",
+            "name": "Postgres account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "httpMethod": "POST",
+          "path": "rental-listings",
+          "authentication": "headerAuth",
+          "responseMode": "responseNode",
+          "options": {}
+        },
+        "type": "n8n-nodes-base.webhook",
+        "typeVersion": 2.1,
+        "position": [
+          1808,
+          16
+        ],
+        "id": "b6f111de-dcda-4f29-943b-1f18d66677e3",
+        "name": "Webhook",
+        "webhookId": "fb279704-9f57-4390-a9fa-de4e1e631c88",
+        "credentials": {
+          "httpHeaderAuth": {
+            "id": "0HuFZThSVNVITvy8",
+            "name": "Jules Livekit"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "respondWith": "allIncomingItems",
+          "options": {}
+        },
+        "type": "n8n-nodes-base.respondToWebhook",
+        "typeVersion": 1.5,
+        "position": [
+          2288,
+          240
+        ],
+        "id": "796c0786-9738-4f2f-939c-c6079e3071f3",
+        "name": "Respond to Webhook"
+      },
+      {
+        "parameters": {
+          "description": "Call this tool to extract the content of a url and obtain it's formatted content.",
+          "workflowId": {
+            "__rl": true,
+            "value": "900g3MNaA9zPdvpO",
+            "mode": "list",
+            "cachedResultUrl": "/workflow/900g3MNaA9zPdvpO",
+            "cachedResultName": "Firecrawl/Extract"
+          },
+          "workflowInputs": {
+            "mappingMode": "defineBelow",
+            "value": {},
+            "matchingColumns": [],
+            "schema": [],
+            "attemptToConvertTypes": false,
+            "convertFieldsToString": false
+          }
+        },
+        "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+        "typeVersion": 2.2,
+        "position": [
+          2144,
+          512
+        ],
+        "id": "93285e17-ccd5-40d8-ba0b-1371818c04df",
+        "name": "Firecrawl tool"
+      }
+    ],
+    "connections": {
+      "When Executed by Another Workflow": {
+        "main": [
+          [
+            {
+              "node": "AI Agent",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "OpenAI Chat Model": {
+        "ai_languageModel": [
+          [
+            {
+              "node": "AI Agent",
+              "type": "ai_languageModel",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "List ALL Available Listings": {
+        "ai_tool": [
+          [
+            {
+              "node": "AI Agent",
+              "type": "ai_tool",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Create a listing": {
+        "ai_tool": [
+          [
+            {
+              "node": "AI Agent",
+              "type": "ai_tool",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Update a listing": {
+        "ai_tool": [
+          [
+            {
+              "node": "AI Agent",
+              "type": "ai_tool",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Delete a listing": {
+        "ai_tool": [
+          [
+            {
+              "node": "AI Agent",
+              "type": "ai_tool",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Search listings": {
+        "ai_tool": [
+          [
+            {
+              "node": "AI Agent",
+              "type": "ai_tool",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Webhook": {
+        "main": [
+          []
+        ]
+      },
+      "AI Agent": {
+        "main": [
+          []
+        ]
+      },
+      "Respond to Webhook": {
+        "main": [
+          []
+        ]
+      },
+      "Firecrawl tool": {
+        "ai_tool": [
+          [
+            {
+              "node": "AI Agent",
+              "type": "ai_tool",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    },
+    "authors": "Aurelien Bonin",
+    "name": "Version 5e839667",
+    "description": "",
+    "autosaved": false
+  },
+  "activeVersionId": "5e839667-16b1-4951-a15e-5c3e59b255db",
+  "connections": {
+    "When Executed by Another Workflow": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "List ALL Available Listings": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create a listing": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update a listing": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Delete a listing": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Search listings": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook": {
+      "main": [
+        []
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        []
+      ]
+    },
+    "Respond to Webhook": {
+      "main": [
+        []
+      ]
+    },
+    "Firecrawl tool": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "createdAt": "2025-12-20T04:45:43.239Z",
+  "id": "vo5VLUs8I0HxXplU",
+  "isArchived": false,
+  "meta": {
+    "templateCredsSetupCompleted": true
+  },
+  "name": "Rentals Listings",
+  "nodes": [
+    {
+      "parameters": {
+        "inputSource": "passthrough"
+      },
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        1616,
+        240
+      ],
+      "id": "4520c760-4d4f-47e2-9afa-ff5ccc49c6aa",
+      "name": "When Executed by Another Workflow"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.query }}",
+        "options": {
+          "systemMessage": "=You are a rental listings assistant for Jules AI. You help users search, view, create, update, and delete rental property listings in the database.\n\n**Database Schema for rental_listings:**\n- **address**: Full property address as string (max 255 chars) - REQUIRED\n- **bedrooms**: Number of bedrooms as integer - REQUIRED\n- **bathrooms**: Number of bathrooms as decimal/float - REQUIRED\n- **monthly_rent**: Monthly rent amount as decimal/float - REQUIRED\n- **square_feet**: Property size in square feet as integer (optional)\n- **neighborhood**: Neighborhood name as string (max 255 chars) - REQUIRED\n- **description**: Property description as text - REQUIRED\n- **unit_type**: Type of unit as string (e.g., Studio, 1 Bedroom, 2 Bedroom, Apartment, House, Condo) (optional)\n- **availability_date**: Date when property becomes available (ISO format: YYYY-MM-DD) (optional)\n- **is_available**: Boolean indicating if property is currently available (true/false)\n\n**Operations:**\n\n**SEARCH LISTINGS:**\n- Search by address, bedrooms, bathrooms, rent range, neighborhood\n- Use partial matching for address and neighborhood\n- Return matching listings with all details\n\n**VIEW ALL AVAILABLE LISTINGS:**\n- Retrieve all listings where is_available = true\n- Display key details: address, bedrooms, bathrooms, monthly_rent, neighborhood\n\n**CREATE LISTING:**\n- Required fields: address, bedrooms, bathrooms, monthly_rent, neighborhood, description\n- Optional fields: square_feet, unit_type, availability_date\n- is_available defaults to true\n- Return success with listing details including the generated id\n- When the content you received is a URL, use the Firecrawl tool to extract the URL page to obtain the proper text content to use.\n\n**UPDATE LISTING:**\n- Identify listing by id (required)\n- Update any specified fields\n- Only provided fields will be updated\n- Return updated listing details\n\n**DELETE LISTING:**\n- Identify listing by id (required)\n- Permanently remove from database\n- Confirm deletion with listing id\n\n**Response Guidelines:**\n- Present listings in a clear, readable format\n- Include key details: id, address, bedrooms/bathrooms, monthly_rent, neighborhood\n- For searches, summarize number of results found\n- Provide helpful suggestions when no results match criteria\n- Always include the listing id in responses for reference"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        1792,
+        240
+      ],
+      "id": "3d910e26-b1e0-4963-8e85-79dc363b4346",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4.1-mini"
+        },
+        "responsesApiEnabled": false,
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        1600,
+        512
+      ],
+      "id": "5ec99f4f-48c4-4f57-a24e-7ee1e58710a4",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "vofRqqG7VEHTXxTs",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "descriptionType": "manual",
+        "toolDescription": "Retrieves all available rental listings from the database. Returns property details including address, bedrooms, bathrooms, rent, neighborhood, and availability information",
+        "operation": "select",
+        "schema": {
+          "__rl": true,
+          "mode": "list",
+          "value": "public"
+        },
+        "table": {
+          "__rl": true,
+          "value": "rental_listings",
+          "mode": "list",
+          "cachedResultName": "rental_listings"
+        },
+        "returnAll": true,
+        "where": {
+          "values": [
+            {
+              "column": "is_available",
+              "value": "true"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "b3882c7f-d30c-41fb-b1cd-ac10be7d5b6a",
+      "name": "List ALL Available Listings",
+      "type": "n8n-nodes-base.postgresTool",
+      "typeVersion": 2.6,
+      "position": [
+        1888,
+        512
+      ],
+      "credentials": {
+        "postgres": {
+          "id": "u7j29OmyHuzkVDfZ",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "descriptionType": "manual",
+        "toolDescription": "Creates a new rental listing in the database with property details including address, bedrooms, bathrooms, rent, neighborhood, description, and availability information",
+        "schema": {
+          "__rl": true,
+          "mode": "list",
+          "value": "public"
+        },
+        "table": {
+          "__rl": true,
+          "value": "rental_listings",
+          "mode": "list",
+          "cachedResultName": "rental_listings"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "address": "={{ $fromAI('address', 'Full property address', 'string') }}",
+            "bedrooms": "={{ $fromAI('bedrooms', 'Number of bedrooms', 'number') }}",
+            "bathrooms": "={{ $fromAI('bathrooms', 'Number of bathrooms', 'number') }}",
+            "monthly_rent": "={{ $fromAI('monthly_rent', 'Monthly rent amount', 'number') }}",
+            "square_feet": "={{ $fromAI('square_feet', 'Property size in square feet (optional)', 'number') }}",
+            "neighborhood": "={{ $fromAI('neighborhood', 'Neighborhood name', 'string') }}",
+            "description": "={{ $fromAI('description', 'Property description', 'string') }}",
+            "unit_type": "={{ $fromAI('unit_type', 'Type of unit (e.g., Apartment, House, Condo)', 'string') }}",
+            "availability_date": "={{ $fromAI('availability_date', `Date when property becomes available (YYYY-MM-DD)`, 'string') }}",
+            "is_available": true
+          },
+          "matchingColumns": [
+            "id"
+          ],
+          "schema": [
+            {
+              "id": "id",
+              "displayName": "id",
+              "required": false,
+              "defaultMatch": true,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "address",
+              "displayName": "address",
+              "required": true,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "bedrooms",
+              "displayName": "bedrooms",
+              "required": true,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "bathrooms",
+              "displayName": "bathrooms",
+              "required": true,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "monthly_rent",
+              "displayName": "monthly_rent",
+              "required": true,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "square_feet",
+              "displayName": "square_feet",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "neighborhood",
+              "displayName": "neighborhood",
+              "required": true,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "description",
+              "displayName": "description",
+              "required": true,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "unit_type",
+              "displayName": "unit_type",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "availability_date",
+              "displayName": "availability_date",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "dateTime",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "amenities",
+              "displayName": "amenities",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "object",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "photos",
+              "displayName": "photos",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "object",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "is_available",
+              "displayName": "is_available",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "boolean",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "created_at",
+              "displayName": "created_at",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "dateTime",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "updated_at",
+              "displayName": "updated_at",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "dateTime",
+              "canBeUsedToMatch": true,
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "id": "a2409504-b223-4283-a124-82bd900c945a",
+      "name": "Create a listing",
+      "type": "n8n-nodes-base.postgresTool",
+      "typeVersion": 2.6,
+      "position": [
+        2016,
+        512
+      ],
+      "credentials": {
+        "postgres": {
+          "id": "u7j29OmyHuzkVDfZ",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "descriptionType": "manual",
+        "toolDescription": "Updates an existing rental listing in the database. Provide the listing ID to identify the property and any fields you want to update. Only provided fields will be updated",
+        "operation": "update",
+        "schema": {
+          "__rl": true,
+          "mode": "list",
+          "value": "public"
+        },
+        "table": {
+          "__rl": true,
+          "value": "rental_listings",
+          "mode": "list",
+          "cachedResultName": "rental_listings"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "id": "={{ $fromAI('id', 'Listing ID to update', 'string') }}",
+            "address": "={{ $fromAI('address', 'Updated property address (optional)', 'string') }}",
+            "bedrooms": "={{ $fromAI('bedrooms', 'Updated number of bedrooms (optional)', 'number') }}",
+            "bathrooms": "={{ $fromAI('bathrooms', 'Updated number of bathrooms (optional)', 'number') }}",
+            "monthly_rent": "={{ $fromAI('monthly_rent', 'Updated monthly rent (optional)', 'number') }}",
+            "square_feet": "={{ $fromAI('square_feet', 'Updated square feet (optional)', 'number') }}",
+            "neighborhood": "={{ $fromAI('neighborhood', 'Updated neighborhood (optional)', 'string') }}",
+            "description": "={{ $fromAI('description', 'Updated description (optional)', 'string') }}",
+            "unit_type": "={{ $fromAI('unit_type', 'Updated unit type (optional)', 'string') }}",
+            "availability_date": "={{ $fromAI('availability_date', 'Updated availability date (optional)', 'string') }}",
+            "is_available": "={{ $fromAI('is_available', 'Updated availability status (optional)', 'boolean') }}"
+          },
+          "matchingColumns": [
+            "id"
+          ],
+          "schema": [
+            {
+              "id": "id",
+              "displayName": "id",
+              "required": false,
+              "defaultMatch": true,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "address",
+              "displayName": "address",
+              "required": true,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "bedrooms",
+              "displayName": "bedrooms",
+              "required": true,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "bathrooms",
+              "displayName": "bathrooms",
+              "required": true,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "monthly_rent",
+              "displayName": "monthly_rent",
+              "required": true,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "square_feet",
+              "displayName": "square_feet",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "neighborhood",
+              "displayName": "neighborhood",
+              "required": true,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "description",
+              "displayName": "description",
+              "required": true,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "unit_type",
+              "displayName": "unit_type",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "availability_date",
+              "displayName": "availability_date",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "dateTime",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "amenities",
+              "displayName": "amenities",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "object",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "photos",
+              "displayName": "photos",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "object",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "is_available",
+              "displayName": "is_available",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "boolean",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "created_at",
+              "displayName": "created_at",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "dateTime",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "updated_at",
+              "displayName": "updated_at",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "dateTime",
+              "canBeUsedToMatch": true,
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "id": "eff8bb98-516c-402b-a392-8b5e65a7c00b",
+      "name": "Update a listing",
+      "type": "n8n-nodes-base.postgresTool",
+      "typeVersion": 2.6,
+      "position": [
+        2288,
+        512
+      ],
+      "credentials": {
+        "postgres": {
+          "id": "u7j29OmyHuzkVDfZ",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "descriptionType": "manual",
+        "toolDescription": "Deletes a rental listing from the database by listing ID. This action is permanent and cannot be undone",
+        "operation": "deleteTable",
+        "schema": {
+          "__rl": true,
+          "mode": "list",
+          "value": "public"
+        },
+        "table": {
+          "__rl": true,
+          "value": "rental_listings",
+          "mode": "list",
+          "cachedResultName": "rental_listings"
+        },
+        "deleteCommand": "delete",
+        "where": {
+          "values": [
+            {
+              "column": "id",
+              "value": "={{ $fromAI('id', 'Listing ID to delete', 'string') }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "88021b5c-1abc-43c6-a2e8-db0904f63190",
+      "name": "Delete a listing",
+      "type": "n8n-nodes-base.postgresTool",
+      "typeVersion": 2.6,
+      "position": [
+        2400,
+        512
+      ],
+      "credentials": {
+        "postgres": {
+          "id": "u7j29OmyHuzkVDfZ",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "descriptionType": "manual",
+        "toolDescription": "Searches for rental listings by address, bedrooms, bathrooms, rent amount, or neighborhood. Returns matching property details",
+        "operation": "select",
+        "schema": {
+          "__rl": true,
+          "mode": "list",
+          "value": "public"
+        },
+        "table": {
+          "__rl": true,
+          "value": "rental_listings",
+          "mode": "list",
+          "cachedResultName": "rental_listings"
+        },
+        "returnAll": true,
+        "where": {
+          "values": [
+            {
+              "column": "address",
+              "condition": "LIKE",
+              "value": "={{ $fromAI('address', 'Property address to search (partial match)', 'string') }}"
+            },
+            {
+              "column": "bedrooms",
+              "value": "={{ $fromAI('bedrooms', 'Number of bedrooms', 'number') }}"
+            },
+            {
+              "column": "bathrooms",
+              "value": "={{ $fromAI('bathrooms', 'Number of bathrooms', 'number') }}"
+            },
+            {
+              "column": "monthly_rent",
+              "condition": "<=",
+              "value": "={{ $fromAI('max_rent', 'Maximum monthly rent', 'number') }}"
+            },
+            {
+              "column": "neighborhood",
+              "value": "={{ $fromAI('neighborhood', 'Neighborhood name (partial match)', 'string') }}"
+            }
+          ]
+        },
+        "combineConditions": "OR",
+        "options": {}
+      },
+      "id": "97466d57-10d0-4b63-80aa-40bd1ff139b9",
+      "name": "Search listings",
+      "type": "n8n-nodes-base.postgresTool",
+      "typeVersion": 2.6,
+      "position": [
+        1744,
+        512
+      ],
+      "credentials": {
+        "postgres": {
+          "id": "u7j29OmyHuzkVDfZ",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "rental-listings",
+        "authentication": "headerAuth",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        1808,
+        16
+      ],
+      "id": "b6f111de-dcda-4f29-943b-1f18d66677e3",
+      "name": "Webhook",
+      "webhookId": "fb279704-9f57-4390-a9fa-de4e1e631c88",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "0HuFZThSVNVITvy8",
+          "name": "Jules Livekit"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "respondWith": "allIncomingItems",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        2144,
+        16
+      ],
+      "id": "796c0786-9738-4f2f-939c-c6079e3071f3",
+      "name": "Respond to Webhook"
+    },
+    {
+      "parameters": {
+        "description": "Call this tool to extract the content of a url and obtain it's formatted content.",
+        "workflowId": {
+          "__rl": true,
+          "value": "900g3MNaA9zPdvpO",
+          "mode": "list",
+          "cachedResultUrl": "/workflow/900g3MNaA9zPdvpO",
+          "cachedResultName": "Firecrawl/Extract"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {},
+          "matchingColumns": [],
+          "schema": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "typeVersion": 2.2,
+      "position": [
+        2144,
+        512
+      ],
+      "id": "93285e17-ccd5-40d8-ba0b-1371818c04df",
+      "name": "Firecrawl tool"
+    }
+  ],
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1",
+    "availableInMCP": false
+  },
+  "shared": [
+    {
+      "updatedAt": "2025-12-20T04:45:43.247Z",
+      "createdAt": "2025-12-20T04:45:43.247Z",
+      "role": "workflow:owner",
+      "workflowId": "vo5VLUs8I0HxXplU",
+      "projectId": "K5c2PqoZjXPELHVa"
+    }
+  ],
+  "staticData": null,
+  "tags": [],
+  "triggerCount": 1,
+  "updatedAt": "2026-01-11T00:00:03.426Z",
+  "versionId": "4476a26b-0185-41c4-bd55-7f0e2e0cc403"
+}
