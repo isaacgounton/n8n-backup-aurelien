@@ -1,0 +1,3496 @@
+{
+  "active": true,
+  "activeVersion": {
+    "updatedAt": "2025-12-22T06:55:34.000Z",
+    "createdAt": "2025-12-22T06:54:35.514Z",
+    "versionId": "4ed235af-a07f-432f-ba00-c1a166448bf8",
+    "workflowId": "hCPnk4uUuOWIZrA4",
+    "nodes": [
+      {
+        "parameters": {
+          "respondWith": "allIncomingItems",
+          "options": {}
+        },
+        "type": "n8n-nodes-base.respondToWebhook",
+        "typeVersion": 1.5,
+        "position": [
+          1600,
+          1904
+        ],
+        "id": "dba717f9-099e-436b-b971-228c4a296a5f",
+        "name": "Respond to Webhook"
+      },
+      {
+        "parameters": {
+          "httpMethod": "POST",
+          "path": "conversations",
+          "authentication": "headerAuth",
+          "responseMode": "responseNode",
+          "options": {}
+        },
+        "type": "n8n-nodes-base.webhook",
+        "typeVersion": 2.1,
+        "position": [
+          16,
+          1904
+        ],
+        "id": "997c71a8-af6c-4071-9230-7d026930b213",
+        "name": "Webhook",
+        "webhookId": "conversation-webhook-id",
+        "credentials": {
+          "httpHeaderAuth": {
+            "id": "0HuFZThSVNVITvy8",
+            "name": "Jules Livekit"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "rules": {
+            "values": [
+              {
+                "conditions": {
+                  "options": {
+                    "caseSensitive": true,
+                    "leftValue": "",
+                    "typeValidation": "strict",
+                    "version": 3
+                  },
+                  "conditions": [
+                    {
+                      "leftValue": "={{ $json.body.action }}",
+                      "rightValue": "get_context",
+                      "operator": {
+                        "type": "string",
+                        "operation": "equals"
+                      },
+                      "id": "f3d83866-3271-4ad7-a216-f1fe467ee27c"
+                    }
+                  ],
+                  "combinator": "and"
+                },
+                "renameOutput": true,
+                "outputKey": "get_context"
+              },
+              {
+                "conditions": {
+                  "options": {
+                    "caseSensitive": true,
+                    "leftValue": "",
+                    "typeValidation": "strict",
+                    "version": 3
+                  },
+                  "conditions": [
+                    {
+                      "leftValue": "={{ $json.body.action }}",
+                      "rightValue": "create_or_update",
+                      "operator": {
+                        "type": "string",
+                        "operation": "equals"
+                      },
+                      "id": "4d7198df-1d25-4166-a0b1-6d13ab34c90f"
+                    }
+                  ],
+                  "combinator": "and"
+                },
+                "renameOutput": true,
+                "outputKey": "create_or_update"
+              },
+              {
+                "conditions": {
+                  "options": {
+                    "caseSensitive": true,
+                    "leftValue": "",
+                    "typeValidation": "strict",
+                    "version": 3
+                  },
+                  "conditions": [
+                    {
+                      "leftValue": "={{ $json.body.action }}",
+                      "rightValue": "log_message",
+                      "operator": {
+                        "type": "string",
+                        "operation": "equals"
+                      },
+                      "id": "5fc1af1c-58a0-41ce-a704-78542e1600ea"
+                    }
+                  ],
+                  "combinator": "and"
+                },
+                "renameOutput": true,
+                "outputKey": "log_message"
+              },
+              {
+                "conditions": {
+                  "options": {
+                    "caseSensitive": true,
+                    "leftValue": "",
+                    "typeValidation": "strict",
+                    "version": 3
+                  },
+                  "conditions": [
+                    {
+                      "leftValue": "={{ $json.body.action }}",
+                      "rightValue": "end_conversation",
+                      "operator": {
+                        "type": "string",
+                        "operation": "equals"
+                      },
+                      "id": "e654b54b-2f46-4291-85f7-374d61fe91ae"
+                    }
+                  ],
+                  "combinator": "and"
+                },
+                "renameOutput": true,
+                "outputKey": "end_conversation"
+              },
+              {
+                "conditions": {
+                  "options": {
+                    "caseSensitive": true,
+                    "leftValue": "",
+                    "typeValidation": "strict",
+                    "version": 3
+                  },
+                  "conditions": [
+                    {
+                      "leftValue": "={{ $json.body.action }}",
+                      "rightValue": "get_active",
+                      "operator": {
+                        "type": "string",
+                        "operation": "equals"
+                      },
+                      "id": "9f956b7c-f1e2-43ab-a85d-be4b4ac2e10b"
+                    }
+                  ],
+                  "combinator": "and"
+                },
+                "renameOutput": true,
+                "outputKey": "get_active"
+              }
+            ]
+          },
+          "options": {
+            "fallbackOutput": "extra",
+            "renameFallbackOutput": "Error"
+          }
+        },
+        "id": "cbcfba92-dbca-4d47-9dfa-81f0de1146cc",
+        "name": "Route by Action",
+        "type": "n8n-nodes-base.switch",
+        "typeVersion": 3.4,
+        "position": [
+          464,
+          1840
+        ]
+      },
+      {
+        "parameters": {
+          "operation": "select",
+          "schema": {
+            "__rl": true,
+            "mode": "name",
+            "value": "public"
+          },
+          "table": {
+            "__rl": true,
+            "mode": "name",
+            "value": "conversations"
+          },
+          "limit": 1,
+          "where": {
+            "values": [
+              {
+                "column": "phone_number",
+                "value": "={{ $json.body.data.phone_number }}"
+              },
+              {
+                "column": "is_active",
+                "value": "true"
+              }
+            ]
+          },
+          "sort": {
+            "values": [
+              {
+                "column": "last_interaction",
+                "direction": "DESC"
+              }
+            ]
+          },
+          "options": {}
+        },
+        "id": "5468f41a-be85-4f5e-bd8e-e69d7ad6cf66",
+        "name": "Get Context Query",
+        "type": "n8n-nodes-base.postgres",
+        "typeVersion": 2.6,
+        "position": [
+          912,
+          1424
+        ],
+        "alwaysOutputData": false,
+        "credentials": {
+          "postgres": {
+            "id": "u7j29OmyHuzkVDfZ",
+            "name": "Postgres account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "operation": "executeQuery",
+          "query": "SELECT find_or_create_conversation($1::VARCHAR, $2::VARCHAR, $3::VARCHAR, $4::VARCHAR) as conversation_id",
+          "options": {
+            "queryReplacement": "={{ $json.body.data.phone_number }},{{ $json.body.data.session_id }},{{ $json.body.data.channel }},{{ $json.body.data.contact_name }}"
+          }
+        },
+        "id": "11db3b57-35a4-4da7-b8d3-cdb0f61982d1",
+        "name": "Create or Update Conversation",
+        "type": "n8n-nodes-base.postgres",
+        "typeVersion": 2.6,
+        "position": [
+          784,
+          1616
+        ],
+        "credentials": {
+          "postgres": {
+            "id": "u7j29OmyHuzkVDfZ",
+            "name": "Postgres account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "operation": "update",
+          "schema": {
+            "__rl": true,
+            "mode": "name",
+            "value": "public"
+          },
+          "table": {
+            "__rl": true,
+            "mode": "name",
+            "value": "conversations"
+          },
+          "columns": {
+            "mappingMode": "defineBelow",
+            "value": {
+              "last_message_direction": "={{ $json.body.data.direction }}",
+              "last_interaction": "={{ $now }}",
+              "id": "={{ $json.body.data.conversation_id }}"
+            },
+            "matchingColumns": [
+              "id"
+            ],
+            "schema": [
+              {
+                "id": "id",
+                "displayName": "id",
+                "required": false,
+                "defaultMatch": true,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true
+              },
+              {
+                "id": "phone_number",
+                "displayName": "phone_number",
+                "required": true,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true,
+                "removed": true
+              },
+              {
+                "id": "contact_name",
+                "displayName": "contact_name",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true,
+                "removed": true
+              },
+              {
+                "id": "session_id",
+                "displayName": "session_id",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true,
+                "removed": true
+              },
+              {
+                "id": "language",
+                "displayName": "language",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true,
+                "removed": true
+              },
+              {
+                "id": "conversation_summary",
+                "displayName": "conversation_summary",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true,
+                "removed": true
+              },
+              {
+                "id": "current_intent",
+                "displayName": "current_intent",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true,
+                "removed": true
+              },
+              {
+                "id": "last_topic",
+                "displayName": "last_topic",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true,
+                "removed": true
+              },
+              {
+                "id": "conversation_state",
+                "displayName": "conversation_state",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "object",
+                "canBeUsedToMatch": true,
+                "removed": true
+              },
+              {
+                "id": "tenant_id",
+                "displayName": "tenant_id",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true,
+                "removed": true
+              },
+              {
+                "id": "property_addresses",
+                "displayName": "property_addresses",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "array",
+                "canBeUsedToMatch": true,
+                "removed": true
+              },
+              {
+                "id": "total_messages",
+                "displayName": "total_messages",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "number",
+                "canBeUsedToMatch": true,
+                "removed": true
+              },
+              {
+                "id": "actions_taken",
+                "displayName": "actions_taken",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "array",
+                "canBeUsedToMatch": true,
+                "removed": true
+              },
+              {
+                "id": "resolved_issues",
+                "displayName": "resolved_issues",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "number",
+                "canBeUsedToMatch": true,
+                "removed": true
+              },
+              {
+                "id": "duration_seconds",
+                "displayName": "duration_seconds",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "number",
+                "canBeUsedToMatch": true,
+                "removed": true
+              },
+              {
+                "id": "first_contact",
+                "displayName": "first_contact",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "dateTime",
+                "canBeUsedToMatch": true,
+                "removed": true
+              },
+              {
+                "id": "last_interaction",
+                "displayName": "last_interaction",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "dateTime",
+                "canBeUsedToMatch": true
+              },
+              {
+                "id": "last_message_direction",
+                "displayName": "last_message_direction",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true
+              },
+              {
+                "id": "last_channel",
+                "displayName": "last_channel",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true,
+                "removed": true
+              },
+              {
+                "id": "channel_history",
+                "displayName": "channel_history",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "object",
+                "canBeUsedToMatch": true,
+                "removed": true
+              },
+              {
+                "id": "agent_type",
+                "displayName": "agent_type",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true,
+                "removed": true
+              },
+              {
+                "id": "agent_context",
+                "displayName": "agent_context",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "object",
+                "canBeUsedToMatch": true,
+                "removed": true
+              },
+              {
+                "id": "created_at",
+                "displayName": "created_at",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "dateTime",
+                "canBeUsedToMatch": true,
+                "removed": true
+              },
+              {
+                "id": "updated_at",
+                "displayName": "updated_at",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "dateTime",
+                "canBeUsedToMatch": true,
+                "removed": true
+              },
+              {
+                "id": "is_active",
+                "displayName": "is_active",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "boolean",
+                "canBeUsedToMatch": true,
+                "removed": true
+              },
+              {
+                "id": "priority",
+                "displayName": "priority",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true,
+                "removed": true
+              }
+            ],
+            "attemptToConvertTypes": false,
+            "convertFieldsToString": false
+          },
+          "options": {}
+        },
+        "id": "eb8e627d-911a-4122-8969-1dbb0e316f36",
+        "name": "Log Message",
+        "type": "n8n-nodes-base.postgres",
+        "typeVersion": 2.6,
+        "position": [
+          784,
+          1824
+        ],
+        "credentials": {
+          "postgres": {
+            "id": "u7j29OmyHuzkVDfZ",
+            "name": "Postgres account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "operation": "update",
+          "schema": {
+            "__rl": true,
+            "mode": "name",
+            "value": "public"
+          },
+          "table": {
+            "__rl": true,
+            "mode": "name",
+            "value": "conversations"
+          },
+          "columns": {
+            "mappingMode": "defineBelow",
+            "value": {
+              "is_active": "=false",
+              "conversation_summary": "={{ $json.body.data.final_summary }}"
+            },
+            "matchingColumns": [
+              "id"
+            ],
+            "schema": [
+              {
+                "id": "id",
+                "displayName": "id",
+                "required": false,
+                "defaultMatch": true,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true
+              },
+              {
+                "id": "is_active",
+                "displayName": "is_active",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "boolean",
+                "canBeUsedToMatch": false
+              },
+              {
+                "id": "conversation_summary",
+                "displayName": "conversation_summary",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": false
+              }
+            ]
+          },
+          "options": {}
+        },
+        "id": "5ef94171-1448-4474-95bd-8cb6659bd044",
+        "name": "End Conversation",
+        "type": "n8n-nodes-base.postgres",
+        "typeVersion": 2.6,
+        "position": [
+          912,
+          2000
+        ],
+        "credentials": {
+          "postgres": {
+            "id": "u7j29OmyHuzkVDfZ",
+            "name": "Postgres account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "operation": "select",
+          "schema": {
+            "__rl": true,
+            "mode": "name",
+            "value": "public"
+          },
+          "table": {
+            "__rl": true,
+            "mode": "name",
+            "value": "conversations"
+          },
+          "returnAll": true,
+          "where": {
+            "values": [
+              {
+                "column": "is_active",
+                "value": "true"
+              }
+            ]
+          },
+          "sort": {
+            "values": [
+              {
+                "column": "last_interaction",
+                "direction": "DESC"
+              }
+            ]
+          },
+          "options": {
+            "outputColumns": [
+              "id",
+              "phone_number",
+              "contact_name",
+              "total_messages",
+              "priority",
+              "last_channel",
+              "current_intent"
+            ]
+          }
+        },
+        "id": "cefb5309-8c6b-4dd3-b860-8b9ad18a5388",
+        "name": "Get Active Conversations",
+        "type": "n8n-nodes-base.postgres",
+        "typeVersion": 2.6,
+        "position": [
+          912,
+          2192
+        ],
+        "credentials": {
+          "postgres": {
+            "id": "u7j29OmyHuzkVDfZ",
+            "name": "Postgres account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "mode": "raw",
+          "jsonOutput": "={{ $input.all().length > 0 ? { success: true, found: true, data: { id: $input.first().json.id, session_id: $input.first().json.session_id, language: $input.first().json.language, conversation_summary: $input.first().json.conversation_summary, current_intent: $input.first().json.current_intent, last_topic: $input.first().json.last_topic, conversation_state: $input.first().json.conversation_state, tenant_id: $input.first().json.tenant_id, property_addresses: $input.first().json.property_addresses, total_messages: $input.first().json.total_messages, actions_taken: $input.first().json.actions_taken, last_channel: $input.first().json.last_channel, agent_type: $input.first().json.agent_type, agent_context: $input.first().json.agent_context, priority: $input.first().json.priority } } : { success: true, found: false, data: null } }}",
+          "options": {}
+        },
+        "id": "7d6eea42-2729-470e-ac60-30ff278ea6f8",
+        "name": "Format Get Context Response",
+        "type": "n8n-nodes-base.set",
+        "typeVersion": 3.4,
+        "position": [
+          1136,
+          1424
+        ]
+      },
+      {
+        "parameters": {
+          "mode": "raw",
+          "jsonOutput": "={{ {\n  \"success\": true,\n  \"data\": {\n    \"conversation_id\": $json.id\n  }\n} }}\n\n",
+          "options": {}
+        },
+        "id": "d3dcae66-85c0-478a-bae8-be6a381d2453",
+        "name": "Format Create/Update Response",
+        "type": "n8n-nodes-base.set",
+        "typeVersion": 3.4,
+        "position": [
+          1136,
+          1616
+        ]
+      },
+      {
+        "parameters": {
+          "mode": "raw",
+          "jsonOutput": "{\n  \"success\": true,\n  \"data\": {\n    \"message_logged\": true\n  }\n}",
+          "options": {}
+        },
+        "id": "05d53c95-dfe7-48b2-83b8-f77aec2a53d5",
+        "name": "Format Log Message Response",
+        "type": "n8n-nodes-base.set",
+        "typeVersion": 3.4,
+        "position": [
+          1136,
+          1824
+        ]
+      },
+      {
+        "parameters": {
+          "mode": "raw",
+          "jsonOutput": "{\n  \"success\": true,\n  \"data\": {\n    \"conversation_ended\": true\n  }\n}",
+          "options": {}
+        },
+        "id": "093ecddd-9631-494c-a8d3-2aaf286379da",
+        "name": "Format End Conversation Response",
+        "type": "n8n-nodes-base.set",
+        "typeVersion": 3.4,
+        "position": [
+          1136,
+          2000
+        ]
+      },
+      {
+        "parameters": {
+          "mode": "raw",
+          "jsonOutput": "={\n  \"success\": true,\n  \"data\": {\n    \"conversations\": {{ $('Get Active Conversations').item.json }}\n  }\n}",
+          "options": {}
+        },
+        "id": "2bb10ca5-01ef-4e96-9267-c8a0e303b30a",
+        "name": "Format Get Active Response",
+        "type": "n8n-nodes-base.set",
+        "typeVersion": 3.4,
+        "position": [
+          1136,
+          2192
+        ]
+      },
+      {
+        "parameters": {
+          "mode": "raw",
+          "jsonOutput": "{\n  \"success\": false,\n  \"error\": \"Invalid action specified\",\n  \"data\": null\n}",
+          "options": {}
+        },
+        "id": "65227a4b-cf43-4661-bca9-9a493c31795a",
+        "name": "Format Error Response",
+        "type": "n8n-nodes-base.set",
+        "typeVersion": 3.4,
+        "position": [
+          1136,
+          2384
+        ]
+      },
+      {
+        "parameters": {
+          "operation": "update",
+          "schema": {
+            "__rl": true,
+            "mode": "name",
+            "value": "public"
+          },
+          "table": {
+            "__rl": true,
+            "mode": "name",
+            "value": "conversations"
+          },
+          "columns": {
+            "mappingMode": "defineBelow",
+            "value": {
+              "language": "={{ $('Route by Action').item.json.body.data.language || null }}",
+              "conversation_summary": "={{ $('Route by Action').item.json.body.data.conversation_summary || null }}",
+              "current_intent": "={{ $('Route by Action').item.json.body.data.current_intent || null }}",
+              "last_topic": "={{ $('Route by Action').item.json.body.data.last_topic || null }}",
+              "conversation_state": "={{ $('Route by Action').item.json.body.data.conversation_state || null }}",
+              "tenant_id": "={{ $('Route by Action').item.json.body.data.tenant_id || null }}",
+              "property_addresses": "={{ $('Route by Action').item.json.body.data.property_addresses || null }}",
+              "actions_taken": "={{ $('Route by Action').item.json.body.data.actions_taken || null }}",
+              "resolved_issues": "={{ $('Route by Action').item.json.body.data.resolved_issues || null }}",
+              "duration_seconds": "={{ $('Route by Action').item.json.body.data.duration_seconds || null }}",
+              "last_message_direction": "={{ $('Route by Action').item.json.body.data.last_message_direction || null }}",
+              "agent_context": "={{ $('Route by Action').item.json.body.data.agent_context || null }}",
+              "priority": "={{ $('Route by Action').item.json.body.data.priority || null }}",
+              "id": "={{ $json.conversation_id }}",
+              "phone_number": "={{ $('Route by Action').item.json.body.data.phone_number }}",
+              "contact_name": "={{ $('Route by Action').item.json.body.data.contact_name }}",
+              "session_id": "={{ $('Route by Action').item.json.body.data.session_id }}",
+              "last_interaction": "={{ $now }}",
+              "last_channel": "={{ $('Route by Action').item.json.body.data.channel || null }}",
+              "agent_type": "={{ $('Route by Action').item.json.body.data.channel || null }}"
+            },
+            "matchingColumns": [
+              "id"
+            ],
+            "schema": [
+              {
+                "id": "id",
+                "displayName": "id",
+                "required": false,
+                "defaultMatch": true,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true
+              },
+              {
+                "id": "phone_number",
+                "displayName": "phone_number",
+                "required": true,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true,
+                "removed": false
+              },
+              {
+                "id": "contact_name",
+                "displayName": "contact_name",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true,
+                "removed": false
+              },
+              {
+                "id": "session_id",
+                "displayName": "session_id",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true,
+                "removed": false
+              },
+              {
+                "id": "language",
+                "displayName": "language",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true
+              },
+              {
+                "id": "conversation_summary",
+                "displayName": "conversation_summary",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true
+              },
+              {
+                "id": "current_intent",
+                "displayName": "current_intent",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true
+              },
+              {
+                "id": "last_topic",
+                "displayName": "last_topic",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true
+              },
+              {
+                "id": "conversation_state",
+                "displayName": "conversation_state",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "object",
+                "canBeUsedToMatch": true
+              },
+              {
+                "id": "tenant_id",
+                "displayName": "tenant_id",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true
+              },
+              {
+                "id": "property_addresses",
+                "displayName": "property_addresses",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "array",
+                "canBeUsedToMatch": true
+              },
+              {
+                "id": "total_messages",
+                "displayName": "total_messages",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "number",
+                "canBeUsedToMatch": true,
+                "removed": true
+              },
+              {
+                "id": "actions_taken",
+                "displayName": "actions_taken",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "array",
+                "canBeUsedToMatch": true
+              },
+              {
+                "id": "resolved_issues",
+                "displayName": "resolved_issues",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "number",
+                "canBeUsedToMatch": true
+              },
+              {
+                "id": "duration_seconds",
+                "displayName": "duration_seconds",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "number",
+                "canBeUsedToMatch": true
+              },
+              {
+                "id": "first_contact",
+                "displayName": "first_contact",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "dateTime",
+                "canBeUsedToMatch": true,
+                "removed": true
+              },
+              {
+                "id": "last_interaction",
+                "displayName": "last_interaction",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "dateTime",
+                "canBeUsedToMatch": true,
+                "removed": false
+              },
+              {
+                "id": "last_message_direction",
+                "displayName": "last_message_direction",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true
+              },
+              {
+                "id": "last_channel",
+                "displayName": "last_channel",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true,
+                "removed": false
+              },
+              {
+                "id": "channel_history",
+                "displayName": "channel_history",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "object",
+                "canBeUsedToMatch": true,
+                "removed": true
+              },
+              {
+                "id": "agent_type",
+                "displayName": "agent_type",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true
+              },
+              {
+                "id": "agent_context",
+                "displayName": "agent_context",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "object",
+                "canBeUsedToMatch": true
+              },
+              {
+                "id": "created_at",
+                "displayName": "created_at",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "dateTime",
+                "canBeUsedToMatch": true,
+                "removed": true
+              },
+              {
+                "id": "updated_at",
+                "displayName": "updated_at",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "dateTime",
+                "canBeUsedToMatch": true,
+                "removed": true
+              },
+              {
+                "id": "is_active",
+                "displayName": "is_active",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "boolean",
+                "canBeUsedToMatch": true,
+                "removed": false
+              },
+              {
+                "id": "priority",
+                "displayName": "priority",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true
+              }
+            ],
+            "attemptToConvertTypes": false,
+            "convertFieldsToString": false
+          },
+          "options": {
+            "largeNumbersOutput": "text"
+          }
+        },
+        "id": "ee859232-4315-4c39-87e3-966191d73454",
+        "name": "Update Conversation Context",
+        "type": "n8n-nodes-base.postgres",
+        "typeVersion": 2.6,
+        "position": [
+          944,
+          1616
+        ],
+        "credentials": {
+          "postgres": {
+            "id": "u7j29OmyHuzkVDfZ",
+            "name": "Postgres account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "jsCode": "// Extract phone number from body.data if it exists\nconst items = $input.all();\n\nfor (let item of items) {\n  // Check if phone_number exists in body.data\n  if (item.json.body && item.json.body.data && item.json.body.data.phone_number) {\n    let phoneNumber = item.json.body.data.phone_number;\n    \n    // Remove all non-digit characters\n    let digitsOnly = phoneNumber.replace(/\\D/g, '');\n    \n    // Format to E.164\n    if (digitsOnly.length === 10) {\n      // Add +1 prefix for 10-digit numbers\n      item.json.body.data.phone_number = '+1' + digitsOnly;\n    } else if (digitsOnly.length === 11 && digitsOnly.startsWith('1')) {\n      // Add + prefix if missing but number starts with 1 and is 11 digits\n      item.json.body.data.phone_number = '+' + digitsOnly;\n    } else if (digitsOnly.startsWith('1') && digitsOnly.length > 10) {\n      // Ensure + prefix for numbers starting with 1\n      item.json.body.data.phone_number = '+' + digitsOnly;\n    } else {\n      // Keep original if it doesn't match expected patterns\n      item.json.body.data.phone_number = phoneNumber;\n    }\n  }\n}\n\nreturn items;"
+        },
+        "id": "ce687678-0b11-4525-b211-786afeef04d1",
+        "name": "Format Phone Number",
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          240,
+          1904
+        ]
+      },
+      {
+        "parameters": {
+          "respondWith": "json",
+          "responseBody": "={{ {\n  \"success\": true,\n  \"webhook_result\": {\n    \"conversation_id\": $json.conversation_id\n  }\n} }}",
+          "options": {}
+        },
+        "id": "2f23518d-dcc3-47a7-9efe-ae583eb9d8e2",
+        "name": "Return Success Response",
+        "type": "n8n-nodes-base.respondToWebhook",
+        "typeVersion": 1,
+        "position": [
+          1744,
+          2144
+        ]
+      },
+      {
+        "parameters": {
+          "respondWith": "json",
+          "responseBody": "={{ {\n  \"success\": false,\n  \"error\": \"Failed to create or update conversation\",\n  \"webhook_result\": null\n} }}",
+          "options": {}
+        },
+        "id": "565b9fe5-f95f-4caf-96c7-87be693f078e",
+        "name": "Return Error Response",
+        "type": "n8n-nodes-base.respondToWebhook",
+        "typeVersion": 1,
+        "position": [
+          1744,
+          2304
+        ]
+      },
+      {
+        "parameters": {
+          "operation": "update",
+          "schema": {
+            "__rl": true,
+            "mode": "name",
+            "value": "public"
+          },
+          "table": {
+            "__rl": true,
+            "mode": "name",
+            "value": "conversations"
+          },
+          "columns": {
+            "mappingMode": "defineBelow",
+            "value": {
+              "total_messages": "={{ $json.total_messages + 1 }}",
+              "last_message_direction": "={{ $json.body.data.direction }}",
+              "duration_seconds": "={{ $json.duration_seconds + $json.body.data.duration_seconds }}",
+              "last_interaction": "={{ $now }}"
+            },
+            "matchingColumns": [
+              "id"
+            ],
+            "schema": [
+              {
+                "id": "id",
+                "displayName": "id",
+                "required": false,
+                "defaultMatch": true,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true
+              },
+              {
+                "id": "total_messages",
+                "displayName": "total_messages",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": false
+              },
+              {
+                "id": "last_message_direction",
+                "displayName": "last_message_direction",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": false
+              },
+              {
+                "id": "duration_seconds",
+                "displayName": "duration_seconds",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": false
+              },
+              {
+                "id": "last_interaction",
+                "displayName": "last_interaction",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": false
+              }
+            ]
+          },
+          "options": {}
+        },
+        "id": "6af02214-aed9-49dd-b42c-400d15a2898c",
+        "name": "Log Message1",
+        "type": "n8n-nodes-base.postgres",
+        "typeVersion": 2.6,
+        "position": [
+          240,
+          1616
+        ],
+        "credentials": {
+          "postgres": {
+            "id": "u7j29OmyHuzkVDfZ",
+            "name": "Postgres account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "operation": "update",
+          "schema": {
+            "__rl": true,
+            "mode": "name",
+            "value": "public"
+          },
+          "table": {
+            "__rl": true,
+            "mode": "name",
+            "value": "conversations"
+          },
+          "columns": {
+            "mappingMode": "defineBelow",
+            "value": {
+              "total_messages": "={{ $json.total_messages + 1 }}",
+              "duration_seconds": "={{ $json.duration_seconds + $('Route by Action').item.json.body.data.duration_seconds }}",
+              "id": "={{ $json.id }}"
+            },
+            "matchingColumns": [
+              "id"
+            ],
+            "schema": [
+              {
+                "id": "id",
+                "displayName": "id",
+                "required": false,
+                "defaultMatch": true,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true
+              },
+              {
+                "id": "phone_number",
+                "displayName": "phone_number",
+                "required": true,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true,
+                "removed": true
+              },
+              {
+                "id": "contact_name",
+                "displayName": "contact_name",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true,
+                "removed": true
+              },
+              {
+                "id": "session_id",
+                "displayName": "session_id",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true,
+                "removed": true
+              },
+              {
+                "id": "language",
+                "displayName": "language",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true,
+                "removed": true
+              },
+              {
+                "id": "conversation_summary",
+                "displayName": "conversation_summary",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true,
+                "removed": true
+              },
+              {
+                "id": "current_intent",
+                "displayName": "current_intent",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true,
+                "removed": true
+              },
+              {
+                "id": "last_topic",
+                "displayName": "last_topic",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true,
+                "removed": true
+              },
+              {
+                "id": "conversation_state",
+                "displayName": "conversation_state",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "object",
+                "canBeUsedToMatch": true,
+                "removed": true
+              },
+              {
+                "id": "tenant_id",
+                "displayName": "tenant_id",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true,
+                "removed": true
+              },
+              {
+                "id": "property_addresses",
+                "displayName": "property_addresses",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "array",
+                "canBeUsedToMatch": true,
+                "removed": true
+              },
+              {
+                "id": "total_messages",
+                "displayName": "total_messages",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "number",
+                "canBeUsedToMatch": true
+              },
+              {
+                "id": "actions_taken",
+                "displayName": "actions_taken",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "array",
+                "canBeUsedToMatch": true,
+                "removed": true
+              },
+              {
+                "id": "resolved_issues",
+                "displayName": "resolved_issues",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "number",
+                "canBeUsedToMatch": true,
+                "removed": true
+              },
+              {
+                "id": "duration_seconds",
+                "displayName": "duration_seconds",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "number",
+                "canBeUsedToMatch": true
+              },
+              {
+                "id": "first_contact",
+                "displayName": "first_contact",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "dateTime",
+                "canBeUsedToMatch": true,
+                "removed": true
+              },
+              {
+                "id": "last_interaction",
+                "displayName": "last_interaction",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "dateTime",
+                "canBeUsedToMatch": true,
+                "removed": true
+              },
+              {
+                "id": "last_message_direction",
+                "displayName": "last_message_direction",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true,
+                "removed": true
+              },
+              {
+                "id": "last_channel",
+                "displayName": "last_channel",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true,
+                "removed": true
+              },
+              {
+                "id": "channel_history",
+                "displayName": "channel_history",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "object",
+                "canBeUsedToMatch": true,
+                "removed": true
+              },
+              {
+                "id": "agent_type",
+                "displayName": "agent_type",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true,
+                "removed": true
+              },
+              {
+                "id": "agent_context",
+                "displayName": "agent_context",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "object",
+                "canBeUsedToMatch": true,
+                "removed": true
+              },
+              {
+                "id": "created_at",
+                "displayName": "created_at",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "dateTime",
+                "canBeUsedToMatch": true,
+                "removed": true
+              },
+              {
+                "id": "updated_at",
+                "displayName": "updated_at",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "dateTime",
+                "canBeUsedToMatch": true,
+                "removed": true
+              },
+              {
+                "id": "is_active",
+                "displayName": "is_active",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "boolean",
+                "canBeUsedToMatch": true,
+                "removed": true
+              },
+              {
+                "id": "priority",
+                "displayName": "priority",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true,
+                "removed": true
+              }
+            ],
+            "attemptToConvertTypes": false,
+            "convertFieldsToString": false
+          },
+          "options": {}
+        },
+        "id": "6517d5e3-8ddd-4cbc-a436-72783814c8d5",
+        "name": "Update counters",
+        "type": "n8n-nodes-base.postgres",
+        "typeVersion": 2.6,
+        "position": [
+          960,
+          1824
+        ],
+        "credentials": {
+          "postgres": {
+            "id": "u7j29OmyHuzkVDfZ",
+            "name": "Postgres account"
+          }
+        }
+      }
+    ],
+    "connections": {
+      "Route by Action": {
+        "main": [
+          [
+            {
+              "node": "Get Context Query",
+              "type": "main",
+              "index": 0
+            }
+          ],
+          [
+            {
+              "node": "Create or Update Conversation",
+              "type": "main",
+              "index": 0
+            }
+          ],
+          [
+            {
+              "node": "Log Message",
+              "type": "main",
+              "index": 0
+            }
+          ],
+          [
+            {
+              "node": "End Conversation",
+              "type": "main",
+              "index": 0
+            }
+          ],
+          [
+            {
+              "node": "Get Active Conversations",
+              "type": "main",
+              "index": 0
+            }
+          ],
+          [
+            {
+              "node": "Format Error Response",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Get Context Query": {
+        "main": [
+          [
+            {
+              "node": "Format Get Context Response",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Create or Update Conversation": {
+        "main": [
+          [
+            {
+              "node": "Update Conversation Context",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Update Conversation Context": {
+        "main": [
+          [
+            {
+              "node": "Format Create/Update Response",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Log Message": {
+        "main": [
+          [
+            {
+              "node": "Update counters",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "End Conversation": {
+        "main": [
+          [
+            {
+              "node": "Format End Conversation Response",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Get Active Conversations": {
+        "main": [
+          [
+            {
+              "node": "Format Get Active Response",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Format Get Context Response": {
+        "main": [
+          [
+            {
+              "node": "Respond to Webhook",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Format Create/Update Response": {
+        "main": [
+          [
+            {
+              "node": "Respond to Webhook",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Format Log Message Response": {
+        "main": [
+          [
+            {
+              "node": "Respond to Webhook",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Format End Conversation Response": {
+        "main": [
+          [
+            {
+              "node": "Respond to Webhook",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Format Get Active Response": {
+        "main": [
+          [
+            {
+              "node": "Respond to Webhook",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Format Error Response": {
+        "main": [
+          [
+            {
+              "node": "Respond to Webhook",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Webhook": {
+        "main": [
+          [
+            {
+              "node": "Format Phone Number",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Format Phone Number": {
+        "main": [
+          [
+            {
+              "node": "Route by Action",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Update counters": {
+        "main": [
+          [
+            {
+              "node": "Format Log Message Response",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    },
+    "authors": "Aurelien Bonin",
+    "name": "Version 4ed235af",
+    "description": "",
+    "autosaved": false
+  },
+  "activeVersionId": "4ed235af-a07f-432f-ba00-c1a166448bf8",
+  "connections": {
+    "Route by Action": {
+      "main": [
+        [
+          {
+            "node": "Get Context Query",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Create or Update Conversation",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Log Message",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "End Conversation",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Get Active Conversations",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Format Error Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Context Query": {
+      "main": [
+        [
+          {
+            "node": "Format Get Context Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create or Update Conversation": {
+      "main": [
+        [
+          {
+            "node": "Update Conversation Context",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update Conversation Context": {
+      "main": [
+        [
+          {
+            "node": "Format Create/Update Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Log Message": {
+      "main": [
+        [
+          {
+            "node": "Update counters",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "End Conversation": {
+      "main": [
+        [
+          {
+            "node": "Format End Conversation Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Active Conversations": {
+      "main": [
+        [
+          {
+            "node": "Format Get Active Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Format Get Context Response": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Format Create/Update Response": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Format Log Message Response": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Format End Conversation Response": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Format Get Active Response": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Format Error Response": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Format Phone Number",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Format Phone Number": {
+      "main": [
+        [
+          {
+            "node": "Route by Action",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update counters": {
+      "main": [
+        [
+          {
+            "node": "Format Log Message Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "createdAt": "2025-12-21T23:03:32.438Z",
+  "id": "hCPnk4uUuOWIZrA4",
+  "isArchived": false,
+  "meta": null,
+  "name": "Conversation Logging",
+  "nodes": [
+    {
+      "parameters": {
+        "respondWith": "allIncomingItems",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        1600,
+        1904
+      ],
+      "id": "dba717f9-099e-436b-b971-228c4a296a5f",
+      "name": "Respond to Webhook"
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "conversations",
+        "authentication": "headerAuth",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        16,
+        1904
+      ],
+      "id": "997c71a8-af6c-4071-9230-7d026930b213",
+      "name": "Webhook",
+      "webhookId": "conversation-webhook-id",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "0HuFZThSVNVITvy8",
+          "name": "Jules Livekit"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.body.action }}",
+                    "rightValue": "get_context",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "f3d83866-3271-4ad7-a216-f1fe467ee27c"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "get_context"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.body.action }}",
+                    "rightValue": "create_or_update",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "4d7198df-1d25-4166-a0b1-6d13ab34c90f"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "create_or_update"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.body.action }}",
+                    "rightValue": "log_message",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "5fc1af1c-58a0-41ce-a704-78542e1600ea"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "log_message"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.body.action }}",
+                    "rightValue": "end_conversation",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "e654b54b-2f46-4291-85f7-374d61fe91ae"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "end_conversation"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.body.action }}",
+                    "rightValue": "get_active",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "9f956b7c-f1e2-43ab-a85d-be4b4ac2e10b"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "get_active"
+            }
+          ]
+        },
+        "options": {
+          "fallbackOutput": "extra",
+          "renameFallbackOutput": "Error"
+        }
+      },
+      "id": "cbcfba92-dbca-4d47-9dfa-81f0de1146cc",
+      "name": "Route by Action",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.4,
+      "position": [
+        464,
+        1840
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "select",
+        "schema": {
+          "__rl": true,
+          "mode": "name",
+          "value": "public"
+        },
+        "table": {
+          "__rl": true,
+          "mode": "name",
+          "value": "conversations"
+        },
+        "limit": 1,
+        "where": {
+          "values": [
+            {
+              "column": "phone_number",
+              "value": "={{ $json.body.data.phone_number }}"
+            },
+            {
+              "column": "is_active",
+              "value": "true"
+            }
+          ]
+        },
+        "sort": {
+          "values": [
+            {
+              "column": "last_interaction",
+              "direction": "DESC"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "5468f41a-be85-4f5e-bd8e-e69d7ad6cf66",
+      "name": "Get Context Query",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        912,
+        1424
+      ],
+      "alwaysOutputData": false,
+      "credentials": {
+        "postgres": {
+          "id": "u7j29OmyHuzkVDfZ",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT find_or_create_conversation($1::VARCHAR, $2::VARCHAR, $3::VARCHAR, $4::VARCHAR) as conversation_id",
+        "options": {
+          "queryReplacement": "={{ $json.body.data.phone_number }},{{ $json.body.data.session_id }},{{ $json.body.data.channel }},{{ $json.body.data.contact_name }}"
+        }
+      },
+      "id": "11db3b57-35a4-4da7-b8d3-cdb0f61982d1",
+      "name": "Create or Update Conversation",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        784,
+        1616
+      ],
+      "credentials": {
+        "postgres": {
+          "id": "u7j29OmyHuzkVDfZ",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "schema": {
+          "__rl": true,
+          "mode": "name",
+          "value": "public"
+        },
+        "table": {
+          "__rl": true,
+          "mode": "name",
+          "value": "conversations"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "last_message_direction": "={{ $json.body.data.direction }}",
+            "last_interaction": "={{ $now }}",
+            "id": "={{ $json.body.data.conversation_id }}"
+          },
+          "matchingColumns": [
+            "id"
+          ],
+          "schema": [
+            {
+              "id": "id",
+              "displayName": "id",
+              "required": false,
+              "defaultMatch": true,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "phone_number",
+              "displayName": "phone_number",
+              "required": true,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "contact_name",
+              "displayName": "contact_name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "session_id",
+              "displayName": "session_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "language",
+              "displayName": "language",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "conversation_summary",
+              "displayName": "conversation_summary",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "current_intent",
+              "displayName": "current_intent",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "last_topic",
+              "displayName": "last_topic",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "conversation_state",
+              "displayName": "conversation_state",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "object",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "tenant_id",
+              "displayName": "tenant_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "property_addresses",
+              "displayName": "property_addresses",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "array",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "total_messages",
+              "displayName": "total_messages",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "actions_taken",
+              "displayName": "actions_taken",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "array",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "resolved_issues",
+              "displayName": "resolved_issues",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "duration_seconds",
+              "displayName": "duration_seconds",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "first_contact",
+              "displayName": "first_contact",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "dateTime",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "last_interaction",
+              "displayName": "last_interaction",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "dateTime",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "last_message_direction",
+              "displayName": "last_message_direction",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "last_channel",
+              "displayName": "last_channel",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "channel_history",
+              "displayName": "channel_history",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "object",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "agent_type",
+              "displayName": "agent_type",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "agent_context",
+              "displayName": "agent_context",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "object",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "created_at",
+              "displayName": "created_at",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "dateTime",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "updated_at",
+              "displayName": "updated_at",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "dateTime",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "is_active",
+              "displayName": "is_active",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "boolean",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "priority",
+              "displayName": "priority",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "id": "eb8e627d-911a-4122-8969-1dbb0e316f36",
+      "name": "Log Message",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        784,
+        1824
+      ],
+      "credentials": {
+        "postgres": {
+          "id": "u7j29OmyHuzkVDfZ",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "schema": {
+          "__rl": true,
+          "mode": "name",
+          "value": "public"
+        },
+        "table": {
+          "__rl": true,
+          "mode": "name",
+          "value": "conversations"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "is_active": "=false",
+            "conversation_summary": "={{ $json.body.data.final_summary }}"
+          },
+          "matchingColumns": [
+            "id"
+          ],
+          "schema": [
+            {
+              "id": "id",
+              "displayName": "id",
+              "required": false,
+              "defaultMatch": true,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "is_active",
+              "displayName": "is_active",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "boolean",
+              "canBeUsedToMatch": false
+            },
+            {
+              "id": "conversation_summary",
+              "displayName": "conversation_summary",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": false
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "5ef94171-1448-4474-95bd-8cb6659bd044",
+      "name": "End Conversation",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        912,
+        2000
+      ],
+      "credentials": {
+        "postgres": {
+          "id": "u7j29OmyHuzkVDfZ",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "select",
+        "schema": {
+          "__rl": true,
+          "mode": "name",
+          "value": "public"
+        },
+        "table": {
+          "__rl": true,
+          "mode": "name",
+          "value": "conversations"
+        },
+        "returnAll": true,
+        "where": {
+          "values": [
+            {
+              "column": "is_active",
+              "value": "true"
+            }
+          ]
+        },
+        "sort": {
+          "values": [
+            {
+              "column": "last_interaction",
+              "direction": "DESC"
+            }
+          ]
+        },
+        "options": {
+          "outputColumns": [
+            "id",
+            "phone_number",
+            "contact_name",
+            "total_messages",
+            "priority",
+            "last_channel",
+            "current_intent"
+          ]
+        }
+      },
+      "id": "cefb5309-8c6b-4dd3-b860-8b9ad18a5388",
+      "name": "Get Active Conversations",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        912,
+        2192
+      ],
+      "credentials": {
+        "postgres": {
+          "id": "u7j29OmyHuzkVDfZ",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "raw",
+        "jsonOutput": "={{ $input.all().length > 0 ? { success: true, found: true, data: { id: $input.first().json.id, session_id: $input.first().json.session_id, language: $input.first().json.language, conversation_summary: $input.first().json.conversation_summary, current_intent: $input.first().json.current_intent, last_topic: $input.first().json.last_topic, conversation_state: $input.first().json.conversation_state, tenant_id: $input.first().json.tenant_id, property_addresses: $input.first().json.property_addresses, total_messages: $input.first().json.total_messages, actions_taken: $input.first().json.actions_taken, last_channel: $input.first().json.last_channel, agent_type: $input.first().json.agent_type, agent_context: $input.first().json.agent_context, priority: $input.first().json.priority } } : { success: true, found: false, data: null } }}",
+        "options": {}
+      },
+      "id": "7d6eea42-2729-470e-ac60-30ff278ea6f8",
+      "name": "Format Get Context Response",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1136,
+        1424
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "raw",
+        "jsonOutput": "={{ {\n  \"success\": true,\n  \"data\": {\n    \"conversation_id\": $json.id\n  }\n} }}\n\n",
+        "options": {}
+      },
+      "id": "d3dcae66-85c0-478a-bae8-be6a381d2453",
+      "name": "Format Create/Update Response",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1136,
+        1616
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "raw",
+        "jsonOutput": "{\n  \"success\": true,\n  \"data\": {\n    \"message_logged\": true\n  }\n}",
+        "options": {}
+      },
+      "id": "05d53c95-dfe7-48b2-83b8-f77aec2a53d5",
+      "name": "Format Log Message Response",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1136,
+        1824
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "raw",
+        "jsonOutput": "{\n  \"success\": true,\n  \"data\": {\n    \"conversation_ended\": true\n  }\n}",
+        "options": {}
+      },
+      "id": "093ecddd-9631-494c-a8d3-2aaf286379da",
+      "name": "Format End Conversation Response",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1136,
+        2000
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "raw",
+        "jsonOutput": "={\n  \"success\": true,\n  \"data\": {\n    \"conversations\": {{ $('Get Active Conversations').item.json }}\n  }\n}",
+        "options": {}
+      },
+      "id": "2bb10ca5-01ef-4e96-9267-c8a0e303b30a",
+      "name": "Format Get Active Response",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1136,
+        2192
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "raw",
+        "jsonOutput": "{\n  \"success\": false,\n  \"error\": \"Invalid action specified\",\n  \"data\": null\n}",
+        "options": {}
+      },
+      "id": "65227a4b-cf43-4661-bca9-9a493c31795a",
+      "name": "Format Error Response",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1136,
+        2384
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "schema": {
+          "__rl": true,
+          "mode": "name",
+          "value": "public"
+        },
+        "table": {
+          "__rl": true,
+          "mode": "name",
+          "value": "conversations"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "language": "={{ $('Route by Action').item.json.body.data.language || null }}",
+            "conversation_summary": "={{ $('Route by Action').item.json.body.data.conversation_summary || null }}",
+            "current_intent": "={{ $('Route by Action').item.json.body.data.current_intent || null }}",
+            "last_topic": "={{ $('Route by Action').item.json.body.data.last_topic || null }}",
+            "conversation_state": "={{ $('Route by Action').item.json.body.data.conversation_state || null }}",
+            "tenant_id": "={{ $('Route by Action').item.json.body.data.tenant_id || null }}",
+            "property_addresses": "={{ $('Route by Action').item.json.body.data.property_addresses || null }}",
+            "actions_taken": "={{ $('Route by Action').item.json.body.data.actions_taken || null }}",
+            "resolved_issues": "={{ $('Route by Action').item.json.body.data.resolved_issues || null }}",
+            "duration_seconds": "={{ $('Route by Action').item.json.body.data.duration_seconds || null }}",
+            "last_message_direction": "={{ $('Route by Action').item.json.body.data.last_message_direction || null }}",
+            "agent_context": "={{ $('Route by Action').item.json.body.data.agent_context || null }}",
+            "priority": "={{ $('Route by Action').item.json.body.data.priority || null }}",
+            "id": "={{ $json.conversation_id }}",
+            "phone_number": "={{ $('Route by Action').item.json.body.data.phone_number }}",
+            "contact_name": "={{ $('Route by Action').item.json.body.data.contact_name }}",
+            "session_id": "={{ $('Route by Action').item.json.body.data.session_id }}",
+            "last_interaction": "={{ $now }}",
+            "last_channel": "={{ $('Route by Action').item.json.body.data.channel || null }}",
+            "agent_type": "={{ $('Route by Action').item.json.body.data.channel || null }}"
+          },
+          "matchingColumns": [
+            "id"
+          ],
+          "schema": [
+            {
+              "id": "id",
+              "displayName": "id",
+              "required": false,
+              "defaultMatch": true,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "phone_number",
+              "displayName": "phone_number",
+              "required": true,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "contact_name",
+              "displayName": "contact_name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "session_id",
+              "displayName": "session_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "language",
+              "displayName": "language",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "conversation_summary",
+              "displayName": "conversation_summary",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "current_intent",
+              "displayName": "current_intent",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "last_topic",
+              "displayName": "last_topic",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "conversation_state",
+              "displayName": "conversation_state",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "object",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "tenant_id",
+              "displayName": "tenant_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "property_addresses",
+              "displayName": "property_addresses",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "array",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "total_messages",
+              "displayName": "total_messages",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "actions_taken",
+              "displayName": "actions_taken",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "array",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "resolved_issues",
+              "displayName": "resolved_issues",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "duration_seconds",
+              "displayName": "duration_seconds",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "first_contact",
+              "displayName": "first_contact",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "dateTime",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "last_interaction",
+              "displayName": "last_interaction",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "dateTime",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "last_message_direction",
+              "displayName": "last_message_direction",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "last_channel",
+              "displayName": "last_channel",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "channel_history",
+              "displayName": "channel_history",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "object",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "agent_type",
+              "displayName": "agent_type",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "agent_context",
+              "displayName": "agent_context",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "object",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "created_at",
+              "displayName": "created_at",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "dateTime",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "updated_at",
+              "displayName": "updated_at",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "dateTime",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "is_active",
+              "displayName": "is_active",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "boolean",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "priority",
+              "displayName": "priority",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {
+          "largeNumbersOutput": "text"
+        }
+      },
+      "id": "ee859232-4315-4c39-87e3-966191d73454",
+      "name": "Update Conversation Context",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        944,
+        1616
+      ],
+      "credentials": {
+        "postgres": {
+          "id": "u7j29OmyHuzkVDfZ",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Extract phone number from body.data if it exists\nconst items = $input.all();\n\nfor (let item of items) {\n  // Check if phone_number exists in body.data\n  if (item.json.body && item.json.body.data && item.json.body.data.phone_number) {\n    let phoneNumber = item.json.body.data.phone_number;\n    \n    // Remove all non-digit characters\n    let digitsOnly = phoneNumber.replace(/\\D/g, '');\n    \n    // Format to E.164\n    if (digitsOnly.length === 10) {\n      // Add +1 prefix for 10-digit numbers\n      item.json.body.data.phone_number = '+1' + digitsOnly;\n    } else if (digitsOnly.length === 11 && digitsOnly.startsWith('1')) {\n      // Add + prefix if missing but number starts with 1 and is 11 digits\n      item.json.body.data.phone_number = '+' + digitsOnly;\n    } else if (digitsOnly.startsWith('1') && digitsOnly.length > 10) {\n      // Ensure + prefix for numbers starting with 1\n      item.json.body.data.phone_number = '+' + digitsOnly;\n    } else {\n      // Keep original if it doesn't match expected patterns\n      item.json.body.data.phone_number = phoneNumber;\n    }\n  }\n}\n\nreturn items;"
+      },
+      "id": "ce687678-0b11-4525-b211-786afeef04d1",
+      "name": "Format Phone Number",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        240,
+        1904
+      ]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ {\n  \"success\": true,\n  \"webhook_result\": {\n    \"conversation_id\": $json.conversation_id\n  }\n} }}",
+        "options": {}
+      },
+      "id": "2f23518d-dcc3-47a7-9efe-ae583eb9d8e2",
+      "name": "Return Success Response",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [
+        2720,
+        2240
+      ]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ {\n  \"success\": false,\n  \"error\": \"Failed to create or update conversation\",\n  \"webhook_result\": null\n} }}",
+        "options": {}
+      },
+      "id": "565b9fe5-f95f-4caf-96c7-87be693f078e",
+      "name": "Return Error Response",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [
+        2720,
+        2400
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "schema": {
+          "__rl": true,
+          "mode": "name",
+          "value": "public"
+        },
+        "table": {
+          "__rl": true,
+          "mode": "name",
+          "value": "conversations"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "total_messages": "={{ $json.total_messages + 1 }}",
+            "last_message_direction": "={{ $json.body.data.direction }}",
+            "duration_seconds": "={{ $json.duration_seconds + $json.body.data.duration_seconds }}",
+            "last_interaction": "={{ $now }}"
+          },
+          "matchingColumns": [
+            "id"
+          ],
+          "schema": [
+            {
+              "id": "id",
+              "displayName": "id",
+              "required": false,
+              "defaultMatch": true,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "total_messages",
+              "displayName": "total_messages",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": false
+            },
+            {
+              "id": "last_message_direction",
+              "displayName": "last_message_direction",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": false
+            },
+            {
+              "id": "duration_seconds",
+              "displayName": "duration_seconds",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": false
+            },
+            {
+              "id": "last_interaction",
+              "displayName": "last_interaction",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": false
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "6af02214-aed9-49dd-b42c-400d15a2898c",
+      "name": "Log Message1",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        -544,
+        1088
+      ],
+      "credentials": {
+        "postgres": {
+          "id": "u7j29OmyHuzkVDfZ",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "schema": {
+          "__rl": true,
+          "mode": "name",
+          "value": "public"
+        },
+        "table": {
+          "__rl": true,
+          "mode": "name",
+          "value": "conversations"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "total_messages": "={{ $json.total_messages + 1 }}",
+            "duration_seconds": "={{ $json.duration_seconds + $('Route by Action').item.json.body.data.duration_seconds }}",
+            "id": "={{ $json.id }}"
+          },
+          "matchingColumns": [
+            "id"
+          ],
+          "schema": [
+            {
+              "id": "id",
+              "displayName": "id",
+              "required": false,
+              "defaultMatch": true,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "phone_number",
+              "displayName": "phone_number",
+              "required": true,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "contact_name",
+              "displayName": "contact_name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "session_id",
+              "displayName": "session_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "language",
+              "displayName": "language",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "conversation_summary",
+              "displayName": "conversation_summary",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "current_intent",
+              "displayName": "current_intent",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "last_topic",
+              "displayName": "last_topic",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "conversation_state",
+              "displayName": "conversation_state",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "object",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "tenant_id",
+              "displayName": "tenant_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "property_addresses",
+              "displayName": "property_addresses",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "array",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "total_messages",
+              "displayName": "total_messages",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "actions_taken",
+              "displayName": "actions_taken",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "array",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "resolved_issues",
+              "displayName": "resolved_issues",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "duration_seconds",
+              "displayName": "duration_seconds",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "first_contact",
+              "displayName": "first_contact",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "dateTime",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "last_interaction",
+              "displayName": "last_interaction",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "dateTime",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "last_message_direction",
+              "displayName": "last_message_direction",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "last_channel",
+              "displayName": "last_channel",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "channel_history",
+              "displayName": "channel_history",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "object",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "agent_type",
+              "displayName": "agent_type",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "agent_context",
+              "displayName": "agent_context",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "object",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "created_at",
+              "displayName": "created_at",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "dateTime",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "updated_at",
+              "displayName": "updated_at",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "dateTime",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "is_active",
+              "displayName": "is_active",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "boolean",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "priority",
+              "displayName": "priority",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "id": "6517d5e3-8ddd-4cbc-a436-72783814c8d5",
+      "name": "Update counters",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        960,
+        1824
+      ],
+      "credentials": {
+        "postgres": {
+          "id": "u7j29OmyHuzkVDfZ",
+          "name": "Postgres account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1",
+    "availableInMCP": false
+  },
+  "shared": [
+    {
+      "updatedAt": "2025-12-21T23:03:32.443Z",
+      "createdAt": "2025-12-21T23:03:32.443Z",
+      "role": "workflow:owner",
+      "workflowId": "hCPnk4uUuOWIZrA4",
+      "projectId": "K5c2PqoZjXPELHVa"
+    }
+  ],
+  "staticData": null,
+  "tags": [],
+  "triggerCount": 1,
+  "updatedAt": "2026-01-11T00:03:30.365Z",
+  "versionId": "9e2384d4-97f0-44f2-a35e-0efab5224e3e"
+}
