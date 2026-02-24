@@ -1,0 +1,346 @@
+{
+  "active": true,
+  "activeVersion": {
+    "updatedAt": "2026-01-11T21:05:42.000Z",
+    "createdAt": "2026-01-11T21:05:35.278Z",
+    "versionId": "ba13ce15-9923-409e-9797-9010fba1e71b",
+    "workflowId": "900g3MNaA9zPdvpO",
+    "nodes": [
+      {
+        "parameters": {
+          "inputSource": "passthrough"
+        },
+        "type": "n8n-nodes-base.executeWorkflowTrigger",
+        "typeVersion": 1.1,
+        "position": [
+          368,
+          32
+        ],
+        "id": "ab2278c2-e9b2-4c23-9670-3681578bc49d",
+        "name": "When Executed by Another Workflow"
+      },
+      {
+        "parameters": {
+          "jsCode": "// Get the markdown content from the previous node\nconst markdown = $input.first().json.data.markdown;\n\nlet cleanedMarkdown = markdown\n  // Remove app banners and promotional content\n  .replace(/!\\[.*?app.*?logo.*?\\]\\(.*?\\)/gi, '')\n  .replace(/^.*?(?:Use the app|Find great deals|Open|Download).*?$/gmi, '')\n\n  // Remove image galleries (repeated image markdown patterns)\n  .replace(/(?:\\*\\s+!\\[.*?\\]\\(https?:\\/\\/.*?\\)\\s*\\n){3,}/gi, '')\n  .replace(/\\d+\\s*\\/\\s*\\d+\\s*\\n/gi, '')  // Remove image counters like \"1 / 8\"\n\n  // Remove header/navigation patterns\n  .replace(/^.*?(?:Sign In|Register|Post Ad|My Kijiji|Messages|Menu|Search|Categories|Browse).*?$/gmi, '')\n  .replace(/\\[.*?\\]\\(\\#header.*?\\)/gi, '')\n\n  // Remove map-related content\n  .replace(/!\\[\\]\\(https?:\\/\\/maps\\.googleapis\\.com\\/.*?\\)/gi, '')\n  .replace(/!\\[\\]\\(data:image\\/svg\\+xml.*?\\)/gi, '')\n  .replace(/^.*?(?:Map Data|Keyboard shortcuts|Click to toggle|Open this area in|Report a map error).*?$/gmi, '')\n  .replace(/^\\|[\\s\\|\\-]+\\|$/gm, '')  // Remove table borders\n  .replace(/^\\|\\s*(?:←|→|↑|↓|\\+|\\-|Home|End|Page Up|Page Down).*?\\|$/gmi, '')  // Remove keyboard shortcut tables\n  .replace(/Map\\s*\\n\\s*\\*\\s+Terrain\\s*\\n\\s*Satellite/gi, '')\n  .replace(/\\d+\\s*m\\s*\\n/gi, '')  // Remove distance markers like \"200 m\"\n\n  // Remove Google/Bing tracking pixels and analytics\n  .replace(/!\\[\\]\\(https?:\\/\\/bat\\.bing\\.net\\/.*?\\)/gi, '')\n  .replace(/!\\[\\]\\(https?:\\/\\/.*?analytics.*?\\)/gi, '')\n\n  // Remove \"Similar listings\" sections\n  .replace(/Similar listings[\\s\\S]*?$/gi, '')\n\n  // Remove footer patterns\n  .replace(/^.*?(?:About Kijiji|Careers|Advertise|Help|Terms of Use|Privacy Policy|Safety Tips).*?$/gmi, '')\n  .replace(/^.*?(?:Copyright|All rights reserved|©|Report Listing).*?$/gmi, '')\n  .replace(/\\[.*?\\]\\((?:https?:)?\\/\\/(?:help|www\\.google\\.com\\/intl|www\\.google\\.com\\/maps).*?\\)/gi, '')\n\n  // Remove \"Listed By\" and contact sections (optional - comment out if needed)\n  .replace(/Listed By[\\s\\S]*?(?=\\n#{1,3}\\s|\\n\\*\\*|$)/gi, '')\n  .replace(/Request a viewing[\\s\\S]*?(?=\\n#{1,3}\\s|\\n\\*\\*|$)/gi, '')\n\n  // Remove social sharing and action buttons\n  .replace(/^.*?(?:Save|Share|Reveal phone|View all listings|Send message).*?$/gmi, '')\n\n  // Remove \"Explore the area\" and walk/transit scores (optional - comment out if needed)\n  .replace(/Explore the area[\\s\\S]*?(?:Walk score|Transit score|Bike score)[\\s\\S]*?(?=\\n#{1,3}\\s|\\n\\*\\*|$)/gi, '')\n\n  // Remove empty markdown links and images\n  .replace(/!\\[\\]\\(\\)/gi, '')\n  .replace(/\\[\\]\\(\\)/gi, '')\n\n  // Clean up multiple consecutive blank lines\n  .replace(/\\n{3,}/g, '\\n\\n')\n\n  // Remove lines that are just whitespace\n  .replace(/^\\s+$/gm, '')\n\n  // Trim whitespace from start and end\n  .trim();\n\n// Return the cleaned markdown\nreturn {\n  json: {\n    cleanedMarkdown: cleanedMarkdown,\n    originalMarkdown: markdown,\n    charactersRemoved: markdown.length - cleanedMarkdown.length\n  }\n};"
+        },
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          848,
+          32
+        ],
+        "id": "170b137b-c590-45d8-a5ee-3a273e0749a0",
+        "name": "Code in JavaScript"
+      },
+      {
+        "parameters": {},
+        "type": "n8n-nodes-base.manualTrigger",
+        "typeVersion": 1,
+        "position": [
+          176,
+          -192
+        ],
+        "id": "bce3b3a0-ab21-4d96-a5c1-d8ef94ef55db",
+        "name": "When clicking ‘Execute workflow’"
+      },
+      {
+        "parameters": {
+          "operation": "scrape",
+          "url": "={{ $json.query }}",
+          "requestOptions": {}
+        },
+        "type": "@mendable/n8n-nodes-firecrawl.firecrawl",
+        "typeVersion": 1,
+        "position": [
+          624,
+          32
+        ],
+        "id": "79d974ba-612c-442c-82c5-e40d4b2032a6",
+        "name": "Scrape a URL and get its content as markdown, summary, or other formats",
+        "credentials": {
+          "firecrawlApi": {
+            "id": "nb2jfpwSaHKBXaNF",
+            "name": "Firecrawl account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "promptType": "define",
+          "text": "={{ $json.cleanedMarkdown }}",
+          "options": {
+            "systemMessage": "=## Role\nYou are a specialized data extraction agent. Your task is to analyze cleaned markdown content from web listings (rental properties, sales listings, classifieds, etc.) and extract all relevant information into a well-structured, consistent JSON format.\n\n## Input\nYou will receive cleaned markdown content that has been pre-processed to remove headers, footers, navigation, and other non-content elements.\n\n## Task\nExtract and organize ALL available information from the listing into structured JSON format. Handle missing fields gracefully by using `null` or omitting optional fields.\n\n## Output Format\nReturn a valid JSON object with the following structure:\n\n```json\n{\n  \"listing\": {\n    \"title\": \"string\",\n    \"price\": {\n      \"amount\": \"number or null\",\n      \"currency\": \"string (e.g., CAD, USD)\",\n      \"period\": \"string or null (e.g., monthly, one-time, weekly)\"\n    },\n    \"location\": {\n      \"address\": \"string or null\",\n      \"city\": \"string or null\",\n      \"province_state\": \"string or null\",\n      \"country\": \"string or null\",\n      \"postal_code\": \"string or null\"\n    },\n    \"posting_info\": {\n      \"posted_date\": \"string (relative or absolute)\",\n      \"views\": \"number or null\",\n      \"listing_id\": \"string or null\"\n    },\n    \"property_details\": {\n      \"type\": \"string or null (e.g., Apartment, House, Condo)\",\n      \"bedrooms\": \"number or null\",\n      \"bathrooms\": \"number or null\",\n      \"square_feet\": \"number or null\",\n      \"parking\": {\n        \"available\": \"boolean\",\n        \"count\": \"number or null\",\n        \"included\": \"boolean or null\"\n      },\n      \"pet_friendly\": \"boolean or null\",\n      \"furnished\": \"boolean or null\"\n    },\n    \"rental_terms\": {\n      \"lease_type\": \"string or null (e.g., Month-to-month, 1 year)\",\n      \"available_date\": \"string or null\",\n      \"utilities_included\": [\"array of strings or empty array\"],\n      \"utilities_extra\": [\"array of strings or empty array\"]\n    },\n    \"features\": {\n      \"appliances\": [\"array of strings or empty array\"],\n      \"amenities\": [\"array of strings or empty array\"],\n      \"outdoor\": [\"array of strings or empty array\"]\n    },\n    \"description\": {\n      \"main\": \"string (full description text)\",\n      \"summary\": \"string (first 150 chars or key highlights)\"\n    },\n    \"seller_info\": {\n      \"name\": \"string or null\",\n      \"type\": \"string or null (e.g., Owner, Agent, Property Manager)\",\n      \"phone\": \"string or null\",\n      \"email\": \"string or null\",\n      \"profile_url\": \"string or null\",\n      \"response_stats\": {\n        \"avg_reply_time\": \"string or null\",\n        \"reply_rate\": \"string or null\",\n        \"years_on_platform\": \"string or null\"\n      }\n    },\n    \"images\": {\n      \"count\": \"number\",\n      \"urls\": [\"array of image URLs or empty array\"]\n    },\n    \"additional_info\": {\n      \"walk_score\": \"number or null\",\n      \"transit_score\": \"number or null\",\n      \"bike_score\": \"number or null\"\n    }\n  },\n  \"metadata\": {\n    \"extracted_at\": \"ISO 8601 timestamp\",\n    \"confidence\": \"high|medium|low\",\n    \"missing_fields\": [\"array of field names that couldn't be extracted\"]\n  }\n}\n```\n\n## Extraction Guidelines\n\n### 1. Price Extraction\n- Extract numeric value and currency\n- Identify if price is per month, week, or one-time\n- Handle formats like \"$1,290\", \"$1290/month\", \"Please Contact\"\n- If price says \"Please Contact\", set amount to `null`\n\n### 2. Location Parsing\n- Extract complete address if available\n- Parse city, province/state, postal code separately\n- Handle various address formats\n\n### 3. Property Details\n- Look for bedroom/bathroom counts (e.g., \"2 Bedrooms\", \"1 Bathrooms\")\n- Extract square footage (e.g., \"847 sqft\")\n- Identify property type (Apartment, House, Condo, etc.)\n- Determine parking availability and count\n- Check for pet-friendly indicators\n- Check furnished/unfurnished status\n\n### 4. Rental Terms\n- Extract lease type (Month-to-month, 1 year, etc.)\n- Find availability date\n- Identify included utilities (Water, Heat, Electricity, etc.)\n- List utilities not included\n\n### 5. Features & Amenities\n- Extract appliances (Fridge, Freezer, Stove, Dishwasher, etc.)\n- List amenities (Laundry, Storage, Balcony, etc.)\n- Note outdoor features (Yard, Garden, Patio, etc.)\n\n### 6. Description Processing\n- Extract the full main description text\n- Create a concise summary (150 chars max or key highlights)\n- Remove excessive formatting but preserve key information\n\n### 7. Seller Information\n- Extract name/username\n- Identify seller type (Owner, Agent, Property Manager)\n- Extract contact information (phone, email)\n- Get response statistics if available\n- Extract profile URL if present\n\n### 8. Images\n- Count total images mentioned\n- Extract all image URLs if present\n- Handle relative URLs by noting they need base URL\n\n### 9. Scores & Metrics\n- Extract walk/transit/bike scores if present\n- Extract view counts\n- Note years on platform\n\n## Special Instructions\n\n1. **Handle Missing Data**: If a field cannot be found, use `null` for single values or empty arrays `[]` for lists. Do NOT make up data.\n\n2. **Normalize Values**:\n   - Convert \"Yes/No\" to boolean `true/false`\n   - Convert number strings to actual numbers\n   - Standardize date formats where possible\n\n3. **Be Flexible**: Listing formats vary. Adapt to the structure you find while maintaining consistent output format.\n\n4. **Extract Everything**: Don't filter information. If it's in the listing, extract it. Additional fields can be added to the JSON if needed.\n\n5. **Confidence Rating**:\n   - `high`: All major fields extracted successfully\n   - `medium`: Some important fields missing\n   - `low`: Significant data missing or ambiguous\n\n\n## Final Notes\n- Always return valid JSON\n- Maintain consistent structure across all extractions\n- Prioritize accuracy over completeness\n- When in doubt, use `null` rather than guessing\n"
+          }
+        },
+        "type": "@n8n/n8n-nodes-langchain.agent",
+        "typeVersion": 3.1,
+        "position": [
+          1024,
+          32
+        ],
+        "id": "fe2e0588-fd2c-489f-8fd0-3dc136b7239c",
+        "name": "AI Agent"
+      },
+      {
+        "parameters": {
+          "model": {
+            "__rl": true,
+            "mode": "list",
+            "value": "gpt-4.1-mini"
+          },
+          "responsesApiEnabled": false,
+          "options": {}
+        },
+        "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+        "typeVersion": 1.3,
+        "position": [
+          1040,
+          160
+        ],
+        "id": "f08c20c2-c49c-480f-a1c6-c00a4f423df9",
+        "name": "OpenAI Chat Model",
+        "credentials": {
+          "openAiApi": {
+            "id": "vofRqqG7VEHTXxTs",
+            "name": "OpenAi account"
+          }
+        }
+      }
+    ],
+    "connections": {
+      "When clicking ‘Execute workflow’": {
+        "main": [
+          []
+        ]
+      },
+      "Scrape a URL and get its content as markdown, summary, or other formats": {
+        "main": [
+          [
+            {
+              "node": "Code in JavaScript",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Code in JavaScript": {
+        "main": [
+          [
+            {
+              "node": "AI Agent",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "OpenAI Chat Model": {
+        "ai_languageModel": [
+          [
+            {
+              "node": "AI Agent",
+              "type": "ai_languageModel",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "When Executed by Another Workflow": {
+        "main": [
+          [
+            {
+              "node": "Scrape a URL and get its content as markdown, summary, or other formats",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    },
+    "authors": "Aurelien Bonin",
+    "name": "Version ba13ce15",
+    "description": "",
+    "autosaved": false
+  },
+  "activeVersionId": "ba13ce15-9923-409e-9797-9010fba1e71b",
+  "connections": {
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        []
+      ]
+    },
+    "Scrape a URL and get its content as markdown, summary, or other formats": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When Executed by Another Workflow": {
+      "main": [
+        [
+          {
+            "node": "Scrape a URL and get its content as markdown, summary, or other formats",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "createdAt": "2025-12-30T02:32:34.386Z",
+  "id": "900g3MNaA9zPdvpO",
+  "isArchived": false,
+  "meta": {
+    "templateCredsSetupCompleted": true
+  },
+  "name": "Firecrawl/Extract",
+  "nodes": [
+    {
+      "parameters": {
+        "inputSource": "passthrough"
+      },
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        368,
+        32
+      ],
+      "id": "ab2278c2-e9b2-4c23-9670-3681578bc49d",
+      "name": "When Executed by Another Workflow"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Get the markdown content from the previous node\nconst markdown = $input.first().json.data.markdown;\n\nlet cleanedMarkdown = markdown\n  // Remove app banners and promotional content\n  .replace(/!\\[.*?app.*?logo.*?\\]\\(.*?\\)/gi, '')\n  .replace(/^.*?(?:Use the app|Find great deals|Open|Download).*?$/gmi, '')\n\n  // Remove image galleries (repeated image markdown patterns)\n  .replace(/(?:\\*\\s+!\\[.*?\\]\\(https?:\\/\\/.*?\\)\\s*\\n){3,}/gi, '')\n  .replace(/\\d+\\s*\\/\\s*\\d+\\s*\\n/gi, '')  // Remove image counters like \"1 / 8\"\n\n  // Remove header/navigation patterns\n  .replace(/^.*?(?:Sign In|Register|Post Ad|My Kijiji|Messages|Menu|Search|Categories|Browse).*?$/gmi, '')\n  .replace(/\\[.*?\\]\\(\\#header.*?\\)/gi, '')\n\n  // Remove map-related content\n  .replace(/!\\[\\]\\(https?:\\/\\/maps\\.googleapis\\.com\\/.*?\\)/gi, '')\n  .replace(/!\\[\\]\\(data:image\\/svg\\+xml.*?\\)/gi, '')\n  .replace(/^.*?(?:Map Data|Keyboard shortcuts|Click to toggle|Open this area in|Report a map error).*?$/gmi, '')\n  .replace(/^\\|[\\s\\|\\-]+\\|$/gm, '')  // Remove table borders\n  .replace(/^\\|\\s*(?:←|→|↑|↓|\\+|\\-|Home|End|Page Up|Page Down).*?\\|$/gmi, '')  // Remove keyboard shortcut tables\n  .replace(/Map\\s*\\n\\s*\\*\\s+Terrain\\s*\\n\\s*Satellite/gi, '')\n  .replace(/\\d+\\s*m\\s*\\n/gi, '')  // Remove distance markers like \"200 m\"\n\n  // Remove Google/Bing tracking pixels and analytics\n  .replace(/!\\[\\]\\(https?:\\/\\/bat\\.bing\\.net\\/.*?\\)/gi, '')\n  .replace(/!\\[\\]\\(https?:\\/\\/.*?analytics.*?\\)/gi, '')\n\n  // Remove \"Similar listings\" sections\n  .replace(/Similar listings[\\s\\S]*?$/gi, '')\n\n  // Remove footer patterns\n  .replace(/^.*?(?:About Kijiji|Careers|Advertise|Help|Terms of Use|Privacy Policy|Safety Tips).*?$/gmi, '')\n  .replace(/^.*?(?:Copyright|All rights reserved|©|Report Listing).*?$/gmi, '')\n  .replace(/\\[.*?\\]\\((?:https?:)?\\/\\/(?:help|www\\.google\\.com\\/intl|www\\.google\\.com\\/maps).*?\\)/gi, '')\n\n  // Remove \"Listed By\" and contact sections (optional - comment out if needed)\n  .replace(/Listed By[\\s\\S]*?(?=\\n#{1,3}\\s|\\n\\*\\*|$)/gi, '')\n  .replace(/Request a viewing[\\s\\S]*?(?=\\n#{1,3}\\s|\\n\\*\\*|$)/gi, '')\n\n  // Remove social sharing and action buttons\n  .replace(/^.*?(?:Save|Share|Reveal phone|View all listings|Send message).*?$/gmi, '')\n\n  // Remove \"Explore the area\" and walk/transit scores (optional - comment out if needed)\n  .replace(/Explore the area[\\s\\S]*?(?:Walk score|Transit score|Bike score)[\\s\\S]*?(?=\\n#{1,3}\\s|\\n\\*\\*|$)/gi, '')\n\n  // Remove empty markdown links and images\n  .replace(/!\\[\\]\\(\\)/gi, '')\n  .replace(/\\[\\]\\(\\)/gi, '')\n\n  // Clean up multiple consecutive blank lines\n  .replace(/\\n{3,}/g, '\\n\\n')\n\n  // Remove lines that are just whitespace\n  .replace(/^\\s+$/gm, '')\n\n  // Trim whitespace from start and end\n  .trim();\n\n// Return the cleaned markdown\nreturn {\n  json: {\n    cleanedMarkdown: cleanedMarkdown,\n    originalMarkdown: markdown,\n    charactersRemoved: markdown.length - cleanedMarkdown.length\n  }\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        848,
+        32
+      ],
+      "id": "170b137b-c590-45d8-a5ee-3a273e0749a0",
+      "name": "Code in JavaScript"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        176,
+        -192
+      ],
+      "id": "bce3b3a0-ab21-4d96-a5c1-d8ef94ef55db",
+      "name": "When clicking ‘Execute workflow’"
+    },
+    {
+      "parameters": {
+        "operation": "scrape",
+        "url": "={{ $json.query }}",
+        "requestOptions": {}
+      },
+      "type": "@mendable/n8n-nodes-firecrawl.firecrawl",
+      "typeVersion": 1,
+      "position": [
+        624,
+        32
+      ],
+      "id": "79d974ba-612c-442c-82c5-e40d4b2032a6",
+      "name": "Scrape a URL and get its content as markdown, summary, or other formats",
+      "credentials": {
+        "firecrawlApi": {
+          "id": "nb2jfpwSaHKBXaNF",
+          "name": "Firecrawl account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.cleanedMarkdown }}",
+        "options": {
+          "systemMessage": "=## Role\nYou are a specialized data extraction agent. Your task is to analyze cleaned markdown content from web listings (rental properties, sales listings, classifieds, etc.) and extract all relevant information into a well-structured, consistent JSON format.\n\n## Input\nYou will receive cleaned markdown content that has been pre-processed to remove headers, footers, navigation, and other non-content elements.\n\n## Task\nExtract and organize ALL available information from the listing into structured JSON format. Handle missing fields gracefully by using `null` or omitting optional fields.\n\n## Output Format\nReturn a valid JSON object with the following structure:\n\n```json\n{\n  \"listing\": {\n    \"title\": \"string\",\n    \"price\": {\n      \"amount\": \"number or null\",\n      \"currency\": \"string (e.g., CAD, USD)\",\n      \"period\": \"string or null (e.g., monthly, one-time, weekly)\"\n    },\n    \"location\": {\n      \"address\": \"string or null\",\n      \"city\": \"string or null\",\n      \"province_state\": \"string or null\",\n      \"country\": \"string or null\",\n      \"postal_code\": \"string or null\"\n    },\n    \"posting_info\": {\n      \"posted_date\": \"string (relative or absolute)\",\n      \"views\": \"number or null\",\n      \"listing_id\": \"string or null\"\n    },\n    \"property_details\": {\n      \"type\": \"string or null (e.g., Apartment, House, Condo)\",\n      \"bedrooms\": \"number or null\",\n      \"bathrooms\": \"number or null\",\n      \"square_feet\": \"number or null\",\n      \"parking\": {\n        \"available\": \"boolean\",\n        \"count\": \"number or null\",\n        \"included\": \"boolean or null\"\n      },\n      \"pet_friendly\": \"boolean or null\",\n      \"furnished\": \"boolean or null\"\n    },\n    \"rental_terms\": {\n      \"lease_type\": \"string or null (e.g., Month-to-month, 1 year)\",\n      \"available_date\": \"string or null\",\n      \"utilities_included\": [\"array of strings or empty array\"],\n      \"utilities_extra\": [\"array of strings or empty array\"]\n    },\n    \"features\": {\n      \"appliances\": [\"array of strings or empty array\"],\n      \"amenities\": [\"array of strings or empty array\"],\n      \"outdoor\": [\"array of strings or empty array\"]\n    },\n    \"description\": {\n      \"main\": \"string (full description text)\",\n      \"summary\": \"string (first 150 chars or key highlights)\"\n    },\n    \"seller_info\": {\n      \"name\": \"string or null\",\n      \"type\": \"string or null (e.g., Owner, Agent, Property Manager)\",\n      \"phone\": \"string or null\",\n      \"email\": \"string or null\",\n      \"profile_url\": \"string or null\",\n      \"response_stats\": {\n        \"avg_reply_time\": \"string or null\",\n        \"reply_rate\": \"string or null\",\n        \"years_on_platform\": \"string or null\"\n      }\n    },\n    \"images\": {\n      \"count\": \"number\",\n      \"urls\": [\"array of image URLs or empty array\"]\n    },\n    \"additional_info\": {\n      \"walk_score\": \"number or null\",\n      \"transit_score\": \"number or null\",\n      \"bike_score\": \"number or null\"\n    }\n  },\n  \"metadata\": {\n    \"extracted_at\": \"ISO 8601 timestamp\",\n    \"confidence\": \"high|medium|low\",\n    \"missing_fields\": [\"array of field names that couldn't be extracted\"]\n  }\n}\n```\n\n## Extraction Guidelines\n\n### 1. Price Extraction\n- Extract numeric value and currency\n- Identify if price is per month, week, or one-time\n- Handle formats like \"$1,290\", \"$1290/month\", \"Please Contact\"\n- If price says \"Please Contact\", set amount to `null`\n\n### 2. Location Parsing\n- Extract complete address if available\n- Parse city, province/state, postal code separately\n- Handle various address formats\n\n### 3. Property Details\n- Look for bedroom/bathroom counts (e.g., \"2 Bedrooms\", \"1 Bathrooms\")\n- Extract square footage (e.g., \"847 sqft\")\n- Identify property type (Apartment, House, Condo, etc.)\n- Determine parking availability and count\n- Check for pet-friendly indicators\n- Check furnished/unfurnished status\n\n### 4. Rental Terms\n- Extract lease type (Month-to-month, 1 year, etc.)\n- Find availability date\n- Identify included utilities (Water, Heat, Electricity, etc.)\n- List utilities not included\n\n### 5. Features & Amenities\n- Extract appliances (Fridge, Freezer, Stove, Dishwasher, etc.)\n- List amenities (Laundry, Storage, Balcony, etc.)\n- Note outdoor features (Yard, Garden, Patio, etc.)\n\n### 6. Description Processing\n- Extract the full main description text\n- Create a concise summary (150 chars max or key highlights)\n- Remove excessive formatting but preserve key information\n\n### 7. Seller Information\n- Extract name/username\n- Identify seller type (Owner, Agent, Property Manager)\n- Extract contact information (phone, email)\n- Get response statistics if available\n- Extract profile URL if present\n\n### 8. Images\n- Count total images mentioned\n- Extract all image URLs if present\n- Handle relative URLs by noting they need base URL\n\n### 9. Scores & Metrics\n- Extract walk/transit/bike scores if present\n- Extract view counts\n- Note years on platform\n\n## Special Instructions\n\n1. **Handle Missing Data**: If a field cannot be found, use `null` for single values or empty arrays `[]` for lists. Do NOT make up data.\n\n2. **Normalize Values**:\n   - Convert \"Yes/No\" to boolean `true/false`\n   - Convert number strings to actual numbers\n   - Standardize date formats where possible\n\n3. **Be Flexible**: Listing formats vary. Adapt to the structure you find while maintaining consistent output format.\n\n4. **Extract Everything**: Don't filter information. If it's in the listing, extract it. Additional fields can be added to the JSON if needed.\n\n5. **Confidence Rating**:\n   - `high`: All major fields extracted successfully\n   - `medium`: Some important fields missing\n   - `low`: Significant data missing or ambiguous\n\n\n## Final Notes\n- Always return valid JSON\n- Maintain consistent structure across all extractions\n- Prioritize accuracy over completeness\n- When in doubt, use `null` rather than guessing\n"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        1024,
+        32
+      ],
+      "id": "fe2e0588-fd2c-489f-8fd0-3dc136b7239c",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4.1-mini"
+        },
+        "responsesApiEnabled": false,
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        1040,
+        160
+      ],
+      "id": "f08c20c2-c49c-480f-a1c6-c00a4f423df9",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "vofRqqG7VEHTXxTs",
+          "name": "OpenAi account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1",
+    "availableInMCP": false
+  },
+  "shared": [
+    {
+      "updatedAt": "2025-12-30T02:32:34.392Z",
+      "createdAt": "2025-12-30T02:32:34.392Z",
+      "role": "workflow:owner",
+      "workflowId": "900g3MNaA9zPdvpO",
+      "projectId": "K5c2PqoZjXPELHVa"
+    }
+  ],
+  "staticData": null,
+  "tags": [],
+  "triggerCount": 0,
+  "updatedAt": "2026-01-11T21:05:35.275Z",
+  "versionId": "ba13ce15-9923-409e-9797-9010fba1e71b"
+}
