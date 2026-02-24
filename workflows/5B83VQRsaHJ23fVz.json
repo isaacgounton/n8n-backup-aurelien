@@ -1,0 +1,206 @@
+{
+  "active": false,
+  "activeVersion": null,
+  "activeVersionId": null,
+  "connections": {
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request1": {
+      "main": [
+        [
+          {
+            "node": "Split Out Pages",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split Out Pages": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "Combine All Results",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Combine All Results": {
+      "main": [
+        [
+          {
+            "node": "Deduplicate Across All Pages",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "createdAt": "2025-12-02T02:13:35.243Z",
+  "id": "5B83VQRsaHJ23fVz",
+  "isArchived": false,
+  "meta": null,
+  "name": "New Agent Jules",
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        2112,
+        80
+      ],
+      "id": "b53e9ac2-01bb-4bce-8555-04014afa14e1",
+      "name": "When clicking ‘Execute workflow’"
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "const markdown = $input.item.json.markdown || '';\nconst sourceURL = $input.item.json.metadata?.sourceURL || 'Unknown';\n\nconst result = {\n  instagramEmbeds: [],\n  facebookEmbeds: [],\n  twitterEmbeds: [],\n  youtubeEmbeds: [],\n  images: [],\n  otherEmbeds: [],\n  sourceURL: sourceURL\n};\n\n// Extract Instagram embeds: Find URLs and generate HTML embed code\nconst instagramUrlRegex = /https:\\/\\/www\\.instagram\\.com\\/(p|reel)\\/[A-Za-z0-9_-]+\\//g;\nconst instagramUrls = markdown.match(instagramUrlRegex) || [];\n// Deduplicate Instagram URLs\nconst uniqueInstagramUrls = [...new Set(instagramUrls)];\nresult.instagramEmbeds = uniqueInstagramUrls.map(url => {\n  return `<blockquote class=\"instagram-media\" data-instgrm-permalink=\"${url}\" data-instgrm-version=\"14\" style=\"max-width:540px; width:100%;\">\n    <a href=\"${url}\">View this post on Instagram</a>\n  </blockquote>\n  <script async src=\"//www.instagram.com/embed.js\"></script>`;\n});\n\n// Extract Facebook embeds (if present as HTML)\nconst facebookRegex = /<iframe[^>]*src=\"[^\"]*facebook\\.com[^\"]*\"[^>]*>.*?<\\/iframe>/gs;\nconst facebookMatches = markdown.match(facebookRegex) || [];\n// Deduplicate Facebook embeds\nresult.facebookEmbeds = [...new Set(facebookMatches)];\n\n// Extract Twitter/X embeds (if present as HTML)\nconst twitterRegex = /<blockquote[^>]*class=\"[^\"]*twitter-tweet[^\"]*\"[^>]*>.*?<\\/blockquote>\\s*<script[^>]*src=\"[^\"]*platform\\.twitter\\.com\\/widgets\\.js\"[^>]*><\\/script>/gs;\nconst twitterMatches = markdown.match(twitterRegex) || [];\n// Deduplicate Twitter embeds\nresult.twitterEmbeds = [...new Set(twitterMatches)];\n\n// Extract YouTube embeds (if present as HTML)\nconst youtubeRegex = /<iframe[^>]*src=\"[^\"]*(?:youtube\\.com|youtu\\.be)[^\"]*\"[^>]*>.*?<\\/iframe>/gs;\nconst youtubeMatches = markdown.match(youtubeRegex) || [];\n// Deduplicate YouTube embeds\nresult.youtubeEmbeds = [...new Set(youtubeMatches)];\n\n// Extract markdown images ![alt](url)\nconst markdownImageRegex = /!\\[([^\\]]*)\\]\\(([^)]+)\\)/g;\nlet match;\nconst imageMap = new Map();\nwhile ((match = markdownImageRegex.exec(markdown)) !== null) {\n  const url = match[2];\n  if (!imageMap.has(url)) {\n    imageMap.set(url, {\n      alt: match[1],\n      url: url,\n      type: 'markdown'\n    });\n  }\n}\n\n// Extract HTML img tags\nconst htmlImageRegex = /<img[^>]*src=\"([^\"]*)\"[^>]*(?:alt=\"([^\"]*)\")?[^>]*>/g;\nwhile ((match = htmlImageRegex.exec(markdown)) !== null) {\n  const url = match[1];\n  if (!imageMap.has(url)) {\n    imageMap.set(url, {\n      url: url,\n      alt: match[2] || '',\n      type: 'html'\n    });\n  }\n}\n\n// Convert Map to array\nresult.images = Array.from(imageMap.values());\n\n// Extract other iframes (TikTok, Vimeo, etc.)\nconst otherIframeRegex = /<iframe[^>]*src=\"([^\"]*)\"[^>]*>.*?<\\/iframe>/gs;\nconst allIframes = markdown.match(otherIframeRegex) || [];\nconst otherIframes = allIframes.filter(iframe =>\n  !iframe.includes('facebook.com') &&\n  !iframe.includes('youtube.com') &&\n  !iframe.includes('youtu.be')\n);\n// Deduplicate other embeds\nresult.otherEmbeds = [...new Set(otherIframes)];\n\nreturn result;"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2864,
+        -64
+      ],
+      "id": "48158fcf-39eb-4f4f-b0f0-c893ec3d4554",
+      "name": "Code in JavaScript"
+    },
+    {
+      "parameters": {
+        "url": "https://etugrand.nyc3.digitaloceanspaces.com/upload/multiple-markdown-firecrawl.json",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        2480,
+        -64
+      ],
+      "id": "6d279be3-7ce4-40e0-93e1-e2b2b1d05ebb",
+      "name": "HTTP Request1"
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "data.data",
+        "options": {}
+      },
+      "id": "c3c30344-e04a-4118-816b-1250184008b8",
+      "name": "Split Out Pages",
+      "type": "n8n-nodes-base.splitOut",
+      "typeVersion": 1,
+      "position": [
+        2688,
+        -64
+      ]
+    },
+    {
+      "parameters": {
+        "aggregate": "aggregateAllItemData",
+        "options": {}
+      },
+      "id": "97d72be7-d2f2-4777-80f8-206366ca9d2e",
+      "name": "Combine All Results",
+      "type": "n8n-nodes-base.aggregate",
+      "typeVersion": 1,
+      "position": [
+        3088,
+        -64
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const allData = $input.all().map(item => item.json.data).flat();\n\nconst globalInstagramSet = new Set();\nconst globalFacebookSet = new Set();\nconst globalTwitterSet = new Set();\nconst globalYoutubeSet = new Set();\nconst globalImageMap = new Map();\nconst globalOtherSet = new Set();\n\n// Collect all embeds and images from all pages\nfor (const pageData of allData) {\n  // Instagram embeds\n  if (pageData.instagramEmbeds) {\n    pageData.instagramEmbeds.forEach(embed => globalInstagramSet.add(embed));\n  }\n  \n  // Facebook embeds\n  if (pageData.facebookEmbeds) {\n    pageData.facebookEmbeds.forEach(embed => globalFacebookSet.add(embed));\n  }\n  \n  // Twitter embeds\n  if (pageData.twitterEmbeds) {\n    pageData.twitterEmbeds.forEach(embed => globalTwitterSet.add(embed));\n  }\n  \n  // YouTube embeds\n  if (pageData.youtubeEmbeds) {\n    pageData.youtubeEmbeds.forEach(embed => globalYoutubeSet.add(embed));\n  }\n  \n  // Images (deduplicate by URL)\n  if (pageData.images) {\n    pageData.images.forEach(img => {\n      if (!globalImageMap.has(img.url)) {\n        globalImageMap.set(img.url, img);\n      }\n    });\n  }\n  \n  // Other embeds\n  if (pageData.otherEmbeds) {\n    pageData.otherEmbeds.forEach(embed => globalOtherSet.add(embed));\n  }\n}\n\n// Return deduplicated results\nreturn {\n  instagramEmbeds: Array.from(globalInstagramSet),\n  facebookEmbeds: Array.from(globalFacebookSet),\n  twitterEmbeds: Array.from(globalTwitterSet),\n  youtubeEmbeds: Array.from(globalYoutubeSet),\n  images: Array.from(globalImageMap.values()),\n  otherEmbeds: Array.from(globalOtherSet)\n};"
+      },
+      "id": "1de57a30-cc15-4feb-b9bf-c3b2a14e94f1",
+      "name": "Deduplicate Across All Pages",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        3312,
+        -64
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "const markdown = $input.item.json.data?.data?.[0]?.markdown || $input.item.json.markdown || '';\nconst sourceURL = $input.item.json.data?.data?.[0]?.metadata?.sourceURL || 'Unknown';\n\nconst result = {\n  instagramEmbeds: [],\n  facebookEmbeds: [],\n  twitterEmbeds: [],\n  youtubeEmbeds: [],\n  images: [],\n  otherEmbeds: [],\n  sourceURL: sourceURL\n};\n\n// Extract Instagram embeds: Find URLs and generate HTML embed code\nconst instagramUrlRegex = /https:\\/\\/www\\.instagram\\.com\\/(p|reel)\\/[A-Za-z0-9_-]+\\//g;\nconst instagramUrls = markdown.match(instagramUrlRegex) || [];\n// Deduplicate Instagram URLs\nconst uniqueInstagramUrls = [...new Set(instagramUrls)];\nresult.instagramEmbeds = uniqueInstagramUrls.map(url => {\n  return `<blockquote class=\"instagram-media\" data-instgrm-permalink=\"${url}\" data-instgrm-version=\"14\" style=\"max-width:540px; width:100%;\">\n    <a href=\"${url}\">View this post on Instagram</a>\n  </blockquote>\n  <script async src=\"//www.instagram.com/embed.js\"></script>`;\n});\n\n// Extract Facebook embeds (if present as HTML)\nconst facebookRegex = /<iframe[^>]*src=\"[^\"]*facebook\\.com[^\"]*\"[^>]*>.*?<\\/iframe>/gs;\nconst facebookMatches = markdown.match(facebookRegex) || [];\n// Deduplicate Facebook embeds\nresult.facebookEmbeds = [...new Set(facebookMatches)];\n\n// Extract Twitter/X embeds (if present as HTML)\nconst twitterRegex = /<blockquote[^>]*class=\"[^\"]*twitter-tweet[^\"]*\"[^>]*>.*?<\\/blockquote>\\s*<script[^>]*src=\"[^\"]*platform\\.twitter\\.com\\/widgets\\.js\"[^>]*><\\/script>/gs;\nconst twitterMatches = markdown.match(twitterRegex) || [];\n// Deduplicate Twitter embeds\nresult.twitterEmbeds = [...new Set(twitterMatches)];\n\n// Extract YouTube embeds (if present as HTML)\nconst youtubeRegex = /<iframe[^>]*src=\"[^\"]*(?:youtube\\.com|youtu\\.be)[^\"]*\"[^>]*>.*?<\\/iframe>/gs;\nconst youtubeMatches = markdown.match(youtubeRegex) || [];\n// Deduplicate YouTube embeds\nresult.youtubeEmbeds = [...new Set(youtubeMatches)];\n\n// Extract markdown images ![alt](url)\nconst markdownImageRegex = /!\\[([^\\]]*)\\]\\(([^)]+)\\)/g;\nlet match;\nconst imageMap = new Map();\nwhile ((match = markdownImageRegex.exec(markdown)) !== null) {\n  const url = match[2];\n  if (!imageMap.has(url)) {\n    imageMap.set(url, {\n      alt: match[1],\n      url: url,\n      type: 'markdown'\n    });\n  }\n}\n\n// Extract HTML img tags\nconst htmlImageRegex = /<img[^>]*src=\"([^\"]*)\"[^>]*(?:alt=\"([^\"]*)\")?[^>]*>/g;\nwhile ((match = htmlImageRegex.exec(markdown)) !== null) {\n  const url = match[1];\n  if (!imageMap.has(url)) {\n    imageMap.set(url, {\n      url: url,\n      alt: match[2] || '',\n      type: 'html'\n    });\n  }\n}\n\n// Convert Map to array\nresult.images = Array.from(imageMap.values());\n\n// Extract other iframes (TikTok, Vimeo, etc.)\nconst otherIframeRegex = /<iframe[^>]*src=\"([^\"]*)\"[^>]*>.*?<\\/iframe>/gs;\nconst allIframes = markdown.match(otherIframeRegex) || [];\nconst otherIframes = allIframes.filter(iframe =>\n  !iframe.includes('facebook.com') &&\n  !iframe.includes('youtube.com') &&\n  !iframe.includes('youtu.be')\n);\n// Deduplicate other embeds\nresult.otherEmbeds = [...new Set(otherIframes)];\n\nreturn result;"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2704,
+        208
+      ],
+      "id": "2bcaa6fc-4612-4525-96de-d9340545cf54",
+      "name": "Code in JavaScript1"
+    },
+    {
+      "parameters": {
+        "url": "https://etugrand.nyc3.digitaloceanspaces.com/upload/multiple-markdown-firecrawl.json",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        2480,
+        208
+      ],
+      "id": "263726ae-13d9-49ab-bd99-cd50cdfa57f0",
+      "name": "HTTP Request"
+    }
+  ],
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "shared": [
+    {
+      "updatedAt": "2025-12-02T02:13:35.260Z",
+      "createdAt": "2025-12-02T02:13:35.260Z",
+      "role": "workflow:owner",
+      "workflowId": "5B83VQRsaHJ23fVz",
+      "projectId": "K5c2PqoZjXPELHVa"
+    }
+  ],
+  "staticData": null,
+  "tags": [],
+  "triggerCount": 0,
+  "updatedAt": "2025-12-02T02:49:26.000Z",
+  "versionId": "013fa853-cf93-4f07-abfe-6d0a2e96dcb4"
+}
