@@ -1,0 +1,308 @@
+{
+  "active": true,
+  "activeVersion": {
+    "updatedAt": "2025-12-18T07:46:10.000Z",
+    "createdAt": "2025-12-18T07:45:35.304Z",
+    "versionId": "a85cad20-0003-4bc2-9324-4dbf215c56cc",
+    "workflowId": "tkfgJfgeOEP5TqaO",
+    "nodes": [
+      {
+        "parameters": {
+          "httpMethod": "POST",
+          "path": "rentals",
+          "authentication": "headerAuth",
+          "responseMode": "responseNode",
+          "options": {}
+        },
+        "type": "n8n-nodes-base.webhook",
+        "typeVersion": 2.1,
+        "position": [
+          528,
+          -16
+        ],
+        "id": "22f25aea-5320-4e27-adc7-14217e117814",
+        "name": "Rentals Webhook",
+        "webhookId": "rentals-webhook-id",
+        "credentials": {
+          "httpHeaderAuth": {
+            "id": "uvgqyRI1ddaWVLOw",
+            "name": "Jules Pipecat"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "respondWith": "json",
+          "responseBody": "={{ \n  {\"success\": true, \n    \"rental_listings\": $json, \n    \"count\": $json.length, \n    \"filters\": $('Rentals Webhook').first().json.body.filters\n  } \n}}",
+          "options": {}
+        },
+        "id": "7c876cdd-40c9-4e64-b22e-8e6b6d662243",
+        "name": "Success Response",
+        "type": "n8n-nodes-base.respondToWebhook",
+        "typeVersion": 1,
+        "position": [
+          1088,
+          -16
+        ]
+      },
+      {
+        "parameters": {
+          "operation": "select",
+          "schema": {
+            "__rl": true,
+            "mode": "list",
+            "value": "public"
+          },
+          "table": {
+            "__rl": true,
+            "value": "rental_listings",
+            "mode": "list",
+            "cachedResultName": "rental_listings"
+          },
+          "limit": 10,
+          "where": {
+            "values": [
+              {
+                "column": "status",
+                "value": "available"
+              },
+              {
+                "column": "property_address",
+                "condition": "LIKE",
+                "value": "={{ $json.body.filters.property_address || null }}"
+              },
+              {
+                "column": "unit_number",
+                "value": "={{ $json.body.filters.unit_number || null }}"
+              },
+              {
+                "column": "bedrooms",
+                "value": "={{ $json.body.filters.bedrooms || null }}"
+              },
+              {
+                "column": "bathrooms",
+                "value": "={{ $json.body.filters.bathrooms || null }}"
+              },
+              {
+                "column": "rent_amount",
+                "value": "={{ $json.body.filters.max_rent || null }}"
+              }
+            ]
+          },
+          "combineConditions": "OR",
+          "sort": {
+            "values": [
+              {
+                "column": "rent_amount"
+              }
+            ]
+          },
+          "options": {}
+        },
+        "id": "acc5bff1-47b1-4695-a0cd-d2782620c5ec",
+        "name": "Get Rental Listings from DB",
+        "type": "n8n-nodes-base.postgres",
+        "typeVersion": 2,
+        "position": [
+          800,
+          -16
+        ],
+        "credentials": {
+          "postgres": {
+            "id": "u7j29OmyHuzkVDfZ",
+            "name": "Postgres account"
+          }
+        }
+      }
+    ],
+    "connections": {
+      "Rentals Webhook": {
+        "main": [
+          [
+            {
+              "node": "Get Rental Listings from DB",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Get Rental Listings from DB": {
+        "main": [
+          [
+            {
+              "node": "Success Response",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    },
+    "authors": "Aurelien Bonin",
+    "name": "Version a85cad20",
+    "description": "",
+    "autosaved": false
+  },
+  "activeVersionId": "a85cad20-0003-4bc2-9324-4dbf215c56cc",
+  "connections": {
+    "Rentals Webhook": {
+      "main": [
+        [
+          {
+            "node": "Get Rental Listings from DB",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Rental Listings from DB": {
+      "main": [
+        [
+          {
+            "node": "Success Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "createdAt": "2025-12-18T00:08:04.841Z",
+  "id": "tkfgJfgeOEP5TqaO",
+  "isArchived": false,
+  "meta": {
+    "templateCredsSetupCompleted": true
+  },
+  "name": "Rental Listings Webhook",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "rentals",
+        "authentication": "headerAuth",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        528,
+        -16
+      ],
+      "id": "22f25aea-5320-4e27-adc7-14217e117814",
+      "name": "Rentals Webhook",
+      "webhookId": "rentals-webhook-id",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "uvgqyRI1ddaWVLOw",
+          "name": "Jules Pipecat"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ \n  {\"success\": true, \n    \"rental_listings\": $json, \n    \"count\": $json.length, \n    \"filters\": $('Rentals Webhook').first().json.body.filters\n  } \n}}",
+        "options": {}
+      },
+      "id": "7c876cdd-40c9-4e64-b22e-8e6b6d662243",
+      "name": "Success Response",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [
+        1088,
+        -16
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "select",
+        "schema": {
+          "__rl": true,
+          "mode": "list",
+          "value": "public"
+        },
+        "table": {
+          "__rl": true,
+          "value": "rental_listings",
+          "mode": "list",
+          "cachedResultName": "rental_listings"
+        },
+        "limit": 10,
+        "where": {
+          "values": [
+            {
+              "column": "status",
+              "value": "available"
+            },
+            {
+              "column": "property_address",
+              "condition": "LIKE",
+              "value": "={{ $json.body.filters.property_address || null }}"
+            },
+            {
+              "column": "unit_number",
+              "value": "={{ $json.body.filters.unit_number || null }}"
+            },
+            {
+              "column": "bedrooms",
+              "value": "={{ $json.body.filters.bedrooms || null }}"
+            },
+            {
+              "column": "bathrooms",
+              "value": "={{ $json.body.filters.bathrooms || null }}"
+            },
+            {
+              "column": "rent_amount",
+              "value": "={{ $json.body.filters.max_rent || null }}"
+            }
+          ]
+        },
+        "combineConditions": "OR",
+        "sort": {
+          "values": [
+            {
+              "column": "rent_amount"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "acc5bff1-47b1-4695-a0cd-d2782620c5ec",
+      "name": "Get Rental Listings from DB",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2,
+      "position": [
+        800,
+        -16
+      ],
+      "credentials": {
+        "postgres": {
+          "id": "u7j29OmyHuzkVDfZ",
+          "name": "Postgres account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1",
+    "availableInMCP": true
+  },
+  "shared": [
+    {
+      "updatedAt": "2025-12-18T00:08:04.845Z",
+      "createdAt": "2025-12-18T00:08:04.845Z",
+      "role": "workflow:owner",
+      "workflowId": "tkfgJfgeOEP5TqaO",
+      "projectId": "K5c2PqoZjXPELHVa"
+    }
+  ],
+  "staticData": null,
+  "tags": [],
+  "triggerCount": 1,
+  "updatedAt": "2025-12-18T07:46:18.815Z",
+  "versionId": "a85cad20-0003-4bc2-9324-4dbf215c56cc"
+}
