@@ -1,0 +1,850 @@
+{
+  "active": true,
+  "activeVersion": {
+    "updatedAt": "2025-12-19T00:04:40.000Z",
+    "createdAt": "2025-12-19T00:04:35.860Z",
+    "versionId": "657268a3-01ee-4099-b584-4e8dc85765ba",
+    "workflowId": "a877BGNXG3QsBPBk",
+    "nodes": [
+      {
+        "parameters": {
+          "httpMethod": "POST",
+          "path": "property-info",
+          "authentication": "headerAuth",
+          "responseMode": "responseNode",
+          "options": {}
+        },
+        "id": "024e1221-c1e0-4a44-b6ec-49db81558ea1",
+        "name": "Property Info Webhook Trigger",
+        "type": "n8n-nodes-base.webhook",
+        "typeVersion": 1,
+        "position": [
+          -32,
+          1152
+        ],
+        "webhookId": "property-info-webhook",
+        "credentials": {
+          "httpHeaderAuth": {
+            "id": "uvgqyRI1ddaWVLOw",
+            "name": "Jules Pipecat"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "dataType": "string",
+          "value1": "={{ $json.body.action }}",
+          "rules": {
+            "rules": [
+              {
+                "value2": "get_property_policies",
+                "outputKey": "get_property_policies"
+              },
+              {
+                "value2": "get_property_info",
+                "outputKey": "get_property_info"
+              },
+              {
+                "operation": "notEqual",
+                "outputKey": "default"
+              }
+            ]
+          }
+        },
+        "id": "ec850263-52e7-43c4-ade9-175a1fcd82d9",
+        "name": "Check Action Type",
+        "type": "n8n-nodes-base.switch",
+        "typeVersion": 2,
+        "position": [
+          176,
+          1136
+        ]
+      },
+      {
+        "parameters": {
+          "assignments": {
+            "assignments": [
+              {
+                "id": "policies_object",
+                "name": "policies",
+                "type": "object",
+                "value": "={{ { office_hours: $('Get Default Property').first()?.json?.office_hours || 'Monday-Friday: 9:00 AM - 6:00 PM, Saturday: 10:00 AM - 4:00 PM', emergency_contact: $('Get Default Property').first()?.json?.emergency_contact || 'For emergencies: Call main office 24/7 at 1-800-URGENT', pet_policy: $('Get Default Property').first()?.json?.pet_policy || 'Pets allowed with pet deposit ($300) and monthly pet rent ($25). Breed and size restrictions apply. Contact office for specific property policies.', parking_policy: $('Get Default Property').first()?.json?.parking_policy || 'One parking space included per unit. Covered parking available for additional $50/month where available. Guest parking in designated areas.', amenities: $('Get Default Property').first()?.json?.amenities || 'Swimming pool, fitness center, laundry facilities, package room, 24/7 maintenance, controlled access', lease_terms: $('Get Default Property').first()?.json?.lease_terms || 'Minimum 12-month lease. Security deposit equal to one month rent. Background and credit check required. First month rent due at lease signing.', payment_methods: $('Get Default Property').first()?.json?.payment_methods || 'Online tenant portal, automatic bank draft, phone payment system, check/cash at leasing office', rent_due_day: $('Get Default Property').first()?.json?.rent_due_day || 1, grace_period_days: $('Get Default Property').first()?.json?.grace_period_days || 3, late_fee_amount: $('Get Default Property').first()?.json?.late_fee_amount || 50 } }}"
+              },
+              {
+                "id": "property_name",
+                "name": "property_name",
+                "value": "={{ $('Get Default Property').first()?.json?.name || 'Jules Property Management' }}",
+                "type": "string"
+              },
+              {
+                "id": "property_address",
+                "name": "property_address",
+                "value": "={{ $('Get Default Property').first()?.json?.address || 'Multiple locations across the metropolitan area' }}",
+                "type": "string"
+              }
+            ]
+          },
+          "options": {}
+        },
+        "id": "98dd32aa-6ddb-41f2-8530-0b52c023057a",
+        "name": "Set Default Policies",
+        "type": "n8n-nodes-base.set",
+        "typeVersion": 3.4,
+        "position": [
+          624,
+          1040
+        ]
+      },
+      {
+        "parameters": {
+          "options": {}
+        },
+        "id": "822a306b-c505-4fbb-9f2e-21fd44a07b6e",
+        "name": "Return Property Policies",
+        "type": "n8n-nodes-base.respondToWebhook",
+        "typeVersion": 1,
+        "position": [
+          848,
+          1040
+        ]
+      },
+      {
+        "parameters": {
+          "assignments": {
+            "assignments": [
+              {
+                "id": "property_info",
+                "name": "property_info",
+                "type": "object",
+                "value": "={{ { id: $('Get Specific Property').first()?.json?.id || 1, name: $('Get Specific Property').first()?.json?.name || 'Jules Property Management', address: $('Get Specific Property').first()?.json?.address || 'Multiple locations across the metropolitan area', office_hours: $('Get Specific Property').first()?.json?.office_hours || 'Monday-Friday: 9:00 AM - 6:00 PM, Saturday: 10:00 AM - 4:00 PM', emergency_contact: $('Get Specific Property').first()?.json?.emergency_contact || 'For emergencies: Call main office 24/7 at 1-800-URGENT', pet_policy: $('Get Specific Property').first()?.json?.pet_policy || 'Pets allowed with pet deposit ($300) and monthly pet rent ($25). Breed and size restrictions apply.', parking_policy: $('Get Specific Property').first()?.json?.parking_policy || 'One parking space included per unit. Covered parking available for additional $50/month where available.', amenities: $('Get Specific Property').first()?.json?.amenities || 'Swimming pool, fitness center, laundry facilities, package room, 24/7 maintenance, controlled access', lease_terms: $('Get Specific Property').first()?.json?.lease_terms || 'Minimum 12-month lease. Security deposit equal to one month rent. Background and credit check required.', payment_methods: $('Get Specific Property').first()?.json?.payment_methods || 'Online tenant portal, automatic bank draft, phone payment system, check/cash at leasing office', rent_due_day: $('Get Specific Property').first()?.json?.rent_due_day || 1, grace_period_days: $('Get Specific Property').first()?.json?.grace_period_days || 3, late_fee_amount: $('Get Specific Property').first()?.json?.late_fee_amount || 50 } }}"
+              },
+              {
+                "id": "property_id",
+                "name": "property_id",
+                "value": "={{ $('Get Specific Property').first()?.json?.id || 1 }}",
+                "type": "number"
+              },
+              {
+                "id": "success",
+                "name": "success",
+                "value": true,
+                "type": "boolean"
+              },
+              {
+                "id": "message",
+                "name": "message",
+                "value": "Property information retrieved successfully",
+                "type": "string"
+              }
+            ]
+          },
+          "options": {}
+        },
+        "id": "fef2c02f-883a-4b9b-b6f3-a0e9a6afa936",
+        "name": "Set Property Data",
+        "type": "n8n-nodes-base.set",
+        "typeVersion": 3.4,
+        "position": [
+          624,
+          1216
+        ]
+      },
+      {
+        "parameters": {
+          "options": {}
+        },
+        "id": "ede1d1a7-d232-4bee-ab15-f5385eb19df0",
+        "name": "Return Property Info",
+        "type": "n8n-nodes-base.respondToWebhook",
+        "typeVersion": 1,
+        "position": [
+          848,
+          1216
+        ]
+      },
+      {
+        "parameters": {
+          "operation": "select",
+          "schema": "public",
+          "table": "properties",
+          "limit": 1,
+          "where": {
+            "values": [
+              {
+                "column": "name",
+                "value": "Jules Property Management"
+              }
+            ]
+          },
+          "options": {}
+        },
+        "id": "cb7d2b35-f6b1-419b-95ea-3b72d8587328",
+        "name": "Get Default Property",
+        "type": "n8n-nodes-base.postgres",
+        "typeVersion": 2,
+        "position": [
+          400,
+          1040
+        ],
+        "credentials": {
+          "postgres": {
+            "id": "u7j29OmyHuzkVDfZ",
+            "name": "Postgres account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "operation": "select",
+          "schema": "public",
+          "table": "properties",
+          "limit": 1,
+          "where": {
+            "values": [
+              {
+                "column": "id",
+                "value": "={{ $json.property_id || 1 }}"
+              }
+            ]
+          },
+          "options": {}
+        },
+        "id": "083e0f3d-d6a6-4406-8659-748ecf7774e9",
+        "name": "Get Specific Property",
+        "type": "n8n-nodes-base.postgres",
+        "typeVersion": 2,
+        "position": [
+          400,
+          1216
+        ],
+        "credentials": {
+          "postgres": {
+            "id": "u7j29OmyHuzkVDfZ",
+            "name": "Postgres account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "assignments": {
+            "assignments": [
+              {
+                "id": "fallback_policies",
+                "name": "policies",
+                "type": "object",
+                "objectType": "single",
+                "objectValue": {
+                  "office_hours": "Monday-Friday: 9:00 AM - 6:00 PM, Saturday: 10:00 AM - 4:00 PM, Sunday: Closed",
+                  "emergency_contact": "For emergencies: Call main office 24/7 at 1-800-URGENT",
+                  "pet_policy": "Pets allowed with pet deposit ($300) and monthly pet rent ($25). Breed and size restrictions apply.",
+                  "parking_policy": "One parking space included per unit. Guest parking in designated areas.",
+                  "amenities": "Swimming pool, fitness center, laundry facilities, package room, 24/7 maintenance",
+                  "lease_terms": "Minimum 12-month lease. Security deposit and background check required.",
+                  "payment_methods": "Online portal, automatic bank draft, phone payment, check/cash at office",
+                  "rent_due_day": 1,
+                  "grace_period_days": 3,
+                  "late_fee_amount": 50
+                }
+              },
+              {
+                "id": "fallback_property_name",
+                "name": "property_name",
+                "value": "Jules Property Management",
+                "type": "string"
+              },
+              {
+                "id": "fallback_message",
+                "name": "message",
+                "value": "Default property policies returned",
+                "type": "string"
+              }
+            ]
+          },
+          "options": {}
+        },
+        "id": "493ed668-d167-4954-ab62-0cd8d4e537d1",
+        "name": "Set Fallback Response",
+        "type": "n8n-nodes-base.set",
+        "typeVersion": 3.4,
+        "position": [
+          400,
+          1408
+        ]
+      },
+      {
+        "parameters": {
+          "options": {}
+        },
+        "id": "46f48e44-fcac-4230-bb6f-0033ee5b2a11",
+        "name": "Return Fallback Response",
+        "type": "n8n-nodes-base.respondToWebhook",
+        "typeVersion": 1,
+        "position": [
+          624,
+          1408
+        ]
+      },
+      {
+        "parameters": {
+          "method": "POST",
+          "url": "http://localhost:5678/webhook/property-info",
+          "authentication": "genericCredentialType",
+          "genericAuthType": "httpHeaderAuth",
+          "sendBody": true,
+          "bodyParameters": {
+            "parameters": [
+              {
+                "name": "action",
+                "value": "get_property_policies"
+              }
+            ]
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.httpRequest",
+        "typeVersion": 4.3,
+        "position": [
+          592,
+          1824
+        ],
+        "id": "83205a3a-2817-4a52-8a18-53d42aa59323",
+        "name": "HTTP Request",
+        "credentials": {
+          "httpHeaderAuth": {
+            "id": "uvgqyRI1ddaWVLOw",
+            "name": "Jules Pipecat"
+          }
+        }
+      }
+    ],
+    "connections": {
+      "Property Info Webhook Trigger": {
+        "main": [
+          [
+            {
+              "node": "Check Action Type",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Check Action Type": {
+        "main": [
+          [
+            {
+              "node": "Get Default Property",
+              "type": "main",
+              "index": 0
+            }
+          ],
+          [
+            {
+              "node": "Get Specific Property",
+              "type": "main",
+              "index": 0
+            }
+          ],
+          [
+            {
+              "node": "Set Fallback Response",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Set Fallback Response": {
+        "main": [
+          [
+            {
+              "node": "Return Fallback Response",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Set Default Policies": {
+        "main": [
+          [
+            {
+              "node": "Return Property Policies",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Set Property Data": {
+        "main": [
+          [
+            {
+              "node": "Return Property Info",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Get Default Property": {
+        "main": [
+          [
+            {
+              "node": "Set Default Policies",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Get Specific Property": {
+        "main": [
+          [
+            {
+              "node": "Set Property Data",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    },
+    "authors": "Aurelien Bonin",
+    "name": "Version 657268a3",
+    "description": "",
+    "autosaved": false
+  },
+  "activeVersionId": "657268a3-01ee-4099-b584-4e8dc85765ba",
+  "connections": {
+    "Property Info Webhook Trigger": {
+      "main": [
+        [
+          {
+            "node": "Check Action Type",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check Action Type": {
+      "main": [
+        [
+          {
+            "node": "Get Default Property",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Get Specific Property",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Set Fallback Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set Fallback Response": {
+      "main": [
+        [
+          {
+            "node": "Return Fallback Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set Default Policies": {
+      "main": [
+        [
+          {
+            "node": "Return Property Policies",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set Property Data": {
+      "main": [
+        [
+          {
+            "node": "Return Property Info",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Default Property": {
+      "main": [
+        [
+          {
+            "node": "Set Default Policies",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Specific Property": {
+      "main": [
+        [
+          {
+            "node": "Set Property Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "createdAt": "2025-12-18T22:27:59.016Z",
+  "id": "a877BGNXG3QsBPBk",
+  "isArchived": false,
+  "meta": {
+    "templateCredsSetupCompleted": true
+  },
+  "name": "Property Information Webhook",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "property-info",
+        "authentication": "headerAuth",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "024e1221-c1e0-4a44-b6ec-49db81558ea1",
+      "name": "Property Info Webhook Trigger",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [
+        -32,
+        1152
+      ],
+      "webhookId": "property-info-webhook",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "uvgqyRI1ddaWVLOw",
+          "name": "Jules Pipecat"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "dataType": "string",
+        "value1": "={{ $json.body.action }}",
+        "rules": {
+          "rules": [
+            {
+              "value2": "get_property_policies",
+              "outputKey": "get_property_policies"
+            },
+            {
+              "value2": "get_property_info",
+              "outputKey": "get_property_info"
+            },
+            {
+              "operation": "notEqual",
+              "outputKey": "default"
+            }
+          ]
+        }
+      },
+      "id": "ec850263-52e7-43c4-ade9-175a1fcd82d9",
+      "name": "Check Action Type",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 2,
+      "position": [
+        176,
+        1136
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "policies_object",
+              "name": "policies",
+              "type": "object",
+              "value": "={{ { office_hours: $('Get Default Property').first()?.json?.office_hours || 'Monday-Friday: 9:00 AM - 6:00 PM, Saturday: 10:00 AM - 4:00 PM', emergency_contact: $('Get Default Property').first()?.json?.emergency_contact || 'For emergencies: Call main office 24/7 at 1-800-URGENT', pet_policy: $('Get Default Property').first()?.json?.pet_policy || 'Pets allowed with pet deposit ($300) and monthly pet rent ($25). Breed and size restrictions apply. Contact office for specific property policies.', parking_policy: $('Get Default Property').first()?.json?.parking_policy || 'One parking space included per unit. Covered parking available for additional $50/month where available. Guest parking in designated areas.', amenities: $('Get Default Property').first()?.json?.amenities || 'Swimming pool, fitness center, laundry facilities, package room, 24/7 maintenance, controlled access', lease_terms: $('Get Default Property').first()?.json?.lease_terms || 'Minimum 12-month lease. Security deposit equal to one month rent. Background and credit check required. First month rent due at lease signing.', payment_methods: $('Get Default Property').first()?.json?.payment_methods || 'Online tenant portal, automatic bank draft, phone payment system, check/cash at leasing office', rent_due_day: $('Get Default Property').first()?.json?.rent_due_day || 1, grace_period_days: $('Get Default Property').first()?.json?.grace_period_days || 3, late_fee_amount: $('Get Default Property').first()?.json?.late_fee_amount || 50 } }}"
+            },
+            {
+              "id": "property_name",
+              "name": "property_name",
+              "value": "={{ $('Get Default Property').first()?.json?.name || 'Jules Property Management' }}",
+              "type": "string"
+            },
+            {
+              "id": "property_address",
+              "name": "property_address",
+              "value": "={{ $('Get Default Property').first()?.json?.address || 'Multiple locations across the metropolitan area' }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "98dd32aa-6ddb-41f2-8530-0b52c023057a",
+      "name": "Set Default Policies",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        624,
+        1040
+      ]
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "id": "822a306b-c505-4fbb-9f2e-21fd44a07b6e",
+      "name": "Return Property Policies",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [
+        848,
+        1040
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "property_info",
+              "name": "property_info",
+              "type": "object",
+              "value": "={{ { id: $('Get Specific Property').first()?.json?.id || 1, name: $('Get Specific Property').first()?.json?.name || 'Jules Property Management', address: $('Get Specific Property').first()?.json?.address || 'Multiple locations across the metropolitan area', office_hours: $('Get Specific Property').first()?.json?.office_hours || 'Monday-Friday: 9:00 AM - 6:00 PM, Saturday: 10:00 AM - 4:00 PM', emergency_contact: $('Get Specific Property').first()?.json?.emergency_contact || 'For emergencies: Call main office 24/7 at 1-800-URGENT', pet_policy: $('Get Specific Property').first()?.json?.pet_policy || 'Pets allowed with pet deposit ($300) and monthly pet rent ($25). Breed and size restrictions apply.', parking_policy: $('Get Specific Property').first()?.json?.parking_policy || 'One parking space included per unit. Covered parking available for additional $50/month where available.', amenities: $('Get Specific Property').first()?.json?.amenities || 'Swimming pool, fitness center, laundry facilities, package room, 24/7 maintenance, controlled access', lease_terms: $('Get Specific Property').first()?.json?.lease_terms || 'Minimum 12-month lease. Security deposit equal to one month rent. Background and credit check required.', payment_methods: $('Get Specific Property').first()?.json?.payment_methods || 'Online tenant portal, automatic bank draft, phone payment system, check/cash at leasing office', rent_due_day: $('Get Specific Property').first()?.json?.rent_due_day || 1, grace_period_days: $('Get Specific Property').first()?.json?.grace_period_days || 3, late_fee_amount: $('Get Specific Property').first()?.json?.late_fee_amount || 50 } }}"
+            },
+            {
+              "id": "property_id",
+              "name": "property_id",
+              "value": "={{ $('Get Specific Property').first()?.json?.id || 1 }}",
+              "type": "number"
+            },
+            {
+              "id": "success",
+              "name": "success",
+              "value": true,
+              "type": "boolean"
+            },
+            {
+              "id": "message",
+              "name": "message",
+              "value": "Property information retrieved successfully",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "fef2c02f-883a-4b9b-b6f3-a0e9a6afa936",
+      "name": "Set Property Data",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        624,
+        1216
+      ]
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "id": "ede1d1a7-d232-4bee-ab15-f5385eb19df0",
+      "name": "Return Property Info",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [
+        848,
+        1216
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "select",
+        "schema": "public",
+        "table": "properties",
+        "limit": 1,
+        "where": {
+          "values": [
+            {
+              "column": "name",
+              "value": "Jules Property Management"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "cb7d2b35-f6b1-419b-95ea-3b72d8587328",
+      "name": "Get Default Property",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2,
+      "position": [
+        400,
+        1040
+      ],
+      "credentials": {
+        "postgres": {
+          "id": "u7j29OmyHuzkVDfZ",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "select",
+        "schema": "public",
+        "table": "properties",
+        "limit": 1,
+        "where": {
+          "values": [
+            {
+              "column": "id",
+              "value": "={{ $json.property_id || 1 }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "083e0f3d-d6a6-4406-8659-748ecf7774e9",
+      "name": "Get Specific Property",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2,
+      "position": [
+        400,
+        1216
+      ],
+      "credentials": {
+        "postgres": {
+          "id": "u7j29OmyHuzkVDfZ",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "fallback_policies",
+              "name": "policies",
+              "type": "object",
+              "objectType": "single",
+              "objectValue": {
+                "office_hours": "Monday-Friday: 9:00 AM - 6:00 PM, Saturday: 10:00 AM - 4:00 PM, Sunday: Closed",
+                "emergency_contact": "For emergencies: Call main office 24/7 at 1-800-URGENT",
+                "pet_policy": "Pets allowed with pet deposit ($300) and monthly pet rent ($25). Breed and size restrictions apply.",
+                "parking_policy": "One parking space included per unit. Guest parking in designated areas.",
+                "amenities": "Swimming pool, fitness center, laundry facilities, package room, 24/7 maintenance",
+                "lease_terms": "Minimum 12-month lease. Security deposit and background check required.",
+                "payment_methods": "Online portal, automatic bank draft, phone payment, check/cash at office",
+                "rent_due_day": 1,
+                "grace_period_days": 3,
+                "late_fee_amount": 50
+              }
+            },
+            {
+              "id": "fallback_property_name",
+              "name": "property_name",
+              "value": "Jules Property Management",
+              "type": "string"
+            },
+            {
+              "id": "fallback_message",
+              "name": "message",
+              "value": "Default property policies returned",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "493ed668-d167-4954-ab62-0cd8d4e537d1",
+      "name": "Set Fallback Response",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        400,
+        1408
+      ]
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "id": "46f48e44-fcac-4230-bb6f-0033ee5b2a11",
+      "name": "Return Fallback Response",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [
+        624,
+        1408
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://localhost:5678/webhook/property-info",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "action",
+              "value": "get_property_policies"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        592,
+        1824
+      ],
+      "id": "83205a3a-2817-4a52-8a18-53d42aa59323",
+      "name": "HTTP Request",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "uvgqyRI1ddaWVLOw",
+          "name": "Jules Pipecat"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1",
+    "availableInMCP": false
+  },
+  "shared": [
+    {
+      "updatedAt": "2025-12-18T22:27:59.020Z",
+      "createdAt": "2025-12-18T22:27:59.020Z",
+      "role": "workflow:owner",
+      "workflowId": "a877BGNXG3QsBPBk",
+      "projectId": "K5c2PqoZjXPELHVa"
+    }
+  ],
+  "staticData": null,
+  "tags": [],
+  "triggerCount": 1,
+  "updatedAt": "2025-12-19T00:04:35.859Z",
+  "versionId": "657268a3-01ee-4099-b584-4e8dc85765ba"
+}
