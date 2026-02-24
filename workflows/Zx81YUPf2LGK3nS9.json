@@ -1,0 +1,547 @@
+{
+  "active": false,
+  "activeVersion": null,
+  "activeVersionId": null,
+  "connections": {
+    "Set Payment Response": {
+      "main": [
+        [
+          {
+            "node": "Return Payment Link",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Stripe Payment": {
+      "main": [
+        [
+          {
+            "node": "Update Payment Status",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set Payment Status": {
+      "main": [
+        [
+          {
+            "node": "Return Payment Status",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set Payment Methods": {
+      "main": [
+        [
+          {
+            "node": "Return Payment Methods",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check Payment Action": {
+      "main": [
+        [
+          {
+            "node": "Set Payment Methods",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Get Tenant Info",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Payment Webhook Trigger": {
+      "main": [
+        [
+          {
+            "node": "Check Payment Action",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Tenant Info": {
+      "main": [
+        [
+          {
+            "node": "Get Payment History",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Payment History": {
+      "main": [
+        [
+          {
+            "node": "Get Recent Charges",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Recent Charges": {
+      "main": [
+        [
+          {
+            "node": "Set Payment Status",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Payment Record": {
+      "main": [
+        [
+          {
+            "node": "Create Stripe Payment",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update Payment Status": {
+      "main": [
+        [
+          {
+            "node": "Set Payment Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "createdAt": "2025-12-18T22:13:00.710Z",
+  "id": "Zx81YUPf2LGK3nS9",
+  "isArchived": false,
+  "meta": null,
+  "name": "Payment Processing Webhook",
+  "nodes": [
+    {
+      "parameters": {
+        "options": {}
+      },
+      "id": "49640b39-3ce0-465a-a159-94325335461f",
+      "name": "Return Payment Link",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [
+        736,
+        320
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "076b389c-9198-4f4f-9edf-3b6dc00ff03f",
+              "name": "payment_url",
+              "value": "={{ $('Create Stripe Payment').item.json.next_action ? $('Create Stripe Payment').item.json.next_action.redirect_to_url.url : $('Create Stripe Payment').item.json.client_secret ? 'https://checkout.stripe.com/pay/' + $('Create Stripe Payment').item.json.client_secret : 'https://dashboard.stripe.com/payments/' + $('Create Stripe Payment').item.json.id }}",
+              "type": "string"
+            },
+            {
+              "id": "stripe_payment_id",
+              "name": "payment_id",
+              "value": "={{ $('Create Stripe Payment').item.json.id }}",
+              "type": "string"
+            },
+            {
+              "id": "payment_amount",
+              "name": "amount",
+              "value": "={{ $('Create Payment Record').item.json.amount }}",
+              "type": "number"
+            },
+            {
+              "id": "payment_status",
+              "name": "status",
+              "value": "processing",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "f13b42d6-b467-47b6-a8c9-c507370e52d1",
+      "name": "Set Payment Response",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        528,
+        320
+      ]
+    },
+    {
+      "parameters": {
+        "url": "https://api.stripe.com/v1/payment_intents",
+        "authentication": "generic",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "amount",
+              "value": "={{$('Create Payment Record').item.json.amount * 100}}"
+            },
+            {
+              "name": "currency",
+              "value": "usd"
+            },
+            {
+              "name": "payment_method_types[]",
+              "value": "card"
+            },
+            {
+              "name": "metadata[tenant_id]",
+              "value": "={{$('Create Payment Record').item.json.tenant_id}}"
+            },
+            {
+              "name": "metadata[description]",
+              "value": "={{$('Create Payment Record').item.json.description}}"
+            },
+            {
+              "name": "confirm",
+              "value": "false"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "a8e32224-717d-4f4e-9947-a5c6420342d9",
+      "name": "Create Stripe Payment",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        80,
+        320
+      ]
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "id": "db8c4810-bd87-4ea0-8883-75109e46bfb1",
+      "name": "Return Payment Status",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [
+        736,
+        128
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "251b4bda-e922-4338-b0fd-a5b1381ce741",
+              "name": "payment_history",
+              "value": "={{ $('Get Payment History').item.json }}",
+              "type": "array"
+            },
+            {
+              "id": "recent_charges",
+              "name": "recent_charges",
+              "value": "={{ $('Get Recent Charges').item.json }}",
+              "type": "array"
+            },
+            {
+              "id": "tenant_info",
+              "name": "tenant_info",
+              "value": "={{ $('Get Tenant Info').item.json }}",
+              "type": "object"
+            },
+            {
+              "id": "current_month_paid",
+              "name": "current_month_paid",
+              "value": "={{ $now.format('YYYY-MM') === (new Date($('Get Payment History').item.json[0]?.payment_date || '')).format('YYYY-MM') ? 'Yes' : 'No' }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "5bd89140-ebd1-40fa-85f4-1745260ab89d",
+      "name": "Set Payment Status",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        528,
+        128
+      ]
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "id": "771b0ce7-94f3-4f3a-880f-c3382902fd2b",
+      "name": "Return Payment Methods",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [
+        80,
+        -80
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "payment_methods_list",
+              "name": "available_methods",
+              "value": "online portal, phone payment, automatic bank draft, check/cash at office",
+              "type": "string"
+            },
+            {
+              "id": "portal_url",
+              "name": "online_portal_url",
+              "value": "tenant.jules-ai.com",
+              "type": "string"
+            },
+            {
+              "id": "phone_payment_number",
+              "name": "phone_payment_number",
+              "value": "1-800-JULES-PAY",
+              "type": "string"
+            },
+            {
+              "id": "office_address",
+              "name": "office_address",
+              "value": "123 Jules Management Ave, Business Hours: Mon-Fri 9AM-6PM",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "212389f2-67ca-49f1-8b0a-9368fdce59f4",
+      "name": "Set Payment Methods",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -144,
+        -80
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{$json.action}}",
+              "operation": "equal",
+              "value2": "get_payment_methods"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "697e3da4-983b-48c8-be70-6bbcaae467d4",
+      "name": "Check Payment Action",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        -368,
+        32
+      ]
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "payment",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "0a668380-7de4-46ce-96d0-7a96b176ce75",
+      "name": "Payment Webhook Trigger",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [
+        -592,
+        32
+      ],
+      "webhookId": "payment-webhook"
+    },
+    {
+      "parameters": {
+        "operation": "select",
+        "schema": "public",
+        "table": "tenants",
+        "limit": 1,
+        "where": {
+          "values": [
+            {
+              "column": "id",
+              "value": "={{ $json.tenant_id }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "98a50da9-7fd7-4a52-aa62-42bf03d6c8e5",
+      "name": "Get Tenant Info",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2,
+      "position": [
+        -144,
+        128
+      ],
+      "credentials": {
+        "postgres": {
+          "id": "u7j29OmyHuzkVDfZ",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "select",
+        "schema": "public",
+        "table": "payments",
+        "limit": 12,
+        "where": {
+          "values": [
+            {
+              "column": "tenant_id",
+              "value": "={{ $json.tenant_id }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "183d3c93-a55d-4a9b-b562-89880ed09ae7",
+      "name": "Get Payment History",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2,
+      "position": [
+        64,
+        128
+      ],
+      "credentials": {
+        "postgres": {
+          "id": "u7j29OmyHuzkVDfZ",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "select",
+        "schema": "public",
+        "table": "payments",
+        "limit": 5,
+        "where": {
+          "values": [
+            {
+              "column": "tenant_id",
+              "value": "={{ $json.tenant_id }}"
+            },
+            {
+              "column": "status",
+              "condition": "!=",
+              "value": "completed"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "389d7ce6-cb37-4525-8b33-f28de7561ed8",
+      "name": "Get Recent Charges",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2,
+      "position": [
+        288,
+        128
+      ],
+      "credentials": {
+        "postgres": {
+          "id": "u7j29OmyHuzkVDfZ",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "schema": "public",
+        "table": "payments",
+        "options": {}
+      },
+      "id": "706d18ea-fed6-40cf-b3e1-274405172e78",
+      "name": "Create Payment Record",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2,
+      "position": [
+        -144,
+        320
+      ],
+      "credentials": {
+        "postgres": {
+          "id": "u7j29OmyHuzkVDfZ",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "schema": "public",
+        "table": "payments",
+        "options": {}
+      },
+      "id": "d7677bfe-b668-4d3c-a05d-aac766848f2e",
+      "name": "Update Payment Status",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2,
+      "position": [
+        304,
+        320
+      ],
+      "credentials": {
+        "postgres": {
+          "id": "u7j29OmyHuzkVDfZ",
+          "name": "Postgres account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1",
+    "availableInMCP": false
+  },
+  "shared": [
+    {
+      "updatedAt": "2025-12-18T22:13:00.715Z",
+      "createdAt": "2025-12-18T22:13:00.715Z",
+      "role": "workflow:owner",
+      "workflowId": "Zx81YUPf2LGK3nS9",
+      "projectId": "K5c2PqoZjXPELHVa"
+    }
+  ],
+  "staticData": null,
+  "tags": [],
+  "triggerCount": 0,
+  "updatedAt": "2025-12-18T23:10:57.910Z",
+  "versionId": "d9b63a8c-ff13-4e94-9f91-6777324c89a3"
+}
