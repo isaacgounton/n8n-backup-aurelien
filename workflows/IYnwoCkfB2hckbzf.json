@@ -1,0 +1,1866 @@
+{
+  "active": true,
+  "activeVersion": {
+    "updatedAt": "2025-12-30T03:52:35.000Z",
+    "createdAt": "2025-12-30T03:52:32.384Z",
+    "versionId": "c284a4b8-7d26-4ca5-b9ce-86306073d74c",
+    "workflowId": "IYnwoCkfB2hckbzf",
+    "nodes": [
+      {
+        "parameters": {
+          "inputSource": "passthrough"
+        },
+        "type": "n8n-nodes-base.executeWorkflowTrigger",
+        "typeVersion": 1.1,
+        "position": [
+          768,
+          224
+        ],
+        "id": "aa4f20b1-2050-4084-8710-fead3ae460bd",
+        "name": "When Executed by Another Workflow"
+      },
+      {
+        "parameters": {
+          "model": {
+            "__rl": true,
+            "mode": "list",
+            "value": "gpt-4.1-mini"
+          },
+          "responsesApiEnabled": false,
+          "options": {}
+        },
+        "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+        "typeVersion": 1.3,
+        "position": [
+          736,
+          496
+        ],
+        "id": "bc8355e6-4d09-4a91-b654-196dd852af73",
+        "name": "OpenAI Chat Model",
+        "credentials": {
+          "openAiApi": {
+            "id": "vofRqqG7VEHTXxTs",
+            "name": "OpenAi account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "descriptionType": "manual",
+          "toolDescription": "Search work orders by address, tenant name, issue type, status, or priority. Returns matching work order details",
+          "operation": "select",
+          "schema": {
+            "__rl": true,
+            "mode": "list",
+            "value": "public"
+          },
+          "table": {
+            "__rl": true,
+            "value": "work_orders",
+            "mode": "list",
+            "cachedResultName": "work_orders"
+          },
+          "returnAll": true,
+          "where": {
+            "values": [
+              {
+                "column": "address",
+                "condition": "LIKE",
+                "value": "={{ $fromAI('address', 'Property address (partial match)', 'string', '') }}"
+              },
+              {
+                "column": "tenant_name",
+                "condition": "LIKE",
+                "value": "={{ $fromAI('tenant_name', 'Tenant name (partial match)', 'string', '') }}"
+              },
+              {
+                "column": "issue_type",
+                "condition": "LIKE",
+                "value": "={{ $fromAI('issue_type', 'Issue type (partial match)', 'string', '') }}"
+              },
+              {
+                "column": "status",
+                "value": "={{ $fromAI('status', 'Status filter', 'string', '') }}"
+              },
+              {
+                "column": "priority",
+                "value": "={{ $fromAI('priority', 'Priority filter', 'string', '') }}"
+              }
+            ]
+          },
+          "combineConditions": "OR",
+          "options": {}
+        },
+        "id": "66469ed0-1bf9-4c84-9e97-7e8edfb9c3a0",
+        "name": "Search work orders",
+        "type": "n8n-nodes-base.postgresTool",
+        "typeVersion": 2.6,
+        "position": [
+          880,
+          496
+        ],
+        "credentials": {
+          "postgres": {
+            "id": "u7j29OmyHuzkVDfZ",
+            "name": "Postgres account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "descriptionType": "manual",
+          "toolDescription": "List all work orders from the database. Returns up to 20 work orders with all details including status, priority, dates, and costs",
+          "operation": "select",
+          "schema": {
+            "__rl": true,
+            "mode": "list",
+            "value": "public"
+          },
+          "table": {
+            "__rl": true,
+            "value": "work_orders",
+            "mode": "list",
+            "cachedResultName": "work_orders"
+          },
+          "limit": 20,
+          "options": {}
+        },
+        "id": "6c23b746-5076-4622-ab54-daad135647d6",
+        "name": "List all work orders",
+        "type": "n8n-nodes-base.postgresTool",
+        "typeVersion": 2.6,
+        "position": [
+          1040,
+          496
+        ],
+        "credentials": {
+          "postgres": {
+            "id": "u7j29OmyHuzkVDfZ",
+            "name": "Postgres account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "descriptionType": "manual",
+          "toolDescription": "Create a new work order with property maintenance details. Required: address, tenant_name, issue_type, description. Optional: priority, status, contractor, cost, notes",
+          "schema": {
+            "__rl": true,
+            "mode": "list",
+            "value": "public"
+          },
+          "table": {
+            "__rl": true,
+            "value": "work_orders",
+            "mode": "list",
+            "cachedResultName": "work_orders"
+          },
+          "columns": {
+            "mappingMode": "defineBelow",
+            "value": {
+              "address": "={{ $fromAI('address', 'Property address', 'string') }}",
+              "tenant_name": "={{ $fromAI('tenant_name', 'Tenant full name', 'string') }}",
+              "issue_type": "={{ $fromAI('issue_type', 'Type of maintenance issue', 'string') }}",
+              "description": "={{ $fromAI('description', 'Detailed issue description', 'string') }}",
+              "priority": "={{ $fromAI('priority', 'Priority: LOW, MEDIUM, HIGH, or URGENT', 'string', 'MEDIUM') }}",
+              "status": "={{ $fromAI('status', 'Status: PENDING, IN_PROGRESS, COMPLETED, CANCELLED, ON_HOLD', 'string', 'PENDING') }}",
+              "contractor": "={{ $fromAI('contractor', 'Contractor name', 'string', '') }}",
+              "cost": "={{ $fromAI('cost', 'Cost in cents', 'number', 0) }}",
+              "notes": "={{ $fromAI('notes', 'Additional notes', 'string', '') }}",
+              "troubleshooting_steps": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('troubleshooting_steps', ``, 'json') }}",
+              "date": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('date', ``, 'string') }}"
+            },
+            "matchingColumns": [
+              "id"
+            ],
+            "schema": [
+              {
+                "id": "id",
+                "displayName": "id",
+                "required": false,
+                "defaultMatch": true,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true,
+                "removed": true
+              },
+              {
+                "id": "date",
+                "displayName": "date",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "dateTime",
+                "canBeUsedToMatch": true,
+                "removed": false
+              },
+              {
+                "id": "address",
+                "displayName": "address",
+                "required": true,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true,
+                "removed": false
+              },
+              {
+                "id": "tenant_name",
+                "displayName": "tenant_name",
+                "required": true,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true,
+                "removed": false
+              },
+              {
+                "id": "issue_type",
+                "displayName": "issue_type",
+                "required": true,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true,
+                "removed": false
+              },
+              {
+                "id": "status",
+                "displayName": "status",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "options",
+                "canBeUsedToMatch": true,
+                "options": [
+                  {
+                    "name": "ON_HOLD",
+                    "value": "ON_HOLD"
+                  },
+                  {
+                    "name": "CANCELLED",
+                    "value": "CANCELLED"
+                  },
+                  {
+                    "name": "COMPLETED",
+                    "value": "COMPLETED"
+                  },
+                  {
+                    "name": "IN_PROGRESS",
+                    "value": "IN_PROGRESS"
+                  },
+                  {
+                    "name": "PENDING",
+                    "value": "PENDING"
+                  }
+                ],
+                "removed": false
+              },
+              {
+                "id": "priority",
+                "displayName": "priority",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "options",
+                "canBeUsedToMatch": true,
+                "options": [
+                  {
+                    "name": "URGENT",
+                    "value": "URGENT"
+                  },
+                  {
+                    "name": "HIGH",
+                    "value": "HIGH"
+                  },
+                  {
+                    "name": "MEDIUM",
+                    "value": "MEDIUM"
+                  },
+                  {
+                    "name": "LOW",
+                    "value": "LOW"
+                  }
+                ],
+                "removed": false
+              },
+              {
+                "id": "description",
+                "displayName": "description",
+                "required": true,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true,
+                "removed": false
+              },
+              {
+                "id": "contractor",
+                "displayName": "contractor",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true,
+                "removed": true
+              },
+              {
+                "id": "contractor_contact",
+                "displayName": "contractor_contact",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true,
+                "removed": true
+              },
+              {
+                "id": "cost",
+                "displayName": "cost",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "number",
+                "canBeUsedToMatch": true,
+                "removed": true
+              },
+              {
+                "id": "notes",
+                "displayName": "notes",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true,
+                "removed": false
+              },
+              {
+                "id": "media_attachments",
+                "displayName": "media_attachments",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "object",
+                "canBeUsedToMatch": true,
+                "removed": true
+              },
+              {
+                "id": "troubleshooting_steps",
+                "displayName": "troubleshooting_steps",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "object",
+                "canBeUsedToMatch": true,
+                "removed": false
+              },
+              {
+                "id": "resolution_summary",
+                "displayName": "resolution_summary",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true,
+                "removed": true
+              },
+              {
+                "id": "estimated_completion",
+                "displayName": "estimated_completion",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "dateTime",
+                "canBeUsedToMatch": true,
+                "removed": true
+              },
+              {
+                "id": "completed_at",
+                "displayName": "completed_at",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "dateTime",
+                "canBeUsedToMatch": true,
+                "removed": true
+              },
+              {
+                "id": "tenant_id",
+                "displayName": "tenant_id",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true,
+                "removed": true
+              },
+              {
+                "id": "created_at",
+                "displayName": "created_at",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "dateTime",
+                "canBeUsedToMatch": true,
+                "removed": true
+              },
+              {
+                "id": "updated_at",
+                "displayName": "updated_at",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "dateTime",
+                "canBeUsedToMatch": true,
+                "removed": true
+              }
+            ],
+            "attemptToConvertTypes": false,
+            "convertFieldsToString": false
+          },
+          "options": {}
+        },
+        "id": "18deee1d-f71c-4937-acc7-9365ffb41cf6",
+        "name": "Create a work order",
+        "type": "n8n-nodes-base.postgresTool",
+        "typeVersion": 2.6,
+        "position": [
+          1200,
+          496
+        ],
+        "credentials": {
+          "postgres": {
+            "id": "u7j29OmyHuzkVDfZ",
+            "name": "Postgres account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "descriptionType": "manual",
+          "toolDescription": "Update an existing work order by ID. Provide the work order ID and any fields to update. Only provided fields will be modified",
+          "operation": "update",
+          "schema": {
+            "__rl": true,
+            "mode": "list",
+            "value": "public"
+          },
+          "table": {
+            "__rl": true,
+            "value": "work_orders",
+            "mode": "list",
+            "cachedResultName": "work_orders"
+          },
+          "columns": {
+            "mappingMode": "defineBelow",
+            "value": {
+              "id": "={{ $fromAI('id', 'Work order ID to update', 'string') }}",
+              "address": "={{ $fromAI('address', 'Updated address', 'string', '') }}",
+              "tenant_name": "={{ $fromAI('tenant_name', 'Updated tenant name', 'string', '') }}",
+              "issue_type": "={{ $fromAI('issue_type', 'Updated issue type', 'string', '') }}",
+              "description": "={{ $fromAI('description', 'Updated description', 'string', '') }}",
+              "priority": "={{ $fromAI('priority', 'Updated priority', 'string', '') }}",
+              "status": "={{ $fromAI('status', 'Updated status', 'string', '') }}",
+              "contractor": "={{ $fromAI('contractor', 'Updated contractor', 'string', '') }}",
+              "contractor_contact": "={{ $fromAI('contractor_contact', 'Updated contractor contact', 'string', '') }}",
+              "cost": "={{ $fromAI('cost', 'Updated cost in cents', 'number', 0) }}",
+              "resolution_summary": "={{ $fromAI('resolution_summary', 'Resolution summary', 'string', '') }}",
+              "estimated_completion": "={{ $fromAI('estimated_completion', 'Estimated completion date', 'string', '') }}",
+              "completed_at": "={{ $fromAI('completed_at', 'Completion date', 'string', '') }}",
+              "date": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('date', ``, 'string') }}"
+            },
+            "matchingColumns": [
+              "id"
+            ],
+            "schema": [
+              {
+                "id": "id",
+                "displayName": "id",
+                "required": false,
+                "defaultMatch": true,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true,
+                "removed": false
+              },
+              {
+                "id": "date",
+                "displayName": "date",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "dateTime",
+                "canBeUsedToMatch": true,
+                "removed": false
+              },
+              {
+                "id": "address",
+                "displayName": "address",
+                "required": true,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true
+              },
+              {
+                "id": "tenant_name",
+                "displayName": "tenant_name",
+                "required": true,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true,
+                "removed": false
+              },
+              {
+                "id": "issue_type",
+                "displayName": "issue_type",
+                "required": true,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true,
+                "removed": false
+              },
+              {
+                "id": "status",
+                "displayName": "status",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "options",
+                "canBeUsedToMatch": true,
+                "options": [
+                  {
+                    "name": "ON_HOLD",
+                    "value": "ON_HOLD"
+                  },
+                  {
+                    "name": "CANCELLED",
+                    "value": "CANCELLED"
+                  },
+                  {
+                    "name": "COMPLETED",
+                    "value": "COMPLETED"
+                  },
+                  {
+                    "name": "IN_PROGRESS",
+                    "value": "IN_PROGRESS"
+                  },
+                  {
+                    "name": "PENDING",
+                    "value": "PENDING"
+                  }
+                ],
+                "removed": false
+              },
+              {
+                "id": "priority",
+                "displayName": "priority",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "options",
+                "canBeUsedToMatch": true,
+                "options": [
+                  {
+                    "name": "URGENT",
+                    "value": "URGENT"
+                  },
+                  {
+                    "name": "HIGH",
+                    "value": "HIGH"
+                  },
+                  {
+                    "name": "MEDIUM",
+                    "value": "MEDIUM"
+                  },
+                  {
+                    "name": "LOW",
+                    "value": "LOW"
+                  }
+                ],
+                "removed": true
+              },
+              {
+                "id": "description",
+                "displayName": "description",
+                "required": true,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true
+              },
+              {
+                "id": "contractor",
+                "displayName": "contractor",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true,
+                "removed": false
+              },
+              {
+                "id": "contractor_contact",
+                "displayName": "contractor_contact",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true,
+                "removed": false
+              },
+              {
+                "id": "cost",
+                "displayName": "cost",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "number",
+                "canBeUsedToMatch": true,
+                "removed": false
+              },
+              {
+                "id": "notes",
+                "displayName": "notes",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true,
+                "removed": true
+              },
+              {
+                "id": "media_attachments",
+                "displayName": "media_attachments",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "object",
+                "canBeUsedToMatch": true,
+                "removed": true
+              },
+              {
+                "id": "troubleshooting_steps",
+                "displayName": "troubleshooting_steps",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "object",
+                "canBeUsedToMatch": true,
+                "removed": true
+              },
+              {
+                "id": "resolution_summary",
+                "displayName": "resolution_summary",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true,
+                "removed": false
+              },
+              {
+                "id": "estimated_completion",
+                "displayName": "estimated_completion",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "dateTime",
+                "canBeUsedToMatch": true,
+                "removed": false
+              },
+              {
+                "id": "completed_at",
+                "displayName": "completed_at",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "dateTime",
+                "canBeUsedToMatch": true,
+                "removed": false
+              },
+              {
+                "id": "tenant_id",
+                "displayName": "tenant_id",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true,
+                "removed": true
+              },
+              {
+                "id": "created_at",
+                "displayName": "created_at",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "dateTime",
+                "canBeUsedToMatch": true,
+                "removed": true
+              },
+              {
+                "id": "updated_at",
+                "displayName": "updated_at",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "dateTime",
+                "canBeUsedToMatch": true,
+                "removed": true
+              }
+            ],
+            "attemptToConvertTypes": false,
+            "convertFieldsToString": false
+          },
+          "options": {}
+        },
+        "id": "2c1792a1-4fa2-4f89-baab-922027b87096",
+        "name": "Update a work order",
+        "type": "n8n-nodes-base.postgresTool",
+        "typeVersion": 2.6,
+        "position": [
+          1344,
+          496
+        ],
+        "credentials": {
+          "postgres": {
+            "id": "u7j29OmyHuzkVDfZ",
+            "name": "Postgres account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "descriptionType": "manual",
+          "toolDescription": "Delete a work order by ID. This action is permanent and cannot be undone",
+          "operation": "deleteTable",
+          "schema": {
+            "__rl": true,
+            "mode": "list",
+            "value": "public"
+          },
+          "table": {
+            "__rl": true,
+            "value": "work_orders",
+            "mode": "list",
+            "cachedResultName": "work_orders"
+          },
+          "deleteCommand": "delete",
+          "where": {
+            "values": [
+              {
+                "column": "id",
+                "value": "={{ $fromAI('id', 'Work order ID to delete', 'string') }}"
+              }
+            ]
+          },
+          "options": {}
+        },
+        "id": "5742fa87-14cc-4a3f-a701-3813d27a2d4f",
+        "name": "Delete a work order",
+        "type": "n8n-nodes-base.postgresTool",
+        "typeVersion": 2.6,
+        "position": [
+          1488,
+          496
+        ],
+        "credentials": {
+          "postgres": {
+            "id": "u7j29OmyHuzkVDfZ",
+            "name": "Postgres account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "promptType": "define",
+          "text": "={{ $json.query }}",
+          "options": {
+            "systemMessage": "=You are a work order management assistant for Jules AI. You manage maintenance work orders with proper data validation and formatting.\n\n**Database Fields:**\n- address (required): Property address\n- tenant_name (required): Tenant full name\n- issue_type (required): Maintenance issue type\n- description (required): Detailed issue description\n- priority: LOW, MEDIUM, HIGH, URGENT (uppercase, default: MEDIUM)\n- status: PENDING, IN_PROGRESS, COMPLETED, CANCELLED, ON_HOLD (uppercase, default: PENDING)\n- contractor: Contractor name\n- contractor_contact: Contractor contact info\n- cost: Cost in cents (multiply dollars by 100)\n- notes: Additional notes\n- resolution_summary: Work completion summary\n- estimated_completion: Estimated completion date (ISO format)\n- completed_at: Actual completion date (ISO format)\n\n**Critical Rules:**\n- Priority and status MUST be uppercase enum values\n- Cost stored in cents: $125.50 = 12550 cents\n- Dates in ISO format: YYYY-MM-DDTHH:MM:SS\n- Auto-set completed_at when status changes to COMPLETED\n\n**Operations:**\n- Search: Find by address, tenant, issue type, status, or priority\n- List: Get all work orders (max 20)\n- Create: New work order with required fields\n- Update: Modify existing work order by ID\n- Delete: Remove work order by ID (permanent)\n\n**Priority Levels:**\n- LOW: Non-urgent cosmetic issues\n- MEDIUM: Standard maintenance\n- HIGH: Major system failures\n- URGENT: Emergency, safety hazards\n\n**Status Flow:**\nPENDING → IN_PROGRESS → COMPLETED\n         ↓ ON_HOLD ↑\n         ↓ CANCELLED\n\n**Response Format:**\n- Confirm operations with work order ID and key details\n- Show costs in dollars even though stored in cents\n- Display dates in readable format\n- Report validation errors with specific field names\n- For searches, return matches with status and priority"
+          }
+        },
+        "type": "@n8n/n8n-nodes-langchain.agent",
+        "typeVersion": 3.1,
+        "position": [
+          960,
+          224
+        ],
+        "id": "44251545-31c7-4cf5-8374-b3e6dca40bbe",
+        "name": "AI Agent"
+      },
+      {
+        "parameters": {
+          "httpMethod": "POST",
+          "path": "work_orders",
+          "authentication": "headerAuth",
+          "responseMode": "responseNode",
+          "options": {}
+        },
+        "type": "n8n-nodes-base.webhook",
+        "typeVersion": 2.1,
+        "position": [
+          240,
+          256
+        ],
+        "id": "23e37721-1201-4753-9ac2-d486117b0b7c",
+        "name": "Webhook",
+        "webhookId": "00af02e4-9150-4ca4-92b3-6ca06cafc8a5",
+        "credentials": {
+          "httpHeaderAuth": {
+            "id": "0HuFZThSVNVITvy8",
+            "name": "Jules Livekit"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "options": {}
+        },
+        "type": "n8n-nodes-base.respondToWebhook",
+        "typeVersion": 1.5,
+        "position": [
+          1504,
+          224
+        ],
+        "id": "35e7f62b-6a3c-408c-8402-4cc65c9e1f35",
+        "name": "Respond to Webhook"
+      }
+    ],
+    "connections": {
+      "When Executed by Another Workflow": {
+        "main": [
+          [
+            {
+              "node": "AI Agent",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "OpenAI Chat Model": {
+        "ai_languageModel": [
+          [
+            {
+              "node": "AI Agent",
+              "type": "ai_languageModel",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Search work orders": {
+        "ai_tool": [
+          [
+            {
+              "node": "AI Agent",
+              "type": "ai_tool",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "List all work orders": {
+        "ai_tool": [
+          [
+            {
+              "node": "AI Agent",
+              "type": "ai_tool",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Create a work order": {
+        "ai_tool": [
+          [
+            {
+              "node": "AI Agent",
+              "type": "ai_tool",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Update a work order": {
+        "ai_tool": [
+          [
+            {
+              "node": "AI Agent",
+              "type": "ai_tool",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Delete a work order": {
+        "ai_tool": [
+          [
+            {
+              "node": "AI Agent",
+              "type": "ai_tool",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Webhook": {
+        "main": [
+          []
+        ]
+      },
+      "AI Agent": {
+        "main": [
+          []
+        ]
+      }
+    },
+    "authors": "Aurelien Bonin",
+    "name": "Version c284a4b8",
+    "description": "",
+    "autosaved": false
+  },
+  "activeVersionId": "c284a4b8-7d26-4ca5-b9ce-86306073d74c",
+  "connections": {
+    "When Executed by Another Workflow": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Search work orders": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "List all work orders": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create a work order": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update a work order": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Delete a work order": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook": {
+      "main": [
+        []
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        []
+      ]
+    }
+  },
+  "createdAt": "2025-12-17T03:09:03.991Z",
+  "id": "IYnwoCkfB2hckbzf",
+  "isArchived": false,
+  "meta": {
+    "templateCredsSetupCompleted": true
+  },
+  "name": "Work orders",
+  "nodes": [
+    {
+      "parameters": {
+        "inputSource": "passthrough"
+      },
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        768,
+        224
+      ],
+      "id": "aa4f20b1-2050-4084-8710-fead3ae460bd",
+      "name": "When Executed by Another Workflow"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4.1-mini"
+        },
+        "responsesApiEnabled": false,
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        736,
+        496
+      ],
+      "id": "bc8355e6-4d09-4a91-b654-196dd852af73",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "vofRqqG7VEHTXxTs",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "descriptionType": "manual",
+        "toolDescription": "Search work orders by address, tenant name, issue type, status, or priority. Returns matching work order details",
+        "operation": "select",
+        "schema": {
+          "__rl": true,
+          "mode": "list",
+          "value": "public"
+        },
+        "table": {
+          "__rl": true,
+          "value": "work_orders",
+          "mode": "list",
+          "cachedResultName": "work_orders"
+        },
+        "returnAll": true,
+        "where": {
+          "values": [
+            {
+              "column": "address",
+              "condition": "LIKE",
+              "value": "={{ $fromAI('address', 'Property address (partial match)', 'string', '') }}"
+            },
+            {
+              "column": "tenant_name",
+              "condition": "LIKE",
+              "value": "={{ $fromAI('tenant_name', 'Tenant name (partial match)', 'string', '') }}"
+            },
+            {
+              "column": "issue_type",
+              "condition": "LIKE",
+              "value": "={{ $fromAI('issue_type', 'Issue type (partial match)', 'string', '') }}"
+            },
+            {
+              "column": "status",
+              "value": "={{ $fromAI('status', 'Status filter', 'string', '') }}"
+            },
+            {
+              "column": "priority",
+              "value": "={{ $fromAI('priority', 'Priority filter', 'string', '') }}"
+            }
+          ]
+        },
+        "combineConditions": "OR",
+        "options": {}
+      },
+      "id": "66469ed0-1bf9-4c84-9e97-7e8edfb9c3a0",
+      "name": "Search work orders",
+      "type": "n8n-nodes-base.postgresTool",
+      "typeVersion": 2.6,
+      "position": [
+        880,
+        496
+      ],
+      "credentials": {
+        "postgres": {
+          "id": "u7j29OmyHuzkVDfZ",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "descriptionType": "manual",
+        "toolDescription": "List all work orders from the database. Returns up to 20 work orders with all details including status, priority, dates, and costs",
+        "operation": "select",
+        "schema": {
+          "__rl": true,
+          "mode": "list",
+          "value": "public"
+        },
+        "table": {
+          "__rl": true,
+          "value": "work_orders",
+          "mode": "list",
+          "cachedResultName": "work_orders"
+        },
+        "limit": 20,
+        "options": {}
+      },
+      "id": "6c23b746-5076-4622-ab54-daad135647d6",
+      "name": "List all work orders",
+      "type": "n8n-nodes-base.postgresTool",
+      "typeVersion": 2.6,
+      "position": [
+        1040,
+        496
+      ],
+      "credentials": {
+        "postgres": {
+          "id": "u7j29OmyHuzkVDfZ",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "descriptionType": "manual",
+        "toolDescription": "Create a new work order with property maintenance details. Required: address, tenant_name, issue_type, description. Optional: priority, status, contractor, cost, notes",
+        "schema": {
+          "__rl": true,
+          "mode": "list",
+          "value": "public"
+        },
+        "table": {
+          "__rl": true,
+          "value": "work_orders",
+          "mode": "list",
+          "cachedResultName": "work_orders"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "address": "={{ $fromAI('address', 'Property address', 'string') }}",
+            "tenant_name": "={{ $fromAI('tenant_name', 'Tenant full name', 'string') }}",
+            "issue_type": "={{ $fromAI('issue_type', 'Type of maintenance issue', 'string') }}",
+            "description": "={{ $fromAI('description', 'Detailed issue description', 'string') }}",
+            "priority": "={{ $fromAI('priority', 'Priority: LOW, MEDIUM, HIGH, or URGENT', 'string', 'MEDIUM') }}",
+            "status": "={{ $fromAI('status', 'Status: PENDING, IN_PROGRESS, COMPLETED, CANCELLED, ON_HOLD', 'string', 'PENDING') }}",
+            "contractor": "={{ $fromAI('contractor', 'Contractor name', 'string', '') }}",
+            "cost": "={{ $fromAI('cost', 'Cost in cents', 'number', 0) }}",
+            "notes": "={{ $fromAI('notes', 'Additional notes', 'string', '') }}",
+            "troubleshooting_steps": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('troubleshooting_steps', ``, 'json') }}",
+            "date": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('date', ``, 'string') }}"
+          },
+          "matchingColumns": [
+            "id"
+          ],
+          "schema": [
+            {
+              "id": "id",
+              "displayName": "id",
+              "required": false,
+              "defaultMatch": true,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "date",
+              "displayName": "date",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "dateTime",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "address",
+              "displayName": "address",
+              "required": true,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "tenant_name",
+              "displayName": "tenant_name",
+              "required": true,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "issue_type",
+              "displayName": "issue_type",
+              "required": true,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "status",
+              "displayName": "status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "options",
+              "canBeUsedToMatch": true,
+              "options": [
+                {
+                  "name": "ON_HOLD",
+                  "value": "ON_HOLD"
+                },
+                {
+                  "name": "CANCELLED",
+                  "value": "CANCELLED"
+                },
+                {
+                  "name": "COMPLETED",
+                  "value": "COMPLETED"
+                },
+                {
+                  "name": "IN_PROGRESS",
+                  "value": "IN_PROGRESS"
+                },
+                {
+                  "name": "PENDING",
+                  "value": "PENDING"
+                }
+              ],
+              "removed": false
+            },
+            {
+              "id": "priority",
+              "displayName": "priority",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "options",
+              "canBeUsedToMatch": true,
+              "options": [
+                {
+                  "name": "URGENT",
+                  "value": "URGENT"
+                },
+                {
+                  "name": "HIGH",
+                  "value": "HIGH"
+                },
+                {
+                  "name": "MEDIUM",
+                  "value": "MEDIUM"
+                },
+                {
+                  "name": "LOW",
+                  "value": "LOW"
+                }
+              ],
+              "removed": false
+            },
+            {
+              "id": "description",
+              "displayName": "description",
+              "required": true,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "contractor",
+              "displayName": "contractor",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "contractor_contact",
+              "displayName": "contractor_contact",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "cost",
+              "displayName": "cost",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "notes",
+              "displayName": "notes",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "media_attachments",
+              "displayName": "media_attachments",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "object",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "troubleshooting_steps",
+              "displayName": "troubleshooting_steps",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "object",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "resolution_summary",
+              "displayName": "resolution_summary",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "estimated_completion",
+              "displayName": "estimated_completion",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "dateTime",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "completed_at",
+              "displayName": "completed_at",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "dateTime",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "tenant_id",
+              "displayName": "tenant_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "created_at",
+              "displayName": "created_at",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "dateTime",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "updated_at",
+              "displayName": "updated_at",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "dateTime",
+              "canBeUsedToMatch": true,
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "id": "18deee1d-f71c-4937-acc7-9365ffb41cf6",
+      "name": "Create a work order",
+      "type": "n8n-nodes-base.postgresTool",
+      "typeVersion": 2.6,
+      "position": [
+        1200,
+        496
+      ],
+      "credentials": {
+        "postgres": {
+          "id": "u7j29OmyHuzkVDfZ",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "descriptionType": "manual",
+        "toolDescription": "Update an existing work order by ID. Provide the work order ID and any fields to update. Only provided fields will be modified",
+        "operation": "update",
+        "schema": {
+          "__rl": true,
+          "mode": "list",
+          "value": "public"
+        },
+        "table": {
+          "__rl": true,
+          "value": "work_orders",
+          "mode": "list",
+          "cachedResultName": "work_orders"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "id": "={{ $fromAI('id', 'Work order ID to update', 'string') }}",
+            "address": "={{ $fromAI('address', 'Updated address', 'string', '') }}",
+            "tenant_name": "={{ $fromAI('tenant_name', 'Updated tenant name', 'string', '') }}",
+            "issue_type": "={{ $fromAI('issue_type', 'Updated issue type', 'string', '') }}",
+            "description": "={{ $fromAI('description', 'Updated description', 'string', '') }}",
+            "priority": "={{ $fromAI('priority', 'Updated priority', 'string', '') }}",
+            "status": "={{ $fromAI('status', 'Updated status', 'string', '') }}",
+            "contractor": "={{ $fromAI('contractor', 'Updated contractor', 'string', '') }}",
+            "contractor_contact": "={{ $fromAI('contractor_contact', 'Updated contractor contact', 'string', '') }}",
+            "cost": "={{ $fromAI('cost', 'Updated cost in cents', 'number', 0) }}",
+            "resolution_summary": "={{ $fromAI('resolution_summary', 'Resolution summary', 'string', '') }}",
+            "estimated_completion": "={{ $fromAI('estimated_completion', 'Estimated completion date', 'string', '') }}",
+            "completed_at": "={{ $fromAI('completed_at', 'Completion date', 'string', '') }}",
+            "date": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('date', ``, 'string') }}"
+          },
+          "matchingColumns": [
+            "id"
+          ],
+          "schema": [
+            {
+              "id": "id",
+              "displayName": "id",
+              "required": false,
+              "defaultMatch": true,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "date",
+              "displayName": "date",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "dateTime",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "address",
+              "displayName": "address",
+              "required": true,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "tenant_name",
+              "displayName": "tenant_name",
+              "required": true,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "issue_type",
+              "displayName": "issue_type",
+              "required": true,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "status",
+              "displayName": "status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "options",
+              "canBeUsedToMatch": true,
+              "options": [
+                {
+                  "name": "ON_HOLD",
+                  "value": "ON_HOLD"
+                },
+                {
+                  "name": "CANCELLED",
+                  "value": "CANCELLED"
+                },
+                {
+                  "name": "COMPLETED",
+                  "value": "COMPLETED"
+                },
+                {
+                  "name": "IN_PROGRESS",
+                  "value": "IN_PROGRESS"
+                },
+                {
+                  "name": "PENDING",
+                  "value": "PENDING"
+                }
+              ],
+              "removed": false
+            },
+            {
+              "id": "priority",
+              "displayName": "priority",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "options",
+              "canBeUsedToMatch": true,
+              "options": [
+                {
+                  "name": "URGENT",
+                  "value": "URGENT"
+                },
+                {
+                  "name": "HIGH",
+                  "value": "HIGH"
+                },
+                {
+                  "name": "MEDIUM",
+                  "value": "MEDIUM"
+                },
+                {
+                  "name": "LOW",
+                  "value": "LOW"
+                }
+              ],
+              "removed": true
+            },
+            {
+              "id": "description",
+              "displayName": "description",
+              "required": true,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "contractor",
+              "displayName": "contractor",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "contractor_contact",
+              "displayName": "contractor_contact",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "cost",
+              "displayName": "cost",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "notes",
+              "displayName": "notes",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "media_attachments",
+              "displayName": "media_attachments",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "object",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "troubleshooting_steps",
+              "displayName": "troubleshooting_steps",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "object",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "resolution_summary",
+              "displayName": "resolution_summary",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "estimated_completion",
+              "displayName": "estimated_completion",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "dateTime",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "completed_at",
+              "displayName": "completed_at",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "dateTime",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "tenant_id",
+              "displayName": "tenant_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "created_at",
+              "displayName": "created_at",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "dateTime",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "updated_at",
+              "displayName": "updated_at",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "dateTime",
+              "canBeUsedToMatch": true,
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "id": "2c1792a1-4fa2-4f89-baab-922027b87096",
+      "name": "Update a work order",
+      "type": "n8n-nodes-base.postgresTool",
+      "typeVersion": 2.6,
+      "position": [
+        1344,
+        496
+      ],
+      "credentials": {
+        "postgres": {
+          "id": "u7j29OmyHuzkVDfZ",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "descriptionType": "manual",
+        "toolDescription": "Delete a work order by ID. This action is permanent and cannot be undone",
+        "operation": "deleteTable",
+        "schema": {
+          "__rl": true,
+          "mode": "list",
+          "value": "public"
+        },
+        "table": {
+          "__rl": true,
+          "value": "work_orders",
+          "mode": "list",
+          "cachedResultName": "work_orders"
+        },
+        "deleteCommand": "delete",
+        "where": {
+          "values": [
+            {
+              "column": "id",
+              "value": "={{ $fromAI('id', 'Work order ID to delete', 'string') }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "5742fa87-14cc-4a3f-a701-3813d27a2d4f",
+      "name": "Delete a work order",
+      "type": "n8n-nodes-base.postgresTool",
+      "typeVersion": 2.6,
+      "position": [
+        1488,
+        496
+      ],
+      "credentials": {
+        "postgres": {
+          "id": "u7j29OmyHuzkVDfZ",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.query }}",
+        "options": {
+          "systemMessage": "=You are a work order management assistant for Jules AI. You manage maintenance work orders with proper data validation and formatting.\n\n**Database Fields:**\n- address (required): Property address\n- tenant_name (required): Tenant full name\n- issue_type (required): Maintenance issue type\n- description (required): Detailed issue description\n- priority: LOW, MEDIUM, HIGH, URGENT (uppercase, default: MEDIUM)\n- status: PENDING, IN_PROGRESS, COMPLETED, CANCELLED, ON_HOLD (uppercase, default: PENDING)\n- contractor: Contractor name\n- contractor_contact: Contractor contact info\n- cost: Cost in cents (multiply dollars by 100)\n- notes: Additional notes\n- resolution_summary: Work completion summary\n- estimated_completion: Estimated completion date (ISO format)\n- completed_at: Actual completion date (ISO format)\n\n**Critical Rules:**\n- Priority and status MUST be uppercase enum values\n- Cost stored in cents: $125.50 = 12550 cents\n- Dates in ISO format: YYYY-MM-DDTHH:MM:SS\n- Auto-set completed_at when status changes to COMPLETED\n\n**Operations:**\n- Search: Find by address, tenant, issue type, status, or priority\n- List: Get all work orders (max 20)\n- Create: New work order with required fields\n- Update: Modify existing work order by ID\n- Delete: Remove work order by ID (permanent)\n\n**Priority Levels:**\n- LOW: Non-urgent cosmetic issues\n- MEDIUM: Standard maintenance\n- HIGH: Major system failures\n- URGENT: Emergency, safety hazards\n\n**Status Flow:**\nPENDING → IN_PROGRESS → COMPLETED\n         ↓ ON_HOLD ↑\n         ↓ CANCELLED\n\n**Response Format:**\n- Confirm operations with work order ID and key details\n- Show costs in dollars even though stored in cents\n- Display dates in readable format\n- Report validation errors with specific field names\n- For searches, return matches with status and priority"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        960,
+        224
+      ],
+      "id": "44251545-31c7-4cf5-8374-b3e6dca40bbe",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "work_orders",
+        "authentication": "headerAuth",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        240,
+        256
+      ],
+      "id": "23e37721-1201-4753-9ac2-d486117b0b7c",
+      "name": "Webhook",
+      "webhookId": "00af02e4-9150-4ca4-92b3-6ca06cafc8a5",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "0HuFZThSVNVITvy8",
+          "name": "Jules Livekit"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        1504,
+        224
+      ],
+      "id": "35e7f62b-6a3c-408c-8402-4cc65c9e1f35",
+      "name": "Respond to Webhook"
+    }
+  ],
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1",
+    "availableInMCP": false
+  },
+  "shared": [
+    {
+      "updatedAt": "2025-12-17T03:09:03.995Z",
+      "createdAt": "2025-12-17T03:09:03.995Z",
+      "role": "workflow:owner",
+      "workflowId": "IYnwoCkfB2hckbzf",
+      "projectId": "K5c2PqoZjXPELHVa"
+    }
+  ],
+  "staticData": null,
+  "tags": [],
+  "triggerCount": 1,
+  "updatedAt": "2025-12-30T03:52:32.383Z",
+  "versionId": "c284a4b8-7d26-4ca5-b9ce-86306073d74c"
+}
