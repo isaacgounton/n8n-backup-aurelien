@@ -1,0 +1,56 @@
+{
+  "active": false,
+  "activeVersion": null,
+  "activeVersionId": null,
+  "connections": {},
+  "createdAt": "2025-12-18T00:07:19.601Z",
+  "id": "DTEQG17TbA1vGqy7",
+  "isArchived": false,
+  "meta": {
+    "templateCredsSetupCompleted": true
+  },
+  "name": "Pipecat Workorder",
+  "nodes": [
+    {
+      "parameters": {
+        "path": "work-order-old",
+        "authentication": "headerAuth",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "72b659fd-5ca2-414b-909f-2b87640921f7",
+      "name": "Webhook",
+      "webhookId": "21a1b06a-a242-4d31-94e2-f0dd6fa21ab6",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "uvgqyRI1ddaWVLOw",
+          "name": "Jules Pipecat"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1",
+    "availableInMCP": false
+  },
+  "shared": [
+    {
+      "updatedAt": "2025-12-18T00:07:19.602Z",
+      "createdAt": "2025-12-18T00:07:19.602Z",
+      "role": "workflow:owner",
+      "workflowId": "DTEQG17TbA1vGqy7",
+      "projectId": "K5c2PqoZjXPELHVa"
+    }
+  ],
+  "staticData": null,
+  "tags": [],
+  "triggerCount": 1,
+  "updatedAt": "2025-12-18T03:27:53.267Z",
+  "versionId": "5b09147f-0d0c-45f4-93e2-9ca96f5a6608"
+}
