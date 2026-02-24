@@ -1,0 +1,341 @@
+{
+  "active": false,
+  "activeVersion": null,
+  "activeVersionId": null,
+  "connections": {
+    "Conversation Webhook": {
+      "main": [
+        [
+          {
+            "node": "Normalize Input",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Normalize Input": {
+      "main": [
+        [
+          {
+            "node": "Validate Input",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Insert Conversation": {
+      "main": [
+        [
+          {
+            "node": "Set Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Validate Input": {
+      "main": [
+        [
+          {
+            "node": "Insert Conversation",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Error Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set Response": {
+      "main": [
+        [
+          {
+            "node": "Success Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Error Response": {
+      "main": [
+        [
+          {
+            "node": "Success Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "createdAt": "2025-12-18T00:11:26.883Z",
+  "id": "oqst6RXgZo4nDj01",
+  "isArchived": false,
+  "meta": {
+    "templateCredsSetupCompleted": true
+  },
+  "name": "Conversation Logging Webhook",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "conversation",
+        "authentication": "headerAuth",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -384,
+        -272
+      ],
+      "id": "e1b1459b-e81f-405b-affd-a41294df2610",
+      "name": "Conversation Webhook",
+      "webhookId": "conversation-webhook-id",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "uvgqyRI1ddaWVLOw",
+          "name": "Jules Pipecat"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "n1",
+              "name": "session_id",
+              "value": "={{ $json.body.session_id || $json.body.sid || $json.body.session }}",
+              "type": "string"
+            },
+            {
+              "id": "n2",
+              "name": "phone_number",
+              "value": "={{ $json.body.phone_number || $json.body.phone }}",
+              "type": "string"
+            },
+            {
+              "id": "n3",
+              "name": "language",
+              "value": "={{ $json.body.language || 'en' }}",
+              "type": "string"
+            },
+            {
+              "id": "n4",
+              "name": "conversation_summary",
+              "value": "={{ $json.body.conversation_summary || $json.body.summary || '' }}",
+              "type": "string"
+            },
+            {
+              "id": "n5",
+              "name": "duration",
+              "value": "={{ $json.body.duration ? Number($json.body.duration) : null }}",
+              "type": "number"
+            },
+            {
+              "id": "n6",
+              "name": "actions_taken",
+              "value": "={{ $json.body.actions_taken ? (typeof $json.body.actions_taken === 'string' ? JSON.parse($json.body.actions_taken) : $json.body.actions_taken) : [] }}",
+              "type": "json"
+            },
+            {
+              "id": "n7",
+              "name": "timestamp",
+              "value": "={{ $json.body.timestamp || new Date().toISOString() }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -128,
+        -272
+      ],
+      "id": "01a14ec6-4333-4224-bc70-a8ba34ee6591",
+      "name": "Normalize Input"
+    },
+    {
+      "parameters": {
+        "schema": {
+          "__rl": true,
+          "mode": "list",
+          "value": "public"
+        },
+        "table": {
+          "__rl": true,
+          "value": "conversations",
+          "mode": "list",
+          "cachedResultName": "conversations"
+        },
+        "dataMode": "defineBelow",
+        "valuesToSend": {
+          "values": [
+            {
+              "column": "session_id",
+              "value": "={{ $json.session_id }}"
+            },
+            {
+              "column": "phone_number",
+              "value": "={{ $json.phone_number }}"
+            },
+            {
+              "column": "language",
+              "value": "={{ $json.language }}"
+            },
+            {
+              "column": "conversation_summary",
+              "value": "={{ $json.conversation_summary }}"
+            },
+            {
+              "column": "duration",
+              "value": "={{ $json.duration }}"
+            },
+            {
+              "column": "actions_taken",
+              "value": "={{ $json.actions_taken.toJsonString() }}"
+            },
+            {
+              "column": "timestamp",
+              "value": "={{ $json.timestamp }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "c6cd33f3-c8d2-4c02-b5d6-210b69db96f9",
+      "name": "Insert Conversation",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2,
+      "position": [
+        384,
+        -288
+      ],
+      "credentials": {
+        "postgres": {
+          "id": "u7j29OmyHuzkVDfZ",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "respondWith": "allIncomingItems",
+        "options": {}
+      },
+      "id": "b5484727-58b8-44b1-a478-035a48a423d7",
+      "name": "Success Response",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [
+        928,
+        -80
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "5d231ccb-b778-487c-94be-3901fbf8e1a8",
+              "leftValue": "={{ $json.session_id }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEquals",
+                "name": "filter.operator.notEquals"
+              }
+            },
+            {
+              "id": "76023770-f17e-4ddd-a939-1d1323ef77d7",
+              "leftValue": "={{ $json.phone_number }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEquals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        80,
+        -272
+      ],
+      "id": "1c790df4-1eb1-4e54-ac0f-f6692c467b99",
+      "name": "Validate Input"
+    },
+    {
+      "parameters": {
+        "mode": "raw",
+        "jsonOutput": "={{\n  {\n    \"success\": true,\n    \"message\": \"Conversation logged successfully\"\n  }\n}}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        592,
+        -288
+      ],
+      "id": "6697d4b8-eaa3-4627-ad58-faf19c2b643b",
+      "name": "Set Response"
+    },
+    {
+      "parameters": {
+        "mode": "raw",
+        "jsonOutput": "={{ {\"success\": false, \"error\": \"Invalid action specified\", \"received\": $json.body.action} }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        288,
+        -48
+      ],
+      "id": "c5d9af6d-827b-4d3e-b14b-17c537b1ca62",
+      "name": "Error Response"
+    }
+  ],
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1",
+    "availableInMCP": false
+  },
+  "shared": [
+    {
+      "updatedAt": "2025-12-18T00:11:26.886Z",
+      "createdAt": "2025-12-18T00:11:26.886Z",
+      "role": "workflow:owner",
+      "workflowId": "oqst6RXgZo4nDj01",
+      "projectId": "K5c2PqoZjXPELHVa"
+    }
+  ],
+  "staticData": null,
+  "tags": [],
+  "triggerCount": 1,
+  "updatedAt": "2025-12-30T03:14:33.000Z",
+  "versionId": "fcb430df-558f-4e1e-88ed-7fddf13b96e9"
+}
