@@ -1,0 +1,1476 @@
+{
+  "active": true,
+  "activeVersion": {
+    "updatedAt": "2025-12-18T21:34:34.000Z",
+    "createdAt": "2025-12-18T21:34:14.567Z",
+    "versionId": "f05618e5-cccc-4987-b942-f257a9df464b",
+    "workflowId": "yYiLeRzaaNCX34Jv",
+    "nodes": [
+      {
+        "parameters": {
+          "httpMethod": "POST",
+          "path": "viewing",
+          "authentication": "headerAuth",
+          "responseMode": "responseNode",
+          "options": {}
+        },
+        "type": "n8n-nodes-base.webhook",
+        "typeVersion": 2.1,
+        "position": [
+          -560,
+          -96
+        ],
+        "id": "cb3bf198-245e-400e-bd00-c86bcf49b1dc",
+        "name": "Webhook",
+        "webhookId": "4289d04c-6e73-4c72-9e9c-85c6ea5b195c",
+        "credentials": {
+          "httpHeaderAuth": {
+            "id": "uvgqyRI1ddaWVLOw",
+            "name": "Jules Pipecat"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "rules": {
+            "values": [
+              {
+                "conditions": {
+                  "options": {
+                    "caseSensitive": true,
+                    "leftValue": "",
+                    "typeValidation": "strict",
+                    "version": 3
+                  },
+                  "conditions": [
+                    {
+                      "id": "rule-schedule-viewing",
+                      "leftValue": "={{ $json.body.action }}",
+                      "rightValue": "schedule_viewing",
+                      "operator": {
+                        "type": "string",
+                        "operation": "equals"
+                      }
+                    }
+                  ],
+                  "combinator": "and"
+                },
+                "renameOutput": true,
+                "outputKey": "schedule_viewing"
+              },
+              {
+                "conditions": {
+                  "options": {
+                    "caseSensitive": true,
+                    "leftValue": "",
+                    "typeValidation": "strict",
+                    "version": 3
+                  },
+                  "conditions": [
+                    {
+                      "id": "rule-get-viewings",
+                      "leftValue": "={{ $json.body.action }}",
+                      "rightValue": "get_tenant_viewings",
+                      "operator": {
+                        "type": "string",
+                        "operation": "equals"
+                      }
+                    }
+                  ],
+                  "combinator": "and"
+                },
+                "renameOutput": true,
+                "outputKey": "get_tenant_viewings"
+              },
+              {
+                "conditions": {
+                  "options": {
+                    "caseSensitive": true,
+                    "leftValue": "",
+                    "typeValidation": "strict",
+                    "version": 3
+                  },
+                  "conditions": [
+                    {
+                      "id": "rule-update-viewing",
+                      "leftValue": "={{ $json.body.action }}",
+                      "rightValue": "update_viewing_status",
+                      "operator": {
+                        "type": "string",
+                        "operation": "equals"
+                      }
+                    }
+                  ],
+                  "combinator": "and"
+                },
+                "renameOutput": true,
+                "outputKey": "update_viewing_status"
+              },
+              {
+                "conditions": {
+                  "options": {
+                    "caseSensitive": true,
+                    "leftValue": "",
+                    "typeValidation": "strict",
+                    "version": 3
+                  },
+                  "conditions": [
+                    {
+                      "id": "rule-not-schedule",
+                      "leftValue": "={{ $json.body.action }}",
+                      "rightValue": "schedule_viewing",
+                      "operator": {
+                        "type": "string",
+                        "operation": "notEqual"
+                      }
+                    },
+                    {
+                      "id": "rule-not-get",
+                      "leftValue": "={{ $json.body.action }}",
+                      "rightValue": "get_tenant_viewings",
+                      "operator": {
+                        "type": "string",
+                        "operation": "notEqual"
+                      }
+                    },
+                    {
+                      "id": "rule-not-update",
+                      "leftValue": "={{ $json.body.action }}",
+                      "rightValue": "update_viewing_status",
+                      "operator": {
+                        "type": "string",
+                        "operation": "notEqual"
+                      }
+                    }
+                  ],
+                  "combinator": "and"
+                },
+                "renameOutput": true,
+                "outputKey": "error"
+              }
+            ]
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.switch",
+        "typeVersion": 3.4,
+        "position": [
+          -352,
+          -128
+        ],
+        "id": "c333767b-bcc7-474e-8707-d68a4ab4c8d0",
+        "name": "Switch"
+      },
+      {
+        "parameters": {
+          "schema": "public",
+          "table": "property_viewings",
+          "dataMode": "defineBelow",
+          "valuesToSend": {
+            "values": [
+              {
+                "column": "tenant_id",
+                "value": "={{ $json.body.tenant_id }}"
+              },
+              {
+                "column": "property_id",
+                "value": "={{ $json.body.property_id }}"
+              },
+              {
+                "column": "property_address",
+                "value": "={{ $json.body.property_address || $json.body.property_id }}"
+              },
+              {
+                "column": "viewing_time",
+                "value": "={{ $json.body.viewing_time }}"
+              },
+              {
+                "column": "contact_phone",
+                "value": "={{ $json.body.contact_phone }}"
+              },
+              {
+                "column": "contact_email",
+                "value": "={{ $json.body.contact_email || null }}"
+              },
+              {
+                "column": "status",
+                "value": "scheduled"
+              },
+              {
+                "column": "viewing_duration",
+                "value": "={{ $json.body.duration || 30 }}"
+              },
+              {
+                "column": "notes",
+                "value": "={{ $json.body.notes || null }}"
+              },
+              {
+                "column": "created_by",
+                "value": "voice_agent"
+              }
+            ]
+          },
+          "options": {}
+        },
+        "id": "616387c7-ee76-4795-9462-4c5192b62953",
+        "name": "Schedule Viewing",
+        "type": "n8n-nodes-base.postgres",
+        "typeVersion": 2,
+        "position": [
+          64,
+          -240
+        ],
+        "credentials": {
+          "postgres": {
+            "id": "u7j29OmyHuzkVDfZ",
+            "name": "Postgres account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "operation": "select",
+          "schema": "public",
+          "table": "property_viewings",
+          "returnAll": true,
+          "where": {
+            "values": [
+              {
+                "column": "tenant_id",
+                "value": "={{ $json.body.tenant_id }}"
+              }
+            ]
+          },
+          "options": {}
+        },
+        "id": "b72e4a3a-f1b0-4fb5-9552-1eef645ea485",
+        "name": "Get Tenant Viewings",
+        "type": "n8n-nodes-base.postgres",
+        "typeVersion": 2,
+        "position": [
+          64,
+          -96
+        ],
+        "credentials": {
+          "postgres": {
+            "id": "u7j29OmyHuzkVDfZ",
+            "name": "Postgres account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "operation": "update",
+          "schema": "public",
+          "table": "property_viewings",
+          "dataMode": "defineBelow",
+          "columnToMatchOn": "id",
+          "valueToMatchOn": "={{ $json.body.viewing_id }}",
+          "valuesToSend": {
+            "values": [
+              {
+                "column": "status",
+                "value": "={{ $json.body.status || 'scheduled' }}"
+              },
+              {
+                "column": "notes",
+                "value": "={{ $json.body.notes || null }}"
+              }
+            ]
+          },
+          "options": {}
+        },
+        "id": "ff3e9d95-44ad-4950-aa23-ba1ef13f4cc1",
+        "name": "Update Viewing Status",
+        "type": "n8n-nodes-base.postgres",
+        "typeVersion": 2,
+        "position": [
+          64,
+          64
+        ],
+        "credentials": {
+          "postgres": {
+            "id": "u7j29OmyHuzkVDfZ",
+            "name": "Postgres account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "operation": "select",
+          "schema": "public",
+          "table": "tenants",
+          "where": {
+            "values": [
+              {
+                "column": "id",
+                "value": "={{ $json.tenant_id }}"
+              }
+            ]
+          },
+          "options": {}
+        },
+        "id": "428ecdbe-a057-48b8-b5ff-5533af05f5f6",
+        "name": "Get Tenant Info",
+        "type": "n8n-nodes-base.postgres",
+        "typeVersion": 2,
+        "position": [
+          240,
+          -240
+        ],
+        "credentials": {
+          "postgres": {
+            "id": "u7j29OmyHuzkVDfZ",
+            "name": "Postgres account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "assignments": {
+            "assignments": [
+              {
+                "id": "d1e2f3g4-h5i6-47j8-9k0l-m1n2o3p4q5r6",
+                "name": "viewing_id",
+                "value": "={{ $('Schedule Viewing').item.json.id }}",
+                "type": "number"
+              },
+              {
+                "id": "s7t8u9v0-w1x2-43y4-5z6a-b7c8d9e0f1g2",
+                "name": "property_address",
+                "value": "={{ $('Schedule Viewing').item.json.property_address }}",
+                "type": "string"
+              },
+              {
+                "id": "h3i4j5k6-l7m8-49n0-1o2p-q3r4s5t6u7v8",
+                "name": "viewing_time",
+                "value": "={{ $('Schedule Viewing').item.json.viewing_time }}",
+                "type": "string"
+              },
+              {
+                "id": "w9x0y1z2-3a4b-45c6-7d8e-f9g0h1i2j3k4",
+                "name": "contact_phone",
+                "value": "={{ $json.phone_number }}",
+                "type": "string"
+              },
+              {
+                "id": "l5m6n7o8-p9q0-41r2-3s4t-u5v6w7x8y9z0",
+                "name": "viewing_status",
+                "value": "={{ $('Schedule Viewing').item.json.status }}",
+                "type": "string"
+              },
+              {
+                "id": "m8n9o0p1-q2r3-45s6-7t8u-v9w0x1y2z3a4",
+                "name": "tenant_name",
+                "value": "={{ $('Get Tenant Info').item.json.name || 'Valued Tenant' }}",
+                "type": "string"
+              }
+            ]
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.set",
+        "typeVersion": 3.4,
+        "position": [
+          416,
+          -240
+        ],
+        "id": "32800db7-dece-4995-b474-d3c83d592716",
+        "name": "Set Schedule Response"
+      },
+      {
+        "parameters": {
+          "assignments": {
+            "assignments": [
+              {
+                "id": "f6g7h8i9-j0k1-42l3-4m5n-o6p7q8r9s0t1",
+                "name": "viewings",
+                "value": "={{ $json }}",
+                "type": "array"
+              },
+              {
+                "id": "u2v3w4x5-y6z7-43a8-9b0c-d1e2f3g4h5i6",
+                "name": "count",
+                "value": "={{ $json.length }}",
+                "type": "number"
+              },
+              {
+                "id": "a3b4c5d6-e7f8-49g0-1h2i-j3k4l5m6n7o8",
+                "name": "upcoming_viewings",
+                "value": "={{ $json.filter(item => new Date(item.viewing_time) > new Date()).length }}",
+                "type": "number"
+              }
+            ]
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.set",
+        "typeVersion": 3.4,
+        "position": [
+          240,
+          -96
+        ],
+        "id": "010118b7-447d-4f7b-8bc9-cc3480bd0017",
+        "name": "Set Get Response"
+      },
+      {
+        "parameters": {
+          "assignments": {
+            "assignments": [
+              {
+                "id": "h0i1j2k3-l4m5-48n6-7o8p-q9r0s1t2u3v4",
+                "name": "viewing_id",
+                "value": "={{ $json.body.viewing_id }}",
+                "type": "number"
+              },
+              {
+                "id": "r1s2t3u4-v5w6-49x7-8y9z-a0b1c2d3e4f5",
+                "name": "status",
+                "value": "={{ $json.body.status || 'updated' }}",
+                "type": "string"
+              },
+              {
+                "id": "i2j3k4l5-m6n7-50o8-9p0q-r1s2t3u4v5w6",
+                "name": "updated_at",
+                "value": "={{ new Date().toISOString() }}",
+                "type": "string"
+              }
+            ]
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.set",
+        "typeVersion": 3.4,
+        "position": [
+          240,
+          64
+        ],
+        "id": "b1348696-3a28-4a37-ac9d-15555efae68b",
+        "name": "Set Update Response"
+      },
+      {
+        "parameters": {
+          "respondWith": "json",
+          "responseBody": "={{ {\n  \"success\": true,\n  \"viewing_id\": $json.viewing_id,\n  \"message\": \"Property viewing scheduled successfully!\",\n  \"property_address\": $json.property_address,\n  \"viewing_time\": $json.viewing_time,\n  \"contact_phone\": $json.contact_phone,\n  \"status\": $json.viewing_status,\n  \"confirmation_message\": `Hi ${$json.tenant_name}! Your viewing is confirmed for ${new Date($json.viewing_time).toLocaleString()} at ${$json.property_address}. We'll send you a reminder the day before. See you there!`,\n  \"timestamp\": new Date().toISOString()\n} }}",
+          "options": {}
+        },
+        "id": "3369a53c-5736-4d33-a64b-12df82222d14",
+        "name": "Schedule Success Response",
+        "type": "n8n-nodes-base.respondToWebhook",
+        "typeVersion": 1,
+        "position": [
+          848,
+          -240
+        ]
+      },
+      {
+        "parameters": {
+          "respondWith": "json",
+          "responseBody": "={{ {\n  \"success\": true,\n  \"viewings\": $json.viewings,\n  \"count\": $json.count,\n  \"upcoming_viewings\": $json.upcoming_viewings,\n  \"message\": `Found ${$json.count} viewing(s) for this tenant. ${$json.upcoming_viewings} are upcoming.`\n} }}",
+          "options": {}
+        },
+        "id": "e34b0248-1a33-4c6b-9fff-2f4427eff575",
+        "name": "Get Success Response",
+        "type": "n8n-nodes-base.respondToWebhook",
+        "typeVersion": 1,
+        "position": [
+          848,
+          -96
+        ]
+      },
+      {
+        "parameters": {
+          "respondWith": "json",
+          "responseBody": "={{ {\n  \"success\": true,\n  \"viewing_id\": $json.viewing_id,\n  \"status\": $json.status,\n  \"message\": \"Viewing status updated successfully\",\n  \"updated_at\": $json.updated_at\n} }}",
+          "options": {}
+        },
+        "id": "c9b9c97d-6771-44e0-b4b8-0a58cd053fd7",
+        "name": "Update Success Response",
+        "type": "n8n-nodes-base.respondToWebhook",
+        "typeVersion": 1,
+        "position": [
+          848,
+          64
+        ]
+      },
+      {
+        "parameters": {
+          "respondWith": "json",
+          "responseBody": "={{ {\"success\": false, \"error\": \"Invalid action specified\", \"received\": $json.body.action} }}",
+          "options": {}
+        },
+        "id": "8ac2b33d-91b4-46f4-82e5-b591986cca58",
+        "name": "Error Response",
+        "type": "n8n-nodes-base.respondToWebhook",
+        "typeVersion": 1,
+        "position": [
+          64,
+          224
+        ]
+      },
+      {
+        "parameters": {
+          "method": "POST",
+          "url": "https://boninaurelien.app.n8n.cloud/webhook/viewing",
+          "authentication": "genericCredentialType",
+          "genericAuthType": "httpHeaderAuth",
+          "sendBody": true,
+          "bodyParameters": {
+            "parameters": [
+              {
+                "name": "action",
+                "value": "schedule_viewing"
+              },
+              {
+                "name": "tenant_id",
+                "value": "1"
+              },
+              {
+                "name": "property_id",
+                "value": "3"
+              },
+              {
+                "name": "property_address",
+                "value": "123 Main St Apt 4B"
+              },
+              {
+                "name": "viewing_time",
+                "value": "2025-12-20T14:00:00.000Z"
+              },
+              {
+                "name": "contact_phone",
+                "value": "+1234567890"
+              },
+              {
+                "name": "contact_email",
+                "value": "tenant@example.com"
+              },
+              {
+                "name": "duration",
+                "value": "45"
+              },
+              {
+                "name": "notes",
+                "value": "Interested in kitchen and bathroom renovation"
+              }
+            ]
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.httpRequest",
+        "typeVersion": 4.3,
+        "position": [
+          32,
+          624
+        ],
+        "id": "6a735232-c797-448d-b9dd-1e996977a3eb",
+        "name": "Tests",
+        "credentials": {
+          "httpHeaderAuth": {
+            "id": "uvgqyRI1ddaWVLOw",
+            "name": "Jules Pipecat"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "operation": "select",
+          "schema": "public",
+          "table": {
+            "__rl": true,
+            "value": "rental_listings",
+            "mode": "list",
+            "cachedResultName": "rental_listings"
+          },
+          "limit": 5,
+          "options": {}
+        },
+        "id": "20aa8e79-1b41-4396-910d-d1ab454c7f52",
+        "name": "Schedule Viewing1",
+        "type": "n8n-nodes-base.postgres",
+        "typeVersion": 2,
+        "position": [
+          304,
+          608
+        ],
+        "credentials": {
+          "postgres": {
+            "id": "u7j29OmyHuzkVDfZ",
+            "name": "Postgres account"
+          }
+        }
+      }
+    ],
+    "connections": {
+      "Webhook": {
+        "main": [
+          [
+            {
+              "node": "Switch",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Switch": {
+        "main": [
+          [
+            {
+              "node": "Schedule Viewing",
+              "type": "main",
+              "index": 0
+            }
+          ],
+          [
+            {
+              "node": "Get Tenant Viewings",
+              "type": "main",
+              "index": 0
+            }
+          ],
+          [
+            {
+              "node": "Update Viewing Status",
+              "type": "main",
+              "index": 0
+            }
+          ],
+          [
+            {
+              "node": "Error Response",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Schedule Viewing": {
+        "main": [
+          [
+            {
+              "node": "Get Tenant Info",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Get Tenant Viewings": {
+        "main": [
+          [
+            {
+              "node": "Set Get Response",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Update Viewing Status": {
+        "main": [
+          [
+            {
+              "node": "Set Update Response",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Get Tenant Info": {
+        "main": [
+          [
+            {
+              "node": "Set Schedule Response",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Set Schedule Response": {
+        "main": [
+          [
+            {
+              "node": "Schedule Success Response",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Set Get Response": {
+        "main": [
+          [
+            {
+              "node": "Get Success Response",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Set Update Response": {
+        "main": [
+          [
+            {
+              "node": "Update Success Response",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    },
+    "authors": "Aurelien Bonin",
+    "name": "Version f05618e5",
+    "description": "",
+    "autosaved": false
+  },
+  "activeVersionId": "f05618e5-cccc-4987-b942-f257a9df464b",
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Switch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch": {
+      "main": [
+        [
+          {
+            "node": "Schedule Viewing",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Get Tenant Viewings",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Update Viewing Status",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Error Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Schedule Viewing": {
+      "main": [
+        [
+          {
+            "node": "Get Tenant Info",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Tenant Viewings": {
+      "main": [
+        [
+          {
+            "node": "Set Get Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update Viewing Status": {
+      "main": [
+        [
+          {
+            "node": "Set Update Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Tenant Info": {
+      "main": [
+        [
+          {
+            "node": "Set Schedule Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set Schedule Response": {
+      "main": [
+        [
+          {
+            "node": "Schedule Success Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set Get Response": {
+      "main": [
+        [
+          {
+            "node": "Get Success Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set Update Response": {
+      "main": [
+        [
+          {
+            "node": "Update Success Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "createdAt": "2025-12-18T00:09:51.273Z",
+  "id": "yYiLeRzaaNCX34Jv",
+  "isArchived": false,
+  "meta": {
+    "templateCredsSetupCompleted": true
+  },
+  "name": "Viewing Webhook",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "viewing",
+        "authentication": "headerAuth",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -560,
+        -96
+      ],
+      "id": "cb3bf198-245e-400e-bd00-c86bcf49b1dc",
+      "name": "Webhook",
+      "webhookId": "4289d04c-6e73-4c72-9e9c-85c6ea5b195c",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "uvgqyRI1ddaWVLOw",
+          "name": "Jules Pipecat"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "rule-schedule-viewing",
+                    "leftValue": "={{ $json.body.action }}",
+                    "rightValue": "schedule_viewing",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "schedule_viewing"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "rule-get-viewings",
+                    "leftValue": "={{ $json.body.action }}",
+                    "rightValue": "get_tenant_viewings",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "get_tenant_viewings"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "rule-update-viewing",
+                    "leftValue": "={{ $json.body.action }}",
+                    "rightValue": "update_viewing_status",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "update_viewing_status"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "rule-not-schedule",
+                    "leftValue": "={{ $json.body.action }}",
+                    "rightValue": "schedule_viewing",
+                    "operator": {
+                      "type": "string",
+                      "operation": "notEqual"
+                    }
+                  },
+                  {
+                    "id": "rule-not-get",
+                    "leftValue": "={{ $json.body.action }}",
+                    "rightValue": "get_tenant_viewings",
+                    "operator": {
+                      "type": "string",
+                      "operation": "notEqual"
+                    }
+                  },
+                  {
+                    "id": "rule-not-update",
+                    "leftValue": "={{ $json.body.action }}",
+                    "rightValue": "update_viewing_status",
+                    "operator": {
+                      "type": "string",
+                      "operation": "notEqual"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "error"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.4,
+      "position": [
+        -352,
+        -128
+      ],
+      "id": "c333767b-bcc7-474e-8707-d68a4ab4c8d0",
+      "name": "Switch"
+    },
+    {
+      "parameters": {
+        "schema": "public",
+        "table": "property_viewings",
+        "dataMode": "defineBelow",
+        "valuesToSend": {
+          "values": [
+            {
+              "column": "tenant_id",
+              "value": "={{ $json.body.tenant_id }}"
+            },
+            {
+              "column": "property_id",
+              "value": "={{ $json.body.property_id }}"
+            },
+            {
+              "column": "property_address",
+              "value": "={{ $json.body.property_address || $json.body.property_id }}"
+            },
+            {
+              "column": "viewing_time",
+              "value": "={{ $json.body.viewing_time }}"
+            },
+            {
+              "column": "contact_phone",
+              "value": "={{ $json.body.contact_phone }}"
+            },
+            {
+              "column": "contact_email",
+              "value": "={{ $json.body.contact_email || null }}"
+            },
+            {
+              "column": "status",
+              "value": "scheduled"
+            },
+            {
+              "column": "viewing_duration",
+              "value": "={{ $json.body.duration || 30 }}"
+            },
+            {
+              "column": "notes",
+              "value": "={{ $json.body.notes || null }}"
+            },
+            {
+              "column": "created_by",
+              "value": "voice_agent"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "616387c7-ee76-4795-9462-4c5192b62953",
+      "name": "Schedule Viewing",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2,
+      "position": [
+        64,
+        -240
+      ],
+      "credentials": {
+        "postgres": {
+          "id": "u7j29OmyHuzkVDfZ",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "select",
+        "schema": "public",
+        "table": "property_viewings",
+        "returnAll": true,
+        "where": {
+          "values": [
+            {
+              "column": "tenant_id",
+              "value": "={{ $json.body.tenant_id }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "b72e4a3a-f1b0-4fb5-9552-1eef645ea485",
+      "name": "Get Tenant Viewings",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2,
+      "position": [
+        64,
+        -96
+      ],
+      "credentials": {
+        "postgres": {
+          "id": "u7j29OmyHuzkVDfZ",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "schema": "public",
+        "table": "property_viewings",
+        "dataMode": "defineBelow",
+        "columnToMatchOn": "id",
+        "valueToMatchOn": "={{ $json.body.viewing_id }}",
+        "valuesToSend": {
+          "values": [
+            {
+              "column": "status",
+              "value": "={{ $json.body.status || 'scheduled' }}"
+            },
+            {
+              "column": "notes",
+              "value": "={{ $json.body.notes || null }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "ff3e9d95-44ad-4950-aa23-ba1ef13f4cc1",
+      "name": "Update Viewing Status",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2,
+      "position": [
+        64,
+        64
+      ],
+      "credentials": {
+        "postgres": {
+          "id": "u7j29OmyHuzkVDfZ",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "select",
+        "schema": "public",
+        "table": "tenants",
+        "where": {
+          "values": [
+            {
+              "column": "id",
+              "value": "={{ $json.tenant_id }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "428ecdbe-a057-48b8-b5ff-5533af05f5f6",
+      "name": "Get Tenant Info",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2,
+      "position": [
+        240,
+        -240
+      ],
+      "credentials": {
+        "postgres": {
+          "id": "u7j29OmyHuzkVDfZ",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "d1e2f3g4-h5i6-47j8-9k0l-m1n2o3p4q5r6",
+              "name": "viewing_id",
+              "value": "={{ $('Schedule Viewing').item.json.id }}",
+              "type": "number"
+            },
+            {
+              "id": "s7t8u9v0-w1x2-43y4-5z6a-b7c8d9e0f1g2",
+              "name": "property_address",
+              "value": "={{ $('Schedule Viewing').item.json.property_address }}",
+              "type": "string"
+            },
+            {
+              "id": "h3i4j5k6-l7m8-49n0-1o2p-q3r4s5t6u7v8",
+              "name": "viewing_time",
+              "value": "={{ $('Schedule Viewing').item.json.viewing_time }}",
+              "type": "string"
+            },
+            {
+              "id": "w9x0y1z2-3a4b-45c6-7d8e-f9g0h1i2j3k4",
+              "name": "contact_phone",
+              "value": "={{ $json.phone_number }}",
+              "type": "string"
+            },
+            {
+              "id": "l5m6n7o8-p9q0-41r2-3s4t-u5v6w7x8y9z0",
+              "name": "viewing_status",
+              "value": "={{ $('Schedule Viewing').item.json.status }}",
+              "type": "string"
+            },
+            {
+              "id": "m8n9o0p1-q2r3-45s6-7t8u-v9w0x1y2z3a4",
+              "name": "tenant_name",
+              "value": "={{ $('Get Tenant Info').item.json.name || 'Valued Tenant' }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        416,
+        -240
+      ],
+      "id": "32800db7-dece-4995-b474-d3c83d592716",
+      "name": "Set Schedule Response"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "f6g7h8i9-j0k1-42l3-4m5n-o6p7q8r9s0t1",
+              "name": "viewings",
+              "value": "={{ $json }}",
+              "type": "array"
+            },
+            {
+              "id": "u2v3w4x5-y6z7-43a8-9b0c-d1e2f3g4h5i6",
+              "name": "count",
+              "value": "={{ $json.length }}",
+              "type": "number"
+            },
+            {
+              "id": "a3b4c5d6-e7f8-49g0-1h2i-j3k4l5m6n7o8",
+              "name": "upcoming_viewings",
+              "value": "={{ $json.filter(item => new Date(item.viewing_time) > new Date()).length }}",
+              "type": "number"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        240,
+        -96
+      ],
+      "id": "010118b7-447d-4f7b-8bc9-cc3480bd0017",
+      "name": "Set Get Response"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "h0i1j2k3-l4m5-48n6-7o8p-q9r0s1t2u3v4",
+              "name": "viewing_id",
+              "value": "={{ $json.body.viewing_id }}",
+              "type": "number"
+            },
+            {
+              "id": "r1s2t3u4-v5w6-49x7-8y9z-a0b1c2d3e4f5",
+              "name": "status",
+              "value": "={{ $json.body.status || 'updated' }}",
+              "type": "string"
+            },
+            {
+              "id": "i2j3k4l5-m6n7-50o8-9p0q-r1s2t3u4v5w6",
+              "name": "updated_at",
+              "value": "={{ new Date().toISOString() }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        240,
+        64
+      ],
+      "id": "b1348696-3a28-4a37-ac9d-15555efae68b",
+      "name": "Set Update Response"
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ {\n  \"success\": true,\n  \"viewing_id\": $json.viewing_id,\n  \"message\": \"Property viewing scheduled successfully!\",\n  \"property_address\": $json.property_address,\n  \"viewing_time\": $json.viewing_time,\n  \"contact_phone\": $json.contact_phone,\n  \"status\": $json.viewing_status,\n  \"confirmation_message\": `Hi ${$json.tenant_name}! Your viewing is confirmed for ${new Date($json.viewing_time).toLocaleString()} at ${$json.property_address}. We'll send you a reminder the day before. See you there!`,\n  \"timestamp\": new Date().toISOString()\n} }}",
+        "options": {}
+      },
+      "id": "3369a53c-5736-4d33-a64b-12df82222d14",
+      "name": "Schedule Success Response",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [
+        848,
+        -240
+      ]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ {\n  \"success\": true,\n  \"viewings\": $json.viewings,\n  \"count\": $json.count,\n  \"upcoming_viewings\": $json.upcoming_viewings,\n  \"message\": `Found ${$json.count} viewing(s) for this tenant. ${$json.upcoming_viewings} are upcoming.`\n} }}",
+        "options": {}
+      },
+      "id": "e34b0248-1a33-4c6b-9fff-2f4427eff575",
+      "name": "Get Success Response",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [
+        848,
+        -96
+      ]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ {\n  \"success\": true,\n  \"viewing_id\": $json.viewing_id,\n  \"status\": $json.status,\n  \"message\": \"Viewing status updated successfully\",\n  \"updated_at\": $json.updated_at\n} }}",
+        "options": {}
+      },
+      "id": "c9b9c97d-6771-44e0-b4b8-0a58cd053fd7",
+      "name": "Update Success Response",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [
+        848,
+        64
+      ]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ {\"success\": false, \"error\": \"Invalid action specified\", \"received\": $json.body.action} }}",
+        "options": {}
+      },
+      "id": "8ac2b33d-91b4-46f4-82e5-b591986cca58",
+      "name": "Error Response",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [
+        64,
+        224
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://boninaurelien.app.n8n.cloud/webhook/viewing",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "action",
+              "value": "schedule_viewing"
+            },
+            {
+              "name": "tenant_id",
+              "value": "1"
+            },
+            {
+              "name": "property_id",
+              "value": "3"
+            },
+            {
+              "name": "property_address",
+              "value": "123 Main St Apt 4B"
+            },
+            {
+              "name": "viewing_time",
+              "value": "2025-12-20T14:00:00.000Z"
+            },
+            {
+              "name": "contact_phone",
+              "value": "+1234567890"
+            },
+            {
+              "name": "contact_email",
+              "value": "tenant@example.com"
+            },
+            {
+              "name": "duration",
+              "value": "45"
+            },
+            {
+              "name": "notes",
+              "value": "Interested in kitchen and bathroom renovation"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        32,
+        624
+      ],
+      "id": "6a735232-c797-448d-b9dd-1e996977a3eb",
+      "name": "Tests",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "uvgqyRI1ddaWVLOw",
+          "name": "Jules Pipecat"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "select",
+        "schema": "public",
+        "table": {
+          "__rl": true,
+          "value": "rental_listings",
+          "mode": "list",
+          "cachedResultName": "rental_listings"
+        },
+        "limit": 5,
+        "options": {}
+      },
+      "id": "20aa8e79-1b41-4396-910d-d1ab454c7f52",
+      "name": "Schedule Viewing1",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2,
+      "position": [
+        304,
+        608
+      ],
+      "credentials": {
+        "postgres": {
+          "id": "u7j29OmyHuzkVDfZ",
+          "name": "Postgres account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1",
+    "availableInMCP": true
+  },
+  "shared": [
+    {
+      "updatedAt": "2025-12-18T00:09:51.278Z",
+      "createdAt": "2025-12-18T00:09:51.278Z",
+      "role": "workflow:owner",
+      "workflowId": "yYiLeRzaaNCX34Jv",
+      "projectId": "K5c2PqoZjXPELHVa"
+    }
+  ],
+  "staticData": null,
+  "tags": [],
+  "triggerCount": 1,
+  "updatedAt": "2025-12-18T21:34:23.282Z",
+  "versionId": "f05618e5-cccc-4987-b942-f257a9df464b"
+}
