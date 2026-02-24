@@ -1,0 +1,590 @@
+{
+  "active": false,
+  "activeVersion": null,
+  "activeVersionId": null,
+  "connections": {
+    "Workflow Configuration2": {
+      "main": [
+        [
+          {
+            "node": "Route by Style2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Route by Style2": {
+      "main": [
+        [
+          {
+            "node": "Download Input Image1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Download Input Image1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Download Input Image1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Download Input Image1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Download Input Image1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Download Input Image1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Download Input Image1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Download Input Image1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Download Input Image1": {
+      "main": [
+        [
+          {
+            "node": "Canvas - Gradient Background2",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Canvas - Geometric Shapes2",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Canvas - Artistic Text2",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Canvas - Pattern Generator2",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Canvas - Image Overlay2",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Canvas - Pixel Art2",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Canvas - Watercolor Effect2",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Canvas - Neon Glow2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "Workflow Configuration2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "createdAt": "2025-12-27T10:22:13.487Z",
+  "id": "M617eQtRlgldYtl5",
+  "isArchived": false,
+  "meta": null,
+  "name": "My workflow 4",
+  "nodes": [
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "id-1",
+              "name": "sampleImageUrl",
+              "value": "=https://etugrand.nyc3.digitaloceanspaces.com/pollinations/2025/12/06/pollinations-image-45018ce9-79ab-403a-b0a6-f091c5aac37e.jpg",
+              "type": "string"
+            },
+            {
+              "id": "id-2",
+              "name": "defaultText",
+              "value": "=God is good",
+              "type": "string"
+            },
+            {
+              "id": "id-3",
+              "name": "borderColor",
+              "value": "#000000",
+              "type": "string"
+            },
+            {
+              "id": "id-4",
+              "name": "borderWidth",
+              "value": 10,
+              "type": "number"
+            },
+            {
+              "id": "id-5",
+              "name": "style",
+              "value": "=gradient",
+              "type": "string"
+            },
+            {
+              "id": "id-6",
+              "name": "canvasWidth",
+              "value": 1200,
+              "type": "number"
+            },
+            {
+              "id": "id-7",
+              "name": "canvasHeight",
+              "value": 800,
+              "type": "number"
+            },
+            {
+              "id": "id-9",
+              "name": "s3Bucket",
+              "value": "<__PLACEHOLDER_VALUE__S3 Bucket Name__>",
+              "type": "string"
+            },
+            {
+              "id": "id-10",
+              "name": "s3Region",
+              "value": "<__PLACEHOLDER_VALUE__S3 Region__>",
+              "type": "string"
+            },
+            {
+              "id": "id-11",
+              "name": "s3AccessKey",
+              "value": "<__PLACEHOLDER_VALUE__S3 Access Key__>",
+              "type": "string"
+            },
+            {
+              "id": "id-12",
+              "name": "s3SecretKey",
+              "value": "<__PLACEHOLDER_VALUE__S3 Secret Key__>",
+              "type": "string"
+            }
+          ]
+        },
+        "includeOtherFields": true,
+        "options": {}
+      },
+      "id": "1d436022-a97a-4824-90e3-cb5ff0830a8b",
+      "name": "Workflow Configuration2",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -960,
+        672
+      ]
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.style }}",
+                    "rightValue": "gradient",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "878de4c0-a275-4545-b329-fbdb25bf9968"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "gradient"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.style }}",
+                    "rightValue": "geometric",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "39107155-84e0-4894-97a1-e6567a052451"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "geometric"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.style }}",
+                    "rightValue": "artistic-text",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "fe78460a-4638-43f9-936f-029897c57c48"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "artistic-text"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.style }}",
+                    "rightValue": "pattern",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "0cf91bdf-7456-4cd2-921f-0f2673d32f5b"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "pattern"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.style }}",
+                    "rightValue": "overlay",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "2d70d7bc-889f-4d15-8716-2eed094e00e0"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "overlay"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.style }}",
+                    "rightValue": "pixel-art",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "d561bf0f-229d-49ed-a488-c6229299c64d"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "pixel-art"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.style }}",
+                    "rightValue": "watercolor",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "2527b437-bc2c-40d1-a3f0-3daa842e4e08"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "watercolor"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.style }}",
+                    "rightValue": "neon",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "46e670d7-a7a7-413a-b91d-0fef700c04b2"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "neon"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "508a1538-e50b-4744-b174-ca5c72859ef5",
+      "name": "Route by Style2",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.4,
+      "position": [
+        -800,
+        576
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Create a gradient background using node-canvas\nconst { createCanvas } = require('canvas');\n\n// Create canvas\nconst width = 800;\nconst height = 600;\nconst canvas = createCanvas(width, height);\nconst ctx = canvas.getContext('2d');\n\n// Create linear gradient\nconst linearGradient = ctx.createLinearGradient(0, 0, width, height);\nlinearGradient.addColorStop(0, '#667eea');\nlinearGradient.addColorStop(0.5, '#764ba2');\nlinearGradient.addColorStop(1, '#f093fb');\n\n// Fill with linear gradient\nctx.fillStyle = linearGradient;\nctx.fillRect(0, 0, width, height);\n\n// Add radial gradient overlay\nconst radialGradient = ctx.createRadialGradient(width / 2, height / 2, 0, width / 2, height / 2, width / 2);\nradialGradient.addColorStop(0, 'rgba(255, 255, 255, 0.3)');\nradialGradient.addColorStop(1, 'rgba(0, 0, 0, 0.2)');\n\nctx.fillStyle = radialGradient;\nctx.fillRect(0, 0, width, height);\n\n// Convert to PNG buffer\nconst buffer = canvas.toBuffer('image/png');\n\n// Return as binary data\nreturn [\n  {\n    json: {},\n    binary: {\n      data: {\n        data: buffer.toString('base64'),\n        mimeType: 'image/png',\n        fileName: 'gradient-background.png'\n      }\n    }\n  }\n];"
+      },
+      "id": "36e663bd-63a0-4ee0-8bac-3818bc66fb9b",
+      "name": "Canvas - Gradient Background2",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        0,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const { createCanvas } = require('canvas');\n\n// Create a canvas\nconst width = 800;\nconst height = 600;\nconst canvas = createCanvas(width, height);\nconst ctx = canvas.getContext('2d');\n\n// Fill background\nctx.fillStyle = '#f0f0f0';\nctx.fillRect(0, 0, width, height);\n\n// Draw a circle\nctx.fillStyle = '#FF6B6B';\nctx.beginPath();\nctx.arc(200, 150, 80, 0, Math.PI * 2);\nctx.fill();\n\n// Draw a rectangle\nctx.fillStyle = '#4ECDC4';\nctx.fillRect(350, 70, 160, 160);\n\n// Draw a triangle\nctx.fillStyle = '#FFE66D';\nctx.beginPath();\nctx.moveTo(600, 230);\nctx.lineTo(700, 230);\nctx.lineTo(650, 130);\nctx.closePath();\nctx.fill();\n\n// Draw a pentagon\nctx.fillStyle = '#95E1D3';\nctx.beginPath();\nconst sides = 5;\nconst radius = 70;\nconst centerX = 200;\nconst centerY = 400;\nfor (let i = 0; i < sides; i++) {\n  const angle = (i * 2 * Math.PI) / sides - Math.PI / 2;\n  const x = centerX + radius * Math.cos(angle);\n  const y = centerY + radius * Math.sin(angle);\n  if (i === 0) {\n    ctx.moveTo(x, y);\n  } else {\n    ctx.lineTo(x, y);\n  }\n}\nctx.closePath();\nctx.fill();\n\n// Draw a hexagon with pattern\nctx.fillStyle = '#A8E6CF';\nctx.beginPath();\nconst hexSides = 6;\nconst hexRadius = 80;\nconst hexCenterX = 450;\nconst hexCenterY = 400;\nfor (let i = 0; i < hexSides; i++) {\n  const angle = (i * 2 * Math.PI) / hexSides;\n  const x = hexCenterX + hexRadius * Math.cos(angle);\n  const y = hexCenterY + hexRadius * Math.sin(angle);\n  if (i === 0) {\n    ctx.moveTo(x, y);\n  } else {\n    ctx.lineTo(x, y);\n  }\n}\nctx.closePath();\nctx.fill();\n\n// Draw a star\nctx.fillStyle = '#FFD93D';\nctx.beginPath();\nconst spikes = 5;\nconst outerRadius = 60;\nconst innerRadius = 30;\nconst starCenterX = 650;\nconst starCenterY = 450;\nfor (let i = 0; i < spikes * 2; i++) {\n  const radius = i % 2 === 0 ? outerRadius : innerRadius;\n  const angle = (i * Math.PI) / spikes - Math.PI / 2;\n  const x = starCenterX + radius * Math.cos(angle);\n  const y = starCenterY + radius * Math.sin(angle);\n  if (i === 0) {\n    ctx.moveTo(x, y);\n  } else {\n    ctx.lineTo(x, y);\n  }\n}\nctx.closePath();\nctx.fill();\n\n// Add some stroked shapes\nctx.strokeStyle = '#6C5CE7';\nctx.lineWidth = 4;\nctx.beginPath();\nctx.arc(100, 500, 40, 0, Math.PI * 2);\nctx.stroke();\n\n// Convert canvas to buffer\nconst buffer = canvas.toBuffer('image/png');\n\n// Return the image as binary data\nreturn [{\n  json: {\n    fileName: 'geometric_shapes.png',\n    mimeType: 'image/png'\n  },\n  binary: {\n    data: {\n      data: buffer.toString('base64'),\n      mimeType: 'image/png',\n      fileName: 'geometric_shapes.png'\n    }\n  }\n}];"
+      },
+      "id": "ac136846-b5c2-4b4b-aa6f-ac336e5151ee",
+      "name": "Canvas - Geometric Shapes2",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        0,
+        192
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const { createCanvas } = require('canvas');\n\n// Create canvas\nconst width = 800;\nconst height = 600;\nconst canvas = createCanvas(width, height);\nconst ctx = canvas.getContext('2d');\n\n// Background\nconst gradient = ctx.createLinearGradient(0, 0, width, height);\ngradient.addColorStop(0, '#667eea');\ngradient.addColorStop(1, '#764ba2');\nctx.fillStyle = gradient;\nctx.fillRect(0, 0, width, height);\n\n// Get text from input or use default\nconst text = $input.first().json.body?.text || 'Artistic Text';\n\n// Save context for rotation\nctx.save();\n\n// Move to center and rotate\nctx.translate(width / 2, height / 2);\nctx.rotate(-15 * Math.PI / 180);\n\n// Add shadow\nctx.shadowColor = 'rgba(0, 0, 0, 0.5)';\nctx.shadowBlur = 20;\nctx.shadowOffsetX = 10;\nctx.shadowOffsetY = 10;\n\n// Set font\nctx.font = 'bold 72px Arial';\nctx.textAlign = 'center';\nctx.textBaseline = 'middle';\n\n// Create text gradient\nconst textGradient = ctx.createLinearGradient(-200, -50, 200, 50);\ntextGradient.addColorStop(0, '#FFD700');\ntextGradient.addColorStop(0.5, '#FFA500');\ntextGradient.addColorStop(1, '#FF6347');\n\n// Draw text with gradient\nctx.fillStyle = textGradient;\nctx.fillText(text, 0, 0);\n\n// Add text stroke\nctx.strokeStyle = '#FFFFFF';\nctx.lineWidth = 3;\nctx.strokeText(text, 0, 0);\n\n// Restore context\nctx.restore();\n\n// Convert to buffer\nconst buffer = canvas.toBuffer('image/png');\n\n// Return as binary data\nreturn [\n  {\n    json: {},\n    binary: {\n      data: {\n        data: buffer.toString('base64'),\n        mimeType: 'image/png',\n        fileName: 'artistic-text.png'\n      }\n    }\n  }\n];"
+      },
+      "id": "c1699007-1562-4ecc-a3a4-e303dbd4f086",
+      "name": "Canvas - Artistic Text2",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        0,
+        384
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const { createCanvas } = require('canvas');\n\n// Get pattern type from input or default to 'dots'\nconst patternType = $input.first().json.body?.pattern || 'dots';\nconst width = $input.first().json.body?.width || 800;\nconst height = $input.first().json.body?.height || 600;\nconst primaryColor = $input.first().json.body?.primaryColor || '#3498db';\nconst secondaryColor = $input.first().json.body?.secondaryColor || '#ffffff';\n\n// Create canvas\nconst canvas = createCanvas(width, height);\nconst ctx = canvas.getContext('2d');\n\n// Fill background\nctx.fillStyle = secondaryColor;\nctx.fillRect(0, 0, width, height);\n\n// Generate pattern based on type\nswitch(patternType) {\n  case 'dots':\n    // Dot pattern\n    const dotSize = 20;\n    const dotSpacing = 50;\n    ctx.fillStyle = primaryColor;\n    for(let x = dotSpacing/2; x < width; x += dotSpacing) {\n      for(let y = dotSpacing/2; y < height; y += dotSpacing) {\n        ctx.beginPath();\n        ctx.arc(x, y, dotSize/2, 0, Math.PI * 2);\n        ctx.fill();\n      }\n    }\n    break;\n    \n  case 'stripes':\n    // Vertical stripes\n    const stripeWidth = 40;\n    ctx.fillStyle = primaryColor;\n    for(let x = 0; x < width; x += stripeWidth * 2) {\n      ctx.fillRect(x, 0, stripeWidth, height);\n    }\n    break;\n    \n  case 'waves':\n    // Wave pattern\n    ctx.strokeStyle = primaryColor;\n    ctx.lineWidth = 3;\n    const amplitude = 30;\n    const frequency = 0.02;\n    const waveSpacing = 40;\n    \n    for(let offsetY = 0; offsetY < height; offsetY += waveSpacing) {\n      ctx.beginPath();\n      for(let x = 0; x < width; x++) {\n        const y = offsetY + Math.sin(x * frequency) * amplitude;\n        if(x === 0) {\n          ctx.moveTo(x, y);\n        } else {\n          ctx.lineTo(x, y);\n        }\n      }\n      ctx.stroke();\n    }\n    break;\n    \n  case 'checkerboard':\n    // Checkerboard pattern\n    const squareSize = 50;\n    ctx.fillStyle = primaryColor;\n    for(let x = 0; x < width; x += squareSize) {\n      for(let y = 0; y < height; y += squareSize) {\n        if((Math.floor(x/squareSize) + Math.floor(y/squareSize)) % 2 === 0) {\n          ctx.fillRect(x, y, squareSize, squareSize);\n        }\n      }\n    }\n    break;\n    \n  default:\n    // Default to dots\n    const defaultDotSize = 20;\n    const defaultDotSpacing = 50;\n    ctx.fillStyle = primaryColor;\n    for(let x = defaultDotSpacing/2; x < width; x += defaultDotSpacing) {\n      for(let y = defaultDotSpacing/2; y < height; y += defaultDotSpacing) {\n        ctx.beginPath();\n        ctx.arc(x, y, defaultDotSize/2, 0, Math.PI * 2);\n        ctx.fill();\n      }\n    }\n}\n\n// Convert canvas to buffer\nconst buffer = canvas.toBuffer('image/png');\n\n// Return as binary data\nreturn [\n  {\n    json: {\n      patternType,\n      width,\n      height,\n      primaryColor,\n      secondaryColor\n    },\n    binary: {\n      data: await this.helpers.prepareBinaryData(buffer, 'pattern.png', 'image/png')\n    }\n  }\n];"
+      },
+      "id": "f3a2fc1d-ddee-4780-892b-be38eae97ed7",
+      "name": "Canvas - Pattern Generator2",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        0,
+        576
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const { createCanvas, loadImage } = require('canvas');\nconst https = require('https');\nconst http = require('http');\n\n// Get input data\nconst items = $input.all();\nconst imageUrl = items[0].json.body?.imageUrl || $('Workflow Configuration2').first().json.sampleImageUrl;\nconst overlayText = items[0].json.body?.text || 'Overlay Text';\n\n// Function to load image from URL\nfunction loadImageFromUrl(url) {\n  return new Promise((resolve, reject) => {\n    const protocol = url.startsWith('https') ? https : http;\n    protocol.get(url, (response) => {\n      const chunks = [];\n      response.on('data', (chunk) => chunks.push(chunk));\n      response.on('end', () => {\n        const buffer = Buffer.concat(chunks);\n        loadImage(buffer).then(resolve).catch(reject);\n      });\n    }).on('error', reject);\n  });\n}\n\n// Load and process image\nconst image = await loadImageFromUrl(imageUrl);\n\n// Create canvas with same dimensions as image\nconst canvas = createCanvas(image.width, image.height);\nconst ctx = canvas.getContext('2d');\n\n// Draw original image\nctx.drawImage(image, 0, 0);\n\n// Add semi-transparent overlay rectangle\nctx.fillStyle = 'rgba(0, 0, 0, 0.3)';\nctx.fillRect(0, image.height - 150, image.width, 150);\n\n// Add decorative shapes\nctx.fillStyle = 'rgba(255, 215, 0, 0.6)';\nctx.beginPath();\nctx.arc(100, 100, 50, 0, Math.PI * 2);\nctx.fill();\n\nctx.fillStyle = 'rgba(255, 105, 180, 0.6)';\nctx.fillRect(image.width - 150, 50, 100, 100);\n\n// Add text overlay\nctx.fillStyle = '#FFFFFF';\nctx.font = 'bold 48px Arial';\nctx.textAlign = 'center';\nctx.shadowColor = 'rgba(0, 0, 0, 0.8)';\nctx.shadowBlur = 10;\nctx.shadowOffsetX = 2;\nctx.shadowOffsetY = 2;\nctx.fillText(overlayText, image.width / 2, image.height - 75);\n\n// Convert canvas to buffer\nconst buffer = canvas.toBuffer('image/png');\n\n// Return as binary data\nreturn [{\n  json: {\n    fileName: 'image-overlay.png',\n    mimeType: 'image/png'\n  },\n  binary: {\n    data: {\n      data: buffer.toString('base64'),\n      mimeType: 'image/png',\n      fileName: 'image-overlay.png'\n    }\n  }\n}];"
+      },
+      "id": "c96ab2ac-6dcd-4fc7-aa18-b52e62857f0b",
+      "name": "Canvas - Image Overlay2",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        0,
+        768
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const { createCanvas, loadImage } = require('canvas');\n\n// Get input items\nconst items = $input.all();\nconst results = [];\n\nfor (const item of items) {\n  try {\n    // Configuration\n    const pixelSize = 8; // Size of each \"pixel\" block\n    const width = 800;\n    const height = 600;\n    \n    // Create canvas\n    const canvas = createCanvas(width, height);\n    const ctx = canvas.getContext('2d');\n    \n    // Retro color palette (limited colors for pixel art effect)\n    const retroPalette = [\n      '#000000', '#FFFFFF', '#FF0000', '#00FF00', '#0000FF',\n      '#FFFF00', '#FF00FF', '#00FFFF', '#FF8800', '#8800FF',\n      '#00FF88', '#FF0088', '#88FF00', '#0088FF', '#888888'\n    ];\n    \n    // Function to find closest color in palette\n    function getClosestColor(r, g, b) {\n      let minDistance = Infinity;\n      let closestColor = retroPalette[0];\n      \n      for (const color of retroPalette) {\n        const pr = parseInt(color.substr(1, 2), 16);\n        const pg = parseInt(color.substr(3, 2), 16);\n        const pb = parseInt(color.substr(5, 2), 16);\n        \n        const distance = Math.sqrt(\n          Math.pow(r - pr, 2) + \n          Math.pow(g - pg, 2) + \n          Math.pow(b - pb, 2)\n        );\n        \n        if (distance < minDistance) {\n          minDistance = distance;\n          closestColor = color;\n        }\n      }\n      \n      return closestColor;\n    }\n    \n    // Check if input has image data\n    if (item.binary && item.binary.data) {\n      // Load the input image\n      const imageBuffer = Buffer.from(item.binary.data.data, 'base64');\n      const image = await loadImage(imageBuffer);\n      \n      // Draw image scaled down then pixelate\n      const tempCanvas = createCanvas(Math.floor(width / pixelSize), Math.floor(height / pixelSize));\n      const tempCtx = tempCanvas.getContext('2d');\n      tempCtx.drawImage(image, 0, 0, tempCanvas.width, tempCanvas.height);\n      \n      // Get pixel data\n      const imageData = tempCtx.getImageData(0, 0, tempCanvas.width, tempCanvas.height);\n      const pixels = imageData.data;\n      \n      // Draw pixelated version with retro colors\n      for (let y = 0; y < tempCanvas.height; y++) {\n        for (let x = 0; x < tempCanvas.width; x++) {\n          const i = (y * tempCanvas.width + x) * 4;\n          const r = pixels[i];\n          const g = pixels[i + 1];\n          const b = pixels[i + 2];\n          \n          const color = getClosestColor(r, g, b);\n          ctx.fillStyle = color;\n          ctx.fillRect(x * pixelSize, y * pixelSize, pixelSize, pixelSize);\n        }\n      }\n    } else {\n      // Generate random pixel art pattern\n      for (let y = 0; y < height; y += pixelSize) {\n        for (let x = 0; x < width; x += pixelSize) {\n          const color = retroPalette[Math.floor(Math.random() * retroPalette.length)];\n          ctx.fillStyle = color;\n          ctx.fillRect(x, y, pixelSize, pixelSize);\n        }\n      }\n    }\n    \n    // Convert to PNG buffer\n    const buffer = canvas.toBuffer('image/png');\n    \n    results.push({\n      json: {\n        success: true,\n        width: width,\n        height: height,\n        pixelSize: pixelSize,\n        format: 'png'\n      },\n      binary: {\n        data: {\n          data: buffer.toString('base64'),\n          mimeType: 'image/png',\n          fileName: 'pixel-art.png'\n        }\n      }\n    });\n    \n  } catch (error) {\n    results.push({\n      json: {\n        success: false,\n        error: error.message\n      }\n    });\n  }\n}\n\nreturn results;"
+      },
+      "id": "db4bd716-392a-4247-90ed-036254a00b97",
+      "name": "Canvas - Pixel Art2",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        0,
+        960
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const { createCanvas, loadImage } = require('canvas');\n\n// Get input image URL or data\nconst inputItem = $input.first();\nlet imageUrl;\n\nif (inputItem.json.body && inputItem.json.body.imageUrl) {\n  imageUrl = inputItem.json.body.imageUrl;\n} else if (inputItem.binary && inputItem.binary.data) {\n  // If binary data exists, we'll need to handle it differently\n  imageUrl = $('Workflow Configuration2').first().json.sampleImageUrl;\n} else {\n  imageUrl = $('Workflow Configuration2').first().json.sampleImageUrl;\n}\n\n// Load the image\nconst image = await loadImage(imageUrl);\n\n// Create canvas with same dimensions\nconst canvas = createCanvas(image.width, image.height);\nconst ctx = canvas.getContext('2d');\n\n// Draw original image\nctx.drawImage(image, 0, 0);\n\n// Get image data for manipulation\nconst imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);\nconst data = imageData.data;\n\n// Create a new Uint8ClampedArray to avoid read-only error\nconst newData = new Uint8ClampedArray(data.length);\n\n// Apply watercolor effect - soften edges and add transparency\nfor (let i = 0; i < data.length; i += 4) {\n  // Add slight color bleeding effect\n  const randomOffset = Math.random() * 20 - 10;\n  newData[i] = Math.min(255, Math.max(0, data[i] + randomOffset));     // R\n  newData[i + 1] = Math.min(255, Math.max(0, data[i + 1] + randomOffset)); // G\n  newData[i + 2] = Math.min(255, Math.max(0, data[i + 2] + randomOffset)); // B\n  \n  // Add transparency variation for watercolor effect\n  newData[i + 3] = Math.min(255, data[i + 3] * (0.85 + Math.random() * 0.15)); // A\n}\n\n// Create new ImageData with modified data\nconst newImageData = new ImageData(newData, canvas.width, canvas.height);\n\n// Put modified image data back\nctx.putImageData(newImageData, 0, 0);\n\n// Apply blur for soft edges\nctx.globalAlpha = 0.7;\nctx.filter = 'blur(2px)';\nctx.drawImage(canvas, 0, 0);\n\n// Add paper texture overlay\nctx.globalAlpha = 0.1;\nctx.fillStyle = '#ffffff';\nfor (let i = 0; i < 1000; i++) {\n  const x = Math.random() * canvas.width;\n  const y = Math.random() * canvas.height;\n  const size = Math.random() * 3;\n  ctx.fillRect(x, y, size, size);\n}\n\n// Convert to PNG buffer\nconst buffer = canvas.toBuffer('image/png');\n\n// Return as binary data\nreturn [\n  {\n    json: {\n      success: true,\n      effect: 'watercolor',\n      width: canvas.width,\n      height: canvas.height\n    },\n    binary: {\n      data: {\n        data: buffer.toString('base64'),\n        mimeType: 'image/png',\n        fileName: 'watercolor-effect.png'\n      }\n    }\n  }\n];"
+      },
+      "id": "1e9c7bd6-331a-4235-adcc-a1d5b02ee641",
+      "name": "Canvas - Watercolor Effect2",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        0,
+        1152
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const { createCanvas } = require('canvas');\n\n// Create canvas\nconst width = 800;\nconst height = 600;\nconst canvas = createCanvas(width, height);\nconst ctx = canvas.getContext('2d');\n\n// Dark background\nctx.fillStyle = '#0a0a0a';\nctx.fillRect(0, 0, width, height);\n\n// Get text from input or use default\nconst text = $input.first().json.body?.text || 'NEON GLOW';\n\n// Set up neon text effect\nctx.font = 'bold 80px Arial';\nctx.textAlign = 'center';\nctx.textBaseline = 'middle';\n\n// Create multiple glow layers\nconst glowColors = [\n  { color: '#ff00ff', blur: 40 },\n  { color: '#00ffff', blur: 30 },\n  { color: '#ff00ff', blur: 20 },\n  { color: '#ffffff', blur: 10 }\n];\n\n// Draw glow layers\nglowColors.forEach(({ color, blur }) => {\n  ctx.save(); // Save context state\n  ctx.shadowColor = color;\n  ctx.shadowBlur = blur;\n  ctx.fillStyle = color;\n  ctx.fillText(text, width / 2, height / 2);\n  ctx.restore(); // Restore context state\n});\n\n// Draw bright core text\nctx.save();\nctx.shadowBlur = 5;\nctx.shadowColor = '#ffffff';\nctx.fillStyle = '#ffffff';\nctx.fillText(text, width / 2, height / 2);\nctx.restore();\n\n// Add some neon shapes\nctx.save();\nctx.shadowBlur = 30;\nctx.shadowColor = '#00ff00';\nctx.strokeStyle = '#00ff00';\nctx.lineWidth = 3;\nctx.beginPath();\nctx.arc(150, 150, 50, 0, Math.PI * 2);\nctx.stroke();\nctx.restore();\n\nctx.save();\nctx.shadowColor = '#ff0080';\nctx.strokeStyle = '#ff0080';\nctx.lineWidth = 3;\nctx.beginPath();\nctx.arc(650, 450, 60, 0, Math.PI * 2);\nctx.stroke();\nctx.restore();\n\n// Convert to PNG buffer\nconst buffer = canvas.toBuffer('image/png');\n\n// Return as binary data\nreturn [\n  {\n    json: {},\n    binary: {\n      data: buffer\n    }\n  }\n];"
+      },
+      "id": "8e53017f-17fd-4028-99ad-5aa3a431a354",
+      "name": "Canvas - Neon Glow2",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        0,
+        1344
+      ]
+    },
+    {
+      "parameters": {
+        "url": "={{ $json.sampleImageUrl }}",
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "file",
+              "outputPropertyName": "inputImage"
+            }
+          }
+        }
+      },
+      "id": "d5d974b8-3193-43eb-9f53-2a242871e88b",
+      "name": "Download Input Image1",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        -496,
+        688
+      ]
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -1168,
+        672
+      ],
+      "id": "a812338c-d418-4409-a753-1082a62fa296",
+      "name": "When clicking ‘Execute workflow’"
+    }
+  ],
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1",
+    "availableInMCP": false
+  },
+  "shared": [
+    {
+      "updatedAt": "2025-12-27T10:22:13.491Z",
+      "createdAt": "2025-12-27T10:22:13.491Z",
+      "role": "workflow:owner",
+      "workflowId": "M617eQtRlgldYtl5",
+      "projectId": "K5c2PqoZjXPELHVa"
+    }
+  ],
+  "staticData": null,
+  "tags": [],
+  "triggerCount": 0,
+  "updatedAt": "2025-12-27T10:22:13.487Z",
+  "versionId": "fb305386-cb08-42b8-8ccb-1eaa1e21d0b4"
+}
