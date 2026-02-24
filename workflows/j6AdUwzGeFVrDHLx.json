@@ -1,0 +1,2443 @@
+{
+  "active": true,
+  "activeVersion": {
+    "updatedAt": "2025-12-08T13:28:51.900Z",
+    "createdAt": "2025-12-08T13:28:51.900Z",
+    "versionId": "42ad0fd3-8c79-4adb-8c4d-752397e0ab56",
+    "workflowId": "j6AdUwzGeFVrDHLx",
+    "nodes": [
+      {
+        "parameters": {
+          "rule": {
+            "interval": [
+              {
+                "field": "months",
+                "triggerAtDayOfMonth": 2
+              }
+            ]
+          }
+        },
+        "id": "cd37bdd3-2bbd-4a69-b10f-fb8e044acf33",
+        "name": "Monthly Trigger - 2nd of Month",
+        "type": "n8n-nodes-base.scheduleTrigger",
+        "typeVersion": 1.2,
+        "position": [
+          2896,
+          -16
+        ]
+      },
+      {
+        "parameters": {
+          "assignments": {
+            "assignments": [
+              {
+                "id": "id-1",
+                "name": "searchQuery",
+                "value": "={{ $json.body.searchQuery }}",
+                "type": "string"
+              },
+              {
+                "id": "id-2",
+                "name": "searchPeriodDays",
+                "value": "={{ $json.body.searchPeriodDays }}",
+                "type": "string"
+              },
+              {
+                "id": "1fe78f31-01b6-4cf3-a810-26fb3d08f6e2",
+                "name": "track_payment",
+                "value": "={{ $json.body.track_payme || null }}",
+                "type": "string"
+              },
+              {
+                "id": "c7cacfb1-7e82-4503-afa8-b39cd6ca7f16",
+                "name": "tenantName",
+                "value": "={{ $json.body.tenantName || null }}",
+                "type": "string"
+              },
+              {
+                "id": "2ad36b9d-d030-413c-a7e9-ff051e79b808",
+                "name": "tenantEmail",
+                "value": "={{ $json.body.tenantEmail || null }}",
+                "type": "string"
+              },
+              {
+                "id": "d1a0782d-14b6-400a-bc12-9f11f569a7d1",
+                "name": "rentAmount",
+                "value": "={{ $json.body.rentAmount || null }}",
+                "type": "string"
+              },
+              {
+                "id": "6016f4f9-a447-480b-8db2-2fc7a724adab",
+                "name": "dueDate",
+                "value": "={{ $json.body.dueDate || null }}",
+                "type": "string"
+              },
+              {
+                "id": "321aeafc-bbb2-4776-8482-b14db11a36b8",
+                "name": "unitNumber",
+                "value": "={{ $json.body.unitNumber || null }}",
+                "type": "string"
+              },
+              {
+                "id": "b1d7b638-4efc-4075-82a1-1c478f0405ec",
+                "name": "phoneNumber",
+                "value": "={{ $json.body.phoneNumber || null }}",
+                "type": "string"
+              },
+              {
+                "id": "ca521056-7b38-4693-b5ad-c8b8c490063b",
+                "name": "paymentMethod",
+                "value": "={{ $json.body.paymentMethod || null }}",
+                "type": "string"
+              },
+              {
+                "id": "fddf9e5b-1d16-4691-a00a-b91a58ed4222",
+                "name": "notes",
+                "value": "={{ $json.body.notes || null }}",
+                "type": "string"
+              }
+            ]
+          },
+          "includeOtherFields": true,
+          "options": {}
+        },
+        "id": "ae431a07-b18b-4ba6-85d9-f99ecd842e64",
+        "name": "Workflow Configuration",
+        "type": "n8n-nodes-base.set",
+        "typeVersion": 3.4,
+        "position": [
+          3168,
+          -208
+        ]
+      },
+      {
+        "parameters": {
+          "operation": "getAll",
+          "limit": 100,
+          "simple": false,
+          "filters": {
+            "q": "={{ $json.searchQuery || interac }}",
+            "receivedAfter": "={{ $now.minus({ days: $json.searchPeriodDays }).toISO() }}"
+          },
+          "options": {}
+        },
+        "id": "07462cdf-b834-4cd8-a4fe-78adb44cacad",
+        "name": "Search Gmail for Interac Payments",
+        "type": "n8n-nodes-base.gmail",
+        "typeVersion": 2.1,
+        "position": [
+          3584,
+          0
+        ],
+        "webhookId": "fb238b62-1478-47a8-8a9d-1597d1bc8b55",
+        "executeOnce": true,
+        "credentials": {
+          "gmailOAuth2": {
+            "id": "RQgLPouTAfMwqrsw",
+            "name": "Gmail account 3"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "jsCode": "// Parse Interac payment details from Gmail and Yahoo emails\nconst payments = [];\n\nfor (const item of $input.all()) {\n  try {\n    // Récupérer le contenu de l'email (texte ou HTML)\n    const emailBody = item.json.text || item.json.textPlain || item.json.snippet || '';\n    const emailHtml = item.json.html || item.json.textAsHtml || '';\n    const emailSubject = item.json.subject || '';\n    const emailDate = item.json.date || item.json.receivedDateTime || new Date().toISOString();\n    \n    // Déterminer la source\n    const emailSource = item.json.labelIds ? 'Gmail' : 'Yahoo';\n    \n    // Combine text and HTML for better parsing\n    const fullContent = emailBody + ' ' + emailHtml;\n    \n    // === EXTRACTION DU MONTANT ===\n    let amount = null;\n    \n    // Pattern 1: \"requested $XXX.XX from you\" (Interac request)\n    let amountMatch = fullContent.match(/requested\\s+\\$([0-9,]+\\.?[0-9]{0,2})\\s+from\\s+you/i);\n    \n    // Pattern 2: \"Transfer Amount XXX.XX CAD\" (Western Union)\n    if (!amountMatch) {\n      amountMatch = fullContent.match(/Transfer\\s+Amount\\s+([0-9,]+\\.?[0-9]{0,2})\\s+CAD/i);\n    }\n    \n    // Pattern 3: Generic \"$XXX.XX (CAD)\" or \"$XXX.XX CAD\"\n    if (!amountMatch) {\n      amountMatch = fullContent.match(/\\$([0-9,]+\\.?[0-9]{0,2})\\s*\\(CAD\\)/i);\n    }\n    \n    // Pattern 4: Generic \"CAD XXX.XX\" or \"$XXX.XX\"\n    if (!amountMatch) {\n      amountMatch = fullContent.match(/(?:CAD|\\$)\\s*([0-9,]+\\.?[0-9]{0,2})/i);\n    }\n    \n    if (amountMatch) {\n      amount = parseFloat(amountMatch[1].replace(/,/g, ''));\n    }\n    \n    // === EXTRACTION DU NOM DU LOCATAIRE ===\n    let tenantName = '';\n    \n    // Pattern 1: From subject \"SENDER_NAME has requested\"\n    let nameMatch = emailSubject.match(/^Interac\\s+e-Transfer:\\s+([A-Z\\s]+)\\s+has\\s+requested/i);\n    \n    // Pattern 2: From \"Receiver Details\" section (Western Union)\n    if (!nameMatch) {\n      nameMatch = fullContent.match(/Receiver\\s+Details[^N]+Name\\s+([A-Za-z\\s-]+?)(?:\\s+Payout|<)/i);\n    }\n    \n    // Pattern 3: From \"Hi [NAME]\" or \"Sent From: [NAME]\"\n    if (!nameMatch) {\n      nameMatch = fullContent.match(/(?:Hi|Sent\\s+From:)\\s+([A-Z][a-z]+(?:\\s+[A-Z][a-z]+)+)/);\n    }\n    \n    // Pattern 4: From email sender field\n    if (!nameMatch) {\n      const fromField = item.json.from?.value?.[0]?.name || item.json.from?.text || '';\n      if (fromField && !fromField.includes('Union') && !fromField.includes('Interac') && !fromField.includes('notify')) {\n        tenantName = fromField.replace(/[<>\"]/g, '').trim();\n      }\n    }\n    \n    if (nameMatch) {\n      tenantName = nameMatch[1].trim();\n    }\n    \n    // === EXTRACTION DE L'EMAIL DU LOCATAIRE ===\n    let tenantEmail = '';\n    \n    // From reply-to field\n    if (item.json.replyTo?.value?.[0]?.address) {\n      tenantEmail = item.json.replyTo.value[0].address;\n    }\n    \n    // Fallback to from field if reply-to doesn't exist\n    if (!tenantEmail && item.json.from?.value?.[0]?.address) {\n      const fromAddr = item.json.from.value[0].address;\n      // Avoid system emails\n      if (!fromAddr.includes('notify@') && !fromAddr.includes('noreply@')) {\n        tenantEmail = fromAddr;\n      }\n    }\n    \n    // === PARSE DATE ===\n    const paymentDate = new Date(emailDate).toISOString().split('T')[0];\n    \n    // === DÉTECTION DU TYPE DE TRANSACTION ===\n    let transactionType = 'Unknown';\n    if (emailSubject.includes('has requested')) {\n      transactionType = 'Interac Request';\n    } else if (emailSubject.includes('ready for pickup') || fullContent.includes('Western Union')) {\n      transactionType = 'Western Union Transfer';\n    } else if (emailSubject.includes('Interac e-Transfer')) {\n      transactionType = 'Interac Transfer';\n    }\n    \n    // === EXTRACTION DU MTCN (Western Union) ===\n    let mtcn = '';\n    const mtcnMatch = fullContent.match(/MTCN[:\\s]+(\\d{10})/i);\n    if (mtcnMatch) {\n      mtcn = mtcnMatch[1];\n    }\n    \n    // === EXTRACTION DU MESSAGE CONTENT ===\n    let extractedMessage = '';\n    // Find the 'Message:' section and extract text until next section or end\n    const messageMatch = fullContent.match(/Message:\\s*([\\s\\S]*?)(?=\\s*(?:Date:|FAQ:|Security|Transfer|Amount:|MTCN:|$))/i);\n    if (messageMatch && messageMatch[1]) {\n      // Clean up the extracted message and limit to 500 characters\n      extractedMessage = messageMatch[1]\n        .replace(/<[^>]*>/g, '') // Remove HTML tags\n        .replace(/\\s+/g, ' ') // Normalize whitespace\n        .trim()\n        .substring(0, 500);\n    }\n    \n    // Only add if we have at least amount and name\n    if (amount && tenantName) {\n      payments.push({\n        json: {\n          tenantName: tenantName,\n          tenantEmail: tenantEmail,\n          amount: amount,\n          date: paymentDate,\n          source: emailSource,\n          transactionType: transactionType,\n          mtcn: mtcn || 'N/A',\n          subject: emailSubject,\n          rawSnippet: emailBody.substring(0, 150),\n          emailSubject: emailSubject,\n          emailContent: extractedMessage || fullContent.substring(0, 500)\n        }\n      });\n    } else {\n      console.log(`Skipped email - Amount: ${amount}, Name: ${tenantName}`);\n    }\n    \n  } catch (error) {\n    console.log('Error parsing email:', error.message, error.stack);\n  }\n}\n\nconsole.log(`Successfully parsed ${payments.length} payments`);\nreturn payments;"
+        },
+        "id": "091540a2-0409-4bcd-9f98-ca4014b6a25a",
+        "name": "Parse Payment Details from Emails",
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          3808,
+          0
+        ]
+      },
+      {
+        "parameters": {
+          "jsCode": "// Aggregate payments by tenant email\n// Sum all payments from the same customer (handles multiple payments per month)\n// Include current month name\n// Preserve email subject and content from first payment\n\nconst aggregatedPayments = {};\n\n// Get current month name\nconst currentDate = new Date();\nconst monthNames = ['January', 'February', 'March', 'April', 'May', 'June',\n  'July', 'August', 'September', 'October', 'November', 'December'];\nconst currentMonth = monthNames[currentDate.getMonth()];\n\n// Group payments by email\nfor (const payment of $input.all()) {\n  const email = payment.json.tenantEmail?.toLowerCase().trim();\n  if (!email) continue;\n  \n  if (!aggregatedPayments[email]) {\n    aggregatedPayments[email] = {\n      tenantEmail: email,\n      tenantName: payment.json.tenantName,\n      totalAmount: 0,\n      lastPaymentDate: payment.json.date,\n      transactionType: payment.json.transactionType,\n      paymentCount: 0,\n      allDates: [],\n      month: currentMonth,\n      emailSubject: payment.json.subject || '',\n      emailContent: payment.json.emailContent || ''\n    };\n  }\n  \n  // Add to total\n  aggregatedPayments[email].totalAmount += parseFloat(payment.json.amount) || 0;\n  aggregatedPayments[email].paymentCount += 1;\n  aggregatedPayments[email].allDates.push(payment.json.date);\n  \n  // Keep the latest date\n  if (payment.json.date > aggregatedPayments[email].lastPaymentDate) {\n    aggregatedPayments[email].lastPaymentDate = payment.json.date;\n  }\n}\n\n// Convert to array format for n8n\nconst result = Object.values(aggregatedPayments).map(agg => ({\n  json: {\n    tenantEmail: agg.tenantEmail,\n    tenantName: agg.tenantName,\n    amount: agg.totalAmount,\n    date: agg.lastPaymentDate,\n    month: agg.month,\n    transactionType: agg.transactionType,\n    paymentCount: agg.paymentCount,\n    allPaymentDates: agg.allDates.join(', '),\n    emailSubject: agg.emailSubject,\n    emailContent: agg.emailContent\n  }\n}));\n\nconsole.log(`Aggregated ${Object.keys(aggregatedPayments).length} unique tenants with ${$input.all().length} total payments for ${currentMonth}`);\nreturn result;"
+        },
+        "id": "517fc15d-4069-4912-952d-e7a71811ad1e",
+        "name": "Aggregate Payments by Tenant",
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          4032,
+          0
+        ]
+      },
+      {
+        "parameters": {
+          "documentId": {
+            "__rl": true,
+            "value": "1Sd-2cvtC9l0IAsN4ze2s22bvYbRphnG_ARSLWiZJcZM",
+            "mode": "list",
+            "cachedResultName": "Rent payment",
+            "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1Sd-2cvtC9l0IAsN4ze2s22bvYbRphnG_ARSLWiZJcZM/edit?usp=drivesdk"
+          },
+          "sheetName": {
+            "__rl": true,
+            "value": 1613306859,
+            "mode": "list",
+            "cachedResultName": "TenantsList",
+            "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1Sd-2cvtC9l0IAsN4ze2s22bvYbRphnG_ARSLWiZJcZM/edit#gid=1613306859"
+          },
+          "options": {}
+        },
+        "id": "a0e2282e-9390-4cc9-930e-0a8c43898e71",
+        "name": "Read Tenant List",
+        "type": "n8n-nodes-base.googleSheets",
+        "typeVersion": 4.7,
+        "position": [
+          3600,
+          208
+        ],
+        "executeOnce": true,
+        "credentials": {
+          "googleSheetsOAuth2Api": {
+            "id": "lKflw0vM8OPLHwhd",
+            "name": "Google Sheets account 2"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "jsCode": "// Identify tenants with payment issues\n// Check for: No payment OR Partial payment (less than Rent amount)\n// Filter: Skip invalid entries (no rent amount, duplicate emails, etc.)\n\nconst allTenants = $('Read Tenant List').all();\nconst unpaidTenants = [];\nconst seenEmails = new Set(); // Track seen emails to avoid duplicates\n\nfor (const tenant of allTenants) {\n  const tenantData = tenant.json;\n  \n  // Skip if no email\n  if (!tenantData.Email || tenantData.Email.trim() === '') {\n    continue;\n  }\n  \n  // Skip if no rent amount defined (invalid tenant)\n  const rentAmount = parseFloat(tenantData['Rent amount']) || 0;\n  if (rentAmount === 0) {\n    console.log(`Skipped tenant ${tenantData.Name} - no rent amount defined`);\n    continue;\n  }\n  \n  const tenantEmail = tenantData.Email.toLowerCase().trim();\n  \n  // Skip if we already processed this email (avoid duplicates)\n  if (seenEmails.has(tenantEmail)) {\n    console.log(`Skipped duplicate email: ${tenantEmail}`);\n    continue;\n  }\n  seenEmails.add(tenantEmail);\n  \n  const tenantName = tenantData.Name || 'Unknown';\n  const payment = parseFloat(tenantData.Payment) || 0;\n  \n  // Check if:\n  // 1. No payment at all (payment = 0)\n  // 2. Partial payment (payment < rent amount)\n  if (payment === 0) {\n    unpaidTenants.push({\n      json: {\n        name: tenantName,\n        email: tenantEmail,\n        rentAmount: rentAmount,\n        amountPaid: 0,\n        amountDue: rentAmount,\n        lastPaymentDate: tenantData['Last payment'] || 'Never',\n        status: 'UNPAID',\n        paymentStatus: 'NO_PAYMENT'\n      }\n    });\n  } else if (payment < rentAmount) {\n    unpaidTenants.push({\n      json: {\n        name: tenantName,\n        email: tenantEmail,\n        rentAmount: rentAmount,\n        amountPaid: payment,\n        amountDue: rentAmount - payment,\n        lastPaymentDate: tenantData['Last payment'] || 'Never',\n        status: 'PARTIAL_PAYMENT',\n        paymentStatus: 'PARTIAL'\n      }\n    });\n  }\n}\n\nconsole.log(`Found ${unpaidTenants.length} tenants with payment issues (unpaid or partial)`);\nreturn unpaidTenants;"
+        },
+        "id": "ff62fa33-c595-42df-988c-9963a37d79f1",
+        "name": "Identify Unpaid Tenants",
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          3776,
+          208
+        ]
+      },
+      {
+        "parameters": {
+          "jsCode": "// Prepare personalized reminder emails based on payment status\n\nconst reminderEmails = [];\n\nfor (const unpaidTenant of $input.all()) {\n  const tenant = unpaidTenant.json;\n  \n  if (!tenant.email) {\n    continue;\n  }\n  \n  let emailBody = '';\n  let subject = '';\n  \n  if (tenant.paymentStatus === 'NO_PAYMENT') {\n    // No payment at all\n    subject = `Rent Payment Due - $${tenant.rentAmount}`;\n    emailBody = `Hello ${tenant.name},\\n\\nThis is a friendly reminder that your rent payment of $${tenant.rentAmount} for this month is due.\\n\\nPlease send your payment as soon as possible via Interac e-Transfer.\\n\\nThank you,\\nProperty Management`;\n  } else if (tenant.paymentStatus === 'PARTIAL') {\n    // Partial payment\n    subject = `Outstanding Rent Balance - $${tenant.amountDue}`;\n    emailBody = `Hello ${tenant.name},\\n\\nWe have received your payment of $${tenant.amountPaid}. However, there is still an outstanding balance of $${tenant.amountDue} remaining for the full rent of $${tenant.rentAmount}.\\n\\nPlease send the remaining balance via Interac e-Transfer.\\n\\nThank you,\\nProperty Management`;\n  }\n  \n  reminderEmails.push({\n    json: {\n      email: tenant.email,\n      name: tenant.name,\n      rentAmount: tenant.rentAmount,\n      amountPaid: tenant.amountPaid,\n      amountDue: tenant.amountDue,\n      lastPaymentDate: tenant.lastPaymentDate,\n      subject: subject,\n      body: emailBody,\n      status: tenant.paymentStatus\n    }\n  });\n}\n\nconsole.log(`Prepared ${reminderEmails.length} reminder emails (${reminderEmails.filter(e => e.json.status === 'NO_PAYMENT').length} unpaid, ${reminderEmails.filter(e => e.json.status === 'PARTIAL').length} partial)`);\nreturn reminderEmails;"
+        },
+        "id": "9150a56c-b63a-4809-903f-324e7fce6e0f",
+        "name": "Prepare Reminder Emails",
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          3936,
+          208
+        ]
+      },
+      {
+        "parameters": {
+          "sendTo": "={{ $('Prepare Reminder Emails').item.json.email }}",
+          "subject": "={{ $('Prepare Reminder Emails').item.json.subject }}",
+          "message": "={{ $('Prepare Reminder Emails').item.json.body }}",
+          "options": {
+            "appendAttribution": false
+          }
+        },
+        "id": "08289e02-ac83-4503-adf8-96a06deb9e13",
+        "name": "Send Payment Reminders",
+        "type": "n8n-nodes-base.gmail",
+        "typeVersion": 2.1,
+        "position": [
+          4272,
+          208
+        ],
+        "webhookId": "b331dc88-5df1-45fe-85a8-d9ff663f4420",
+        "credentials": {
+          "gmailOAuth2": {
+            "id": "RQgLPouTAfMwqrsw",
+            "name": "Gmail account 3"
+          }
+        },
+        "disabled": true
+      },
+      {
+        "parameters": {
+          "operation": "update",
+          "documentId": {
+            "__rl": true,
+            "value": "1Sd-2cvtC9l0IAsN4ze2s22bvYbRphnG_ARSLWiZJcZM",
+            "mode": "list",
+            "cachedResultName": "Rent payment",
+            "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1Sd-2cvtC9l0IAsN4ze2s22bvYbRphnG_ARSLWiZJcZM/edit?usp=drivesdk"
+          },
+          "sheetName": {
+            "__rl": true,
+            "value": 1613306859,
+            "mode": "list",
+            "cachedResultName": "TenantsList",
+            "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1Sd-2cvtC9l0IAsN4ze2s22bvYbRphnG_ARSLWiZJcZM/edit#gid=1613306859"
+          },
+          "columns": {
+            "mappingMode": "defineBelow",
+            "value": {
+              "Email": "={{ $json.email }}",
+              "row_number": 0,
+              "Due": "={{ $json.amountDue }}",
+              "EmailToSend": "={{ $json.subject }}\n\n{{ $json.body }}"
+            },
+            "matchingColumns": [
+              "Email"
+            ],
+            "schema": [
+              {
+                "id": "Name",
+                "displayName": "Name",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true,
+                "removed": true
+              },
+              {
+                "id": "Email",
+                "displayName": "Email",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true,
+                "removed": false
+              },
+              {
+                "id": "Rent amount",
+                "displayName": "Rent amount",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true,
+                "removed": true
+              },
+              {
+                "id": "Phone",
+                "displayName": "Phone",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true,
+                "removed": true
+              },
+              {
+                "id": "Location",
+                "displayName": "Location",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true,
+                "removed": true
+              },
+              {
+                "id": "Due date",
+                "displayName": "Due date",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true,
+                "removed": true
+              },
+              {
+                "id": "Payment",
+                "displayName": "Payment",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true,
+                "removed": true
+              },
+              {
+                "id": "Due",
+                "displayName": "Due",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true,
+                "removed": false
+              },
+              {
+                "id": "Last payment",
+                "displayName": "Last payment",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true,
+                "removed": true
+              },
+              {
+                "id": "Month",
+                "displayName": "Month",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true,
+                "removed": true
+              },
+              {
+                "id": "Transaction type",
+                "displayName": "Transaction type",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true,
+                "removed": true
+              },
+              {
+                "id": "Subject",
+                "displayName": "Subject",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true,
+                "removed": true
+              },
+              {
+                "id": "Content",
+                "displayName": "Content",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true,
+                "removed": true
+              },
+              {
+                "id": "EmailToSend",
+                "displayName": "EmailToSend",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true,
+                "removed": false
+              },
+              {
+                "id": "row_number",
+                "displayName": "row_number",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "number",
+                "canBeUsedToMatch": true,
+                "readOnly": true,
+                "removed": false
+              }
+            ],
+            "attemptToConvertTypes": false,
+            "convertFieldsToString": false
+          },
+          "options": {}
+        },
+        "id": "707ec185-e22d-492e-b472-712aff626c44",
+        "name": "Update Due",
+        "type": "n8n-nodes-base.googleSheets",
+        "typeVersion": 4.7,
+        "position": [
+          4112,
+          208
+        ],
+        "credentials": {
+          "googleSheetsOAuth2Api": {
+            "id": "lKflw0vM8OPLHwhd",
+            "name": "Google Sheets account 2"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "html": "<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n    <meta charset=\"UTF-8\">\n    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n    <title>Rent Tracker Pro - Payment Management</title>\n    <style>\n        * {\n            margin: 0;\n            padding: 0;\n            box-sizing: border-box;\n        }\n\n        body {\n            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;\n            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);\n            min-height: 100vh;\n            display: flex;\n            align-items: center;\n            justify-content: center;\n            padding: 20px;\n        }\n\n        .form-container {\n            background: white;\n            padding: 40px;\n            border-radius: 20px;\n            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);\n            max-width: 600px;\n            width: 100%;\n            transform: translateY(0);\n            transition: all 0.3s ease;\n        }\n\n        .form-container:hover {\n            transform: translateY(-5px);\n            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.15);\n        }\n\n        .form-header {\n            text-align: center;\n            margin-bottom: 30px;\n        }\n\n        .form-title {\n            font-size: 2.5rem;\n            font-weight: 700;\n            background: linear-gradient(135deg, #667eea, #764ba2);\n            -webkit-background-clip: text;\n            -webkit-text-fill-color: transparent;\n            background-clip: text;\n            margin-bottom: 10px;\n        }\n\n        .form-description {\n            color: #666;\n            font-size: 1.1rem;\n            line-height: 1.5;\n        }\n\n        .form-group {\n            margin-bottom: 25px;\n        }\n\n        .form-label {\n            display: block;\n            font-weight: 600;\n            color: #333;\n            margin-bottom: 8px;\n            font-size: 1rem;\n        }\n\n        .required::after {\n            content: \" *\";\n            color: #e74c3c;\n            font-weight: bold;\n        }\n\n        .form-input, .form-select, .form-textarea {\n            width: 100%;\n            padding: 15px;\n            border: 2px solid #e1e8ed;\n            border-radius: 12px;\n            font-size: 1rem;\n            transition: all 0.3s ease;\n            background: #f8f9fa;\n        }\n\n        .form-textarea {\n            resize: vertical;\n            min-height: 100px;\n        }\n\n        .form-input:focus, .form-select:focus, .form-textarea:focus {\n            outline: none;\n            border-color: #667eea;\n            background: white;\n            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);\n            transform: translateY(-2px);\n        }\n\n        .form-input::placeholder, .form-textarea::placeholder {\n            color: #adb5bd;\n            font-style: italic;\n        }\n\n        .form-row {\n            display: grid;\n            grid-template-columns: 1fr 1fr;\n            gap: 15px;\n        }\n\n        @media (max-width: 600px) {\n            .form-row {\n                grid-template-columns: 1fr;\n            }\n        }\n\n        .submit-btn {\n            width: 100%;\n            padding: 18px;\n            background: linear-gradient(135deg, #667eea, #764ba2);\n            color: white;\n            border: none;\n            border-radius: 12px;\n            font-size: 1.2rem;\n            font-weight: 600;\n            cursor: pointer;\n            transition: all 0.3s ease;\n            text-transform: uppercase;\n            letter-spacing: 1px;\n        }\n\n        .submit-btn:hover {\n            transform: translateY(-3px);\n            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);\n        }\n\n        .submit-btn:active {\n            transform: translateY(-1px);\n        }\n\n        .form-footer {\n            text-align: center;\n            margin-top: 20px;\n            color: #666;\n            font-size: 0.9rem;\n        }\n\n        .info-box {\n            background: #f8f9fa;\n            padding: 20px;\n            border-radius: 12px;\n            margin-bottom: 25px;\n            border-left: 4px solid #667eea;\n        }\n\n        .info-box h4 {\n            color: #333;\n            margin-bottom: 10px;\n        }\n\n        .info-box p {\n            color: #666;\n            font-size: 0.9rem;\n            margin-bottom: 8px;\n        }\n\n        .feature-tabs {\n            display: flex;\n            margin-bottom: 30px;\n            border-radius: 12px;\n            overflow: hidden;\n            border: 2px solid #e1e8ed;\n        }\n\n        .tab-button {\n            flex: 1;\n            padding: 15px;\n            border: none;\n            background: #f8f9fa;\n            color: #666;\n            cursor: pointer;\n            transition: all 0.3s ease;\n            font-size: 1rem;\n            font-weight: 600;\n            text-transform: uppercase;\n            letter-spacing: 0.5px;\n        }\n\n        .tab-button:hover {\n            background: #e9ecef;\n        }\n\n        .tab-button.active {\n            background: linear-gradient(135deg, #667eea, #764ba2);\n            color: white;\n            box-shadow: 0 2px 10px rgba(102, 126, 234, 0.3);\n        }\n\n        @media (max-width: 600px) {\n            .form-container {\n                padding: 30px 20px;\n                margin: 10px;\n            }\n\n            .form-title {\n                font-size: 2rem;\n            }\n        }\n\n        /* Animation for form fields */\n        .form-group {\n            opacity: 0;\n            transform: translateY(20px);\n            animation: slideUp 0.6s ease forwards;\n        }\n\n        .form-group:nth-child(1) { animation-delay: 0.1s; }\n        .form-group:nth-child(2) { animation-delay: 0.2s; }\n        .form-group:nth-child(3) { animation-delay: 0.3s; }\n        .form-group:nth-child(4) { animation-delay: 0.4s; }\n        .form-group:nth-child(5) { animation-delay: 0.5s; }\n        .form-group:nth-child(6) { animation-delay: 0.6s; }\n\n        @keyframes slideUp {\n            to {\n                opacity: 1;\n                transform: translateY(0);\n            }\n        }\n    </style>\n</head>\n<body>\n    <div class=\"form-container\">\n        <div class=\"form-header\">\n            <h1 class=\"form-title\">🏠 Rent Tracker Pro</h1>\n            <p class=\"form-description\">Automated rent payment tracking and reminder system</p>\n        </div>\n\n        <!-- Feature Toggle Tabs -->\n        <div class=\"feature-tabs\" style=\"display: flex; margin-bottom: 30px; border-radius: 12px; overflow: hidden; border: 2px solid #e1e8ed;\">\n            <button type=\"button\" id=\"addTenantTab\" class=\"tab-button active\" onclick=\"switchTab('addTenant')\">👤 Add Tenant</button>\n            <button type=\"button\" id=\"trackPaymentTab\" class=\"tab-button\" onclick=\"switchTab('trackPayment')\">💰 Track Payment</button>\n        </div>\n\n        <div class=\"info-box\">\n            <h4>💡 How It Works</h4>\n            <p>• We automatically track Interac payments from your email</p>\n            <p>• Match payments to your tenant list</p>\n            <p>• Send reminders for unpaid/partial payments</p>\n            <p>• Update your Google Sheets in real-time</p>\n        </div>\n\n        <!-- Add Tenant Form -->\n        <div id=\"addTenantSection\">\n            <form id=\"rentTrackerForm\" action=\"https://boninaurelien.app.n8n.cloud/webhook/rent-tracker-webhook\" method=\"POST\">\n            <div class=\"form-row\">\n                <div class=\"form-group\">\n                    <label for=\"tenantName\" class=\"form-label required\">Tenant Name</label>\n                    <input\n                        type=\"text\"\n                        id=\"tenantName\"\n                        name=\"tenantName\"\n                        class=\"form-input\"\n                        placeholder=\"John Smith\"\n                        required\n                    >\n                </div>\n                <div class=\"form-group\">\n                    <label for=\"tenantEmail\" class=\"form-label required\">Tenant Email</label>\n                    <input\n                        type=\"email\"\n                        id=\"tenantEmail\"\n                        name=\"tenantEmail\"\n                        class=\"form-input\"\n                        placeholder=\"john.smith@email.com\"\n                        required\n                    >\n                </div>\n            </div>\n\n            <div class=\"form-row\">\n                <div class=\"form-group\">\n                    <label for=\"rentAmount\" class=\"form-label required\">Monthly Rent Amount</label>\n                    <input\n                        type=\"number\"\n                        id=\"rentAmount\"\n                        name=\"rentAmount\"\n                        class=\"form-input\"\n                        placeholder=\"1500\"\n                        step=\"0.01\"\n                        min=\"0\"\n                        required\n                    >\n                </div>\n                <div class=\"form-group\">\n                    <label for=\"dueDate\" class=\"form-label required\">Rent Due Date</label>\n                    <input\n                        type=\"date\"\n                        id=\"dueDate\"\n                        name=\"dueDate\"\n                        class=\"form-input\"\n                        required\n                    >\n                </div>\n            </div>\n\n            <div class=\"form-row\">\n                <div class=\"form-group\">\n                    <label for=\"unitNumber\" class=\"form-label\">Unit/Apartment Number</label>\n                    <input\n                        type=\"text\"\n                        id=\"unitNumber\"\n                        name=\"unitNumber\"\n                        class=\"form-input\"\n                        placeholder=\"Unit 2B\"\n                    >\n                </div>\n                <div class=\"form-group\">\n                    <label for=\"phoneNumber\" class=\"form-label\">Phone Number</label>\n                    <input\n                        type=\"tel\"\n                        id=\"phoneNumber\"\n                        name=\"phoneNumber\"\n                        class=\"form-input\"\n                        placeholder=\"+1 (555) 123-4567\"\n                    >\n                </div>\n            </div>\n\n            <div class=\"form-group\">\n                <label for=\"paymentMethod\" class=\"form-label\">Preferred Payment Method</label>\n                <select id=\"paymentMethod\" name=\"paymentMethod\" class=\"form-select\">\n                    <option value=\"interac\">Interac e-Transfer</option>\n                    <option value=\"check\">Check</option>\n                    <option value=\"cash\">Cash</option>\n                    <option value=\"bank\">Direct Bank Transfer</option>\n                    <option value=\"other\">Other</option>\n                </select>\n            </div>\n\n            <button type=\"submit\" class=\"submit-btn\">Add Tenant to System</button>\n        </form>\n        </div>\n\n        <!-- Track Payment Form -->\n        <div id=\"trackPaymentSection\" style=\"display: none;\">\n            <form id=\"trackPaymentForm\" action=\"https://boninaurelien.app.n8n.cloud/webhook/rent-tracker-webhook\" method=\"POST\">\n                <div class=\"form-row\">\n                    <div class=\"form-group\">\n                        <label for=\"searchQuery\" class=\"form-label required\">Search Terms</label>\n                        <input\n                            type=\"text\"\n                            id=\"searchQuery\"\n                            name=\"searchQuery\"\n                            class=\"form-input\"\n                            placeholder=\"Interac, rent, payment, landlord\"\n                            required\n                        >\n                    </div>\n                    <div class=\"form-group\">\n                        <label for=\"searchPeriodDays\" class=\"form-label required\">Search Period (days)</label>\n                        <input\n                            type=\"number\"\n                            id=\"searchPeriodDays\"\n                            name=\"searchPeriodDays\"\n                            class=\"form-input\"\n                            placeholder=\"15\"\n                            value=\"15\"\n                            min=\"1\"\n                            max=\"90\"\n                            required\n                        >\n                    </div>\n                </div>\n\n                <div class=\"form-group\">\n                    <label for=\"track_payme\" class=\"form-label\">Enable Automatic Processing</label>\n                    <select id=\"track_payme\" name=\"track_payme\" class=\"form-select\">\n                        <option value=\"true\">✅ Yes - Process found payments automatically</option>\n                        <option value=\"false\">📝 No - Search only, no processing</option>\n                    </select>\n                </div>\n\n                <button type=\"submit\" class=\"submit-btn\">🔍 Search Gmail for Payments</button>\n            </form>\n        </div>\n\n        <div class=\"form-footer\">\n            <p>🏢 Property Management Automation</p>\n        </div>\n    </div>\n\n    <script>\n        // Tab switching function\n        function switchTab(tabName) {\n            // Hide both sections\n            document.getElementById('addTenantSection').style.display = 'none';\n            document.getElementById('trackPaymentSection').style.display = 'none';\n\n            // Remove active class from both tabs\n            document.getElementById('addTenantTab').classList.remove('active');\n            document.getElementById('trackPaymentTab').classList.remove('active');\n\n            // Show selected section and highlight tab\n            if (tabName === 'addTenant') {\n                document.getElementById('addTenantSection').style.display = 'block';\n                document.getElementById('addTenantTab').classList.add('active');\n            } else if (tabName === 'trackPayment') {\n                document.getElementById('trackPaymentSection').style.display = 'block';\n                document.getElementById('trackPaymentTab').classList.add('active');\n            }\n        }\n\n        // Function to show success page\n        function showSuccessPage() {\n            document.body.innerHTML = `\n                <div class=\"form-container\" style=\"text-align: center; max-width: 600px;\">\n                    <div style=\"margin-bottom: 30px;\">\n                        <div style=\"font-size: 4rem; margin-bottom: 20px;\">🏠✅</div>\n                        <h1 style=\"color: #667eea; font-size: 2.5rem; margin-bottom: 15px;\">Tenant Added Successfully!</h1>\n                        <p style=\"color: #666; font-size: 1.2rem; line-height: 1.6;\">\n                            Your tenant has been added to the rent tracking system.\n                            We'll automatically monitor payments and send reminders when needed.\n                        </p>\n                    </div>\n\n                    <div style=\"background: #f8f9fa; padding: 25px; border-radius: 15px; margin: 30px 0;\">\n                        <h3 style=\"color: #333; margin-bottom: 15px;\">What happens next?</h3>\n                        <p style=\"color: #666; margin-bottom: 10px;\">📧 Automated payment tracking via email</p>\n                        <p style=\"color: #666; margin-bottom: 10px;\">📊 Real-time Google Sheets updates</p>\n                        <p style=\"color: #666; margin-bottom: 10px;\">⏰️ Monthly reminders on the 2nd</p>\n                        <p style=\"color: #666;\">🔔 Smart payment notifications</p>\n                    </div>\n\n                    <button onclick=\"location.reload()\" style=\"\n                        padding: 15px 30px;\n                        background: linear-gradient(135deg, #667eea, #764ba2);\n                        color: white;\n                        border: none;\n                        border-radius: 10px;\n                        font-size: 1.1rem;\n                        cursor: pointer;\n                        margin-top: 20px;\n                    \">Add Another Tenant</button>\n                </div>\n            `;\n        }\n\n        // Function to show error page\n        function showErrorPage() {\n            document.body.innerHTML = `\n                <div class=\"form-container\" style=\"text-align: center; max-width: 600px;\">\n                    <div style=\"margin-bottom: 30px;\">\n                        <div style=\"font-size: 4rem; margin-bottom: 20px;\">⚠️</div>\n                        <h1 style=\"color: #e74c3c; font-size: 2.5rem; margin-bottom: 15px;\">Submission Failed</h1>\n                        <p style=\"color: #666; font-size: 1.2rem; line-height: 1.6;\">\n                            There was an issue adding this tenant to the system.\n                            Please check your connection and try again.\n                        </p>\n                    </div>\n\n                    <button onclick=\"location.reload()\" style=\"\n                        padding: 15px 30px;\n                        background: linear-gradient(135deg, #667eea, #764ba2);\n                        color: white;\n                        border: none;\n                        border-radius: 10px;\n                        font-size: 1.1rem;\n                        cursor: pointer;\n                        margin: 10px;\n                    \">Try Again</button>\n                </div>\n            `;\n        }\n\n        // Set default due date to 1st of next month\n        document.addEventListener('DOMContentLoaded', function() {\n            const dueDateInput = document.getElementById('dueDate');\n            const nextMonth = new Date();\n            nextMonth.setMonth(nextMonth.getMonth() + 1);\n            nextMonth.setDate(1);\n            dueDateInput.value = nextMonth.toISOString().split('T')[0];\n        });\n\n        document.getElementById('rentTrackerForm').addEventListener('submit', function(e) {\n            e.preventDefault();\n\n            // Basic validation\n            const tenantName = document.getElementById('tenantName').value.trim();\n            const tenantEmail = document.getElementById('tenantEmail').value.trim();\n            const rentAmount = document.getElementById('rentAmount').value;\n            const dueDate = document.getElementById('dueDate').value;\n\n            if (!tenantName || !tenantEmail || !rentAmount || !dueDate) {\n                alert('Please fill in all required fields.');\n                return;\n            }\n\n            // Email validation\n            const emailRegex = /^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/;\n            if (!emailRegex.test(tenantEmail)) {\n                alert('Please enter a valid email address.');\n                return;\n            }\n\n            // Show loading state\n            const submitBtn = document.querySelector('.submit-btn');\n            submitBtn.textContent = 'Adding Tenant...';\n            submitBtn.disabled = true;\n            submitBtn.style.opacity = '0.7';\n\n            // Prepare form data\n            const formData = new FormData();\n            formData.append('tenantName', tenantName);\n            formData.append('tenantEmail', tenantEmail);\n            formData.append('rentAmount', rentAmount);\n            formData.append('dueDate', dueDate);\n            formData.append('unitNumber', document.getElementById('unitNumber').value);\n            formData.append('phoneNumber', document.getElementById('phoneNumber').value);\n            formData.append('paymentMethod', document.getElementById('paymentMethod').value);\n            formData.append('notes', document.getElementById('notes').value);\n            formData.append('requestType', 'add_tenant');\n            formData.append('timestamp', new Date().toISOString());\n\n            // Try fetch first (for CORS-enabled webhooks)\n            fetch('https://boninaurelien.app.n8n.cloud/webhook/rent-tracker-webhook', {\n                method: 'POST',\n                body: formData,\n                mode: 'no-cors' // This allows the request to go through even with CORS issues\n            })\n            .then(() => {\n                // With no-cors mode, we can't read the response, but the request was sent\n                showSuccessPage();\n            })\n            .catch(() => {\n                // If fetch fails completely, try form submission as fallback\n                submitFormDirectly();\n            });\n        });\n\n        // Fallback: Direct form submission\n        function submitFormDirectly() {\n            // Create a hidden form that will actually submit\n            const hiddenForm = document.createElement('form');\n            hiddenForm.method = 'POST';\n            hiddenForm.action = 'https://boninaurelien.app.n8n.cloud/webhook/rent-tracker-webhook';\n            hiddenForm.style.display = 'none';\n\n            // Add all form fields\n            const fields = [\n                'tenantName', 'tenantEmail', 'rentAmount', 'dueDate',\n                'unitNumber', 'phoneNumber', 'paymentMethod', 'notes'\n            ];\n\n            fields.forEach(fieldName => {\n                const input = document.createElement('input');\n                input.type = 'hidden';\n                input.name = fieldName;\n                input.value = document.getElementById(fieldName).value;\n                hiddenForm.appendChild(input);\n            });\n\n            // Add metadata\n            const requestType = document.createElement('input');\n            requestType.type = 'hidden';\n            requestType.name = 'requestType';\n            requestType.value = 'add_tenant';\n            hiddenForm.appendChild(requestType);\n\n            const timestamp = document.createElement('input');\n            timestamp.type = 'hidden';\n            timestamp.name = 'timestamp';\n            timestamp.value = new Date().toISOString();\n            hiddenForm.appendChild(timestamp);\n\n            document.body.appendChild(hiddenForm);\n            hiddenForm.submit();\n        }\n\n        // Track Payment Form submission - Triggers Gmail Search\n        document.getElementById('trackPaymentForm').addEventListener('submit', function(e) {\n            e.preventDefault();\n\n            // Basic validation\n            const searchQuery = document.getElementById('searchQuery').value.trim();\n            const searchPeriodDays = document.getElementById('searchPeriodDays').value;\n            const trackPayme = document.getElementById('track_payme').value;\n\n            if (!searchQuery || !searchPeriodDays) {\n                alert('Please fill in all required fields.');\n                return;\n            }\n\n            // Show loading state\n            const submitBtn = document.querySelector('#trackPaymentForm .submit-btn');\n            submitBtn.textContent = 'Searching Gmail...';\n            submitBtn.disabled = true;\n            submitBtn.style.opacity = '0.7';\n\n            // Prepare form data for Gmail search workflow\n            const formData = new FormData();\n            formData.append('searchQuery', searchQuery);\n            formData.append('searchPeriodDays', searchPeriodDays);\n            formData.append('track_payme', trackPayme);\n            formData.append('searchNotes', document.getElementById('searchNotes').value);\n            formData.append('requestType', 'search_gmail');\n            formData.append('timestamp', new Date().toISOString());\n\n            // Send to webhook to trigger Gmail search workflow\n            fetch('https://boninaurelien.app.n8n.cloud/webhook/rent-tracker-webhook', {\n                method: 'POST',\n                body: formData\n            })\n            .then(response => response.json())\n            .then(data => {\n                // Display the webhook response data\n                showGmailSearchSuccessPage(data, searchQuery, searchPeriodDays);\n            })\n            .catch(error => {\n                console.error('Error:', error);\n                // If fetch fails, show error message\n                alert('Error occurred. Please try again.');\n                submitBtn.textContent = 'Track Payment';\n                submitBtn.disabled = false;\n                submitBtn.style.opacity = '1';\n            });\n        });\n\n        // Function to show Gmail search success page with webhook response data\n        function showGmailSearchSuccessPage(responseData, searchQuery, searchPeriodDays) {\n            // Ensure responseData is an array\n            const tenantData = Array.isArray(responseData) ? responseData : [responseData];\n            \n            // Calculate summary stats\n            const totalTenants = tenantData.length;\n            const paidTenants = tenantData.filter(t => t.Payment && t.Payment > 0).length;\n            const unpaidTenants = tenantData.filter(t => !t.Payment || t.Payment === '' || t.Due > 0).length;\n            const totalPaymentReceived = tenantData.reduce((sum, t) => sum + (t.Payment || 0), 0);\n            \n            // Create table rows for tenant data\n            const tableRows = tenantData.map(tenant => `\n                <tr>\n                    <td style=\"padding: 12px; text-align: left; border-bottom: 1px solid #e1e8ed;\">${tenant.Name || '-'}</td>\n                    <td style=\"padding: 12px; text-align: center; border-bottom: 1px solid #e1e8ed;\">$${tenant['Rent amount'] || 0}</td>\n                    <td style=\"padding: 12px; text-align: center; border-bottom: 1px solid #e1e8ed; color: ${tenant.Payment ? '#27ae60' : '#e74c3c'};\">\n                        ${tenant.Payment ? '$' + tenant.Payment : '-'}\n                    </td>\n                    <td style=\"padding: 12px; text-align: center; border-bottom: 1px solid #e1e8ed; color: ${tenant.Due && tenant.Due > 0 ? '#e74c3c' : '#27ae60'};\">\n                        ${tenant.Due ? '$' + tenant.Due : 'Paid'}\n                    </td>\n                    <td style=\"padding: 12px; text-align: center; border-bottom: 1px solid #e1e8ed; font-size: 0.9rem; color: #666;\">\n                        ${tenant['Last payment'] || '-'}\n                    </td>\n                </tr>\n            `).join('');\n            \n            document.body.innerHTML = `\n                <div class=\"form-container\" style=\"text-align: center; max-width: 900px; max-height: 90vh; overflow-y: auto;\">\n                    <div style=\"margin-bottom: 30px;\">\n                        <div style=\"font-size: 4rem; margin-bottom: 20px;\">🔍✅</div>\n                        <h1 style=\"color: #667eea; font-size: 2.5rem; margin-bottom: 15px;\">Gmail Search Triggered!</h1>\n                        <p style=\"color: #666; font-size: 1.2rem; line-height: 1.6;\">\n                            Your Gmail search has been initiated. The system will search for payment emails\n                            matching \"<span style=\"font-weight: bold; color: #333;\">${searchQuery}</span>\"\n                            from the last ${searchPeriodDays} days and process any found payments.\n                        </p>\n                    </div>\n\n                    <div style=\"background: #f8f9fa; padding: 25px; border-radius: 15px; margin: 30px 0;\">\n                        <h3 style=\"color: #333; margin-bottom: 15px;\">Payment Processing Summary</h3>\n                        <div style=\"display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 15px; margin-bottom: 20px;\">\n                            <div style=\"background: white; padding: 15px; border-radius: 10px; border-left: 4px solid #667eea;\">\n                                <div style=\"font-size: 2rem; color: #667eea; font-weight: bold;\">${totalTenants}</div>\n                                <div style=\"color: #666; font-size: 0.9rem;\">Total Tenants</div>\n                            </div>\n                            <div style=\"background: white; padding: 15px; border-radius: 10px; border-left: 4px solid #27ae60;\">\n                                <div style=\"font-size: 2rem; color: #27ae60; font-weight: bold;\">${paidTenants}</div>\n                                <div style=\"color: #666; font-size: 0.9rem;\">Paid</div>\n                            </div>\n                            <div style=\"background: white; padding: 15px; border-radius: 10px; border-left: 4px solid #e74c3c;\">\n                                <div style=\"font-size: 2rem; color: #e74c3c; font-weight: bold;\">${unpaidTenants}</div>\n                                <div style=\"color: #666; font-size: 0.9rem;\">Unpaid</div>\n                            </div>\n                            <div style=\"background: white; padding: 15px; border-radius: 10px; border-left: 4px solid #3498db;\">\n                                <div style=\"font-size: 2rem; color: #3498db; font-weight: bold;\">$${totalPaymentReceived.toLocaleString()}</div>\n                                <div style=\"color: #666; font-size: 0.9rem;\">Received</div>\n                            </div>\n                        </div>\n                    </div>\n\n                    <div style=\"margin: 30px 0;\">\n                        <h3 style=\"color: #333; margin-bottom: 15px;\">Payment Details</h3>\n                        <div style=\"overflow-x: auto; border-radius: 10px; border: 1px solid #e1e8ed;\">\n                            <table style=\"width: 100%; border-collapse: collapse; background: white;\">\n                                <thead>\n                                    <tr style=\"background: #f8f9fa; border-bottom: 2px solid #e1e8ed;\">\n                                        <th style=\"padding: 12px; text-align: left; font-weight: 600; color: #333;\">Tenant Name</th>\n                                        <th style=\"padding: 12px; text-align: center; font-weight: 600; color: #333;\">Rent</th>\n                                        <th style=\"padding: 12px; text-align: center; font-weight: 600; color: #333;\">Payment</th>\n                                        <th style=\"padding: 12px; text-align: center; font-weight: 600; color: #333;\">Due</th>\n                                        <th style=\"padding: 12px; text-align: center; font-weight: 600; color: #333;\">Last Payment</th>\n                                    </tr>\n                                </thead>\n                                <tbody>\n                                    ${tableRows}\n                                </tbody>\n                            </table>\n                        </div>\n                    </div>\n\n                    <button onclick=\"location.reload()\" style=\"\n                        padding: 15px 30px;\n                        background: linear-gradient(135deg, #667eea, #764ba2);\n                        color: white;\n                        border: none;\n                        border-radius: 10px;\n                        font-size: 1.1rem;\n                        cursor: pointer;\n                        margin-top: 20px;\n                    \">Search Again</button>\n                </div>\n            `;\n        }\n\n        // Add some interactive feedback\n        const inputs = document.querySelectorAll('.form-input, .form-select, .form-textarea');\n        inputs.forEach(input => {\n            input.addEventListener('focus', function() {\n                this.parentElement.style.transform = 'scale(1.02)';\n            });\n\n            input.addEventListener('blur', function() {\n                this.parentElement.style.transform = 'scale(1)';\n            });\n        });\n    </script>\n</body>\n</html>"
+        },
+        "type": "n8n-nodes-base.html",
+        "typeVersion": 1.2,
+        "position": [
+          3792,
+          -656
+        ],
+        "id": "ee6e5824-8987-49fc-a140-5827c04ee273",
+        "name": "HTML",
+        "notesInFlow": true
+      },
+      {
+        "parameters": {
+          "content": "# Interface",
+          "height": 520,
+          "width": 1080,
+          "color": 7
+        },
+        "type": "n8n-nodes-base.stickyNote",
+        "position": [
+          3296,
+          -848
+        ],
+        "typeVersion": 1,
+        "id": "854d65a8-3d85-4ab3-8285-0d08d9a18ed6",
+        "name": "Sticky Note12"
+      },
+      {
+        "parameters": {
+          "path": "rent-tracker-pro",
+          "responseMode": "responseNode",
+          "options": {
+            "allowedOrigins": "*"
+          }
+        },
+        "type": "n8n-nodes-base.webhook",
+        "typeVersion": 2,
+        "position": [
+          3536,
+          -656
+        ],
+        "id": "3eca882c-150d-4823-982d-9b24f605b926",
+        "name": "On webhook Trigger",
+        "webhookId": "6ad5b353-df84-4a10-ae5d-dbfcd68d712a"
+      },
+      {
+        "parameters": {
+          "respondWith": "text",
+          "responseBody": "={{ $json.html }}",
+          "options": {}
+        },
+        "type": "n8n-nodes-base.respondToWebhook",
+        "typeVersion": 1.1,
+        "position": [
+          4016,
+          -656
+        ],
+        "id": "d5452a58-f4aa-4e24-9c43-5fcf73e5edc2",
+        "name": "Respond to Webhook"
+      },
+      {
+        "parameters": {
+          "httpMethod": "POST",
+          "path": "rent-tracker-webhook",
+          "responseMode": "responseNode",
+          "options": {}
+        },
+        "type": "n8n-nodes-base.webhook",
+        "typeVersion": 2,
+        "position": [
+          2880,
+          -224
+        ],
+        "id": "adb2fb23-0f1b-45bc-a0de-62c089eec4e3",
+        "name": "Webhook",
+        "webhookId": "c088c308-320c-40ac-8c74-fb306d6cc193"
+      },
+      {
+        "parameters": {
+          "respondWith": "allIncomingItems",
+          "options": {}
+        },
+        "type": "n8n-nodes-base.respondToWebhook",
+        "typeVersion": 1.1,
+        "position": [
+          4864,
+          -224
+        ],
+        "id": "6288b4ac-7d93-4dbc-a86c-fa4389d50de6",
+        "name": "Response"
+      },
+      {
+        "parameters": {
+          "conditions": {
+            "options": {
+              "caseSensitive": true,
+              "leftValue": "",
+              "typeValidation": "strict",
+              "version": 2
+            },
+            "conditions": [
+              {
+                "id": "92fe91c7-22ff-4481-a991-70709914c77c",
+                "leftValue": "={{ $json.track_payment }}",
+                "rightValue": "null",
+                "operator": {
+                  "type": "string",
+                  "operation": "equals"
+                }
+              }
+            ],
+            "combinator": "and"
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.if",
+        "typeVersion": 2.2,
+        "position": [
+          3376,
+          -208
+        ],
+        "id": "21ca00d8-81c8-4dbf-8685-341b82dfad74",
+        "name": "If"
+      },
+      {
+        "parameters": {
+          "operation": "appendOrUpdate",
+          "documentId": {
+            "__rl": true,
+            "value": "1Sd-2cvtC9l0IAsN4ze2s22bvYbRphnG_ARSLWiZJcZM",
+            "mode": "list",
+            "cachedResultName": "Rent payment",
+            "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1Sd-2cvtC9l0IAsN4ze2s22bvYbRphnG_ARSLWiZJcZM/edit?usp=drivesdk"
+          },
+          "sheetName": {
+            "__rl": true,
+            "value": 1613306859,
+            "mode": "list",
+            "cachedResultName": "TenantsList",
+            "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1Sd-2cvtC9l0IAsN4ze2s22bvYbRphnG_ARSLWiZJcZM/edit#gid=1613306859"
+          },
+          "columns": {
+            "mappingMode": "defineBelow",
+            "value": {
+              "Email": "={{ $json.tenantEmail }}",
+              "Transaction type": "={{ $json.paymentMethod }}",
+              "Month": "={{ $json.month }}",
+              "Name": "={{ $json.tenantName }}",
+              "Rent amount": "={{ $json.rentAmount }}",
+              "Phone": "={{ $json.phoneNumber }}",
+              "Due date": "={{ $json.dueDate }}"
+            },
+            "matchingColumns": [
+              "Email"
+            ],
+            "schema": [
+              {
+                "id": "Name",
+                "displayName": "Name",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true,
+                "removed": false
+              },
+              {
+                "id": "Email",
+                "displayName": "Email",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true,
+                "removed": false
+              },
+              {
+                "id": "Rent amount",
+                "displayName": "Rent amount",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true,
+                "removed": false
+              },
+              {
+                "id": "Phone",
+                "displayName": "Phone",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true,
+                "removed": false
+              },
+              {
+                "id": "Location",
+                "displayName": "Location",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true,
+                "removed": true
+              },
+              {
+                "id": "Due date",
+                "displayName": "Due date",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true,
+                "removed": false
+              },
+              {
+                "id": "Payment",
+                "displayName": "Payment",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true,
+                "removed": true
+              },
+              {
+                "id": "Due",
+                "displayName": "Due",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true,
+                "removed": true
+              },
+              {
+                "id": "Last payment",
+                "displayName": "Last payment",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true,
+                "removed": true
+              },
+              {
+                "id": "Month",
+                "displayName": "Month",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true,
+                "removed": true
+              },
+              {
+                "id": "Transaction type",
+                "displayName": "Transaction type",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true
+              },
+              {
+                "id": "Subject",
+                "displayName": "Subject",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true,
+                "removed": true
+              },
+              {
+                "id": "Content",
+                "displayName": "Content",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true,
+                "removed": true
+              },
+              {
+                "id": "EmailToSend",
+                "displayName": "EmailToSend",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true,
+                "removed": true
+              }
+            ],
+            "attemptToConvertTypes": false,
+            "convertFieldsToString": false
+          },
+          "options": {}
+        },
+        "id": "ba348935-e149-417e-9459-098b7798df1f",
+        "name": "Add tenant",
+        "type": "n8n-nodes-base.googleSheets",
+        "typeVersion": 4.7,
+        "position": [
+          3696,
+          -224
+        ],
+        "credentials": {
+          "googleSheetsOAuth2Api": {
+            "id": "lKflw0vM8OPLHwhd",
+            "name": "Google Sheets account 2"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "operation": "update",
+          "documentId": {
+            "__rl": true,
+            "value": "1Sd-2cvtC9l0IAsN4ze2s22bvYbRphnG_ARSLWiZJcZM",
+            "mode": "list",
+            "cachedResultName": "Rent payment",
+            "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1Sd-2cvtC9l0IAsN4ze2s22bvYbRphnG_ARSLWiZJcZM/edit?usp=drivesdk"
+          },
+          "sheetName": {
+            "__rl": true,
+            "value": 1613306859,
+            "mode": "list",
+            "cachedResultName": "TenantsList",
+            "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1Sd-2cvtC9l0IAsN4ze2s22bvYbRphnG_ARSLWiZJcZM/edit#gid=1613306859"
+          },
+          "columns": {
+            "mappingMode": "defineBelow",
+            "value": {
+              "Email": "={{ $json.tenantEmail }}",
+              "Last payment": "={{ $json.date }}",
+              "Transaction type": "={{ $json.transactionType }}",
+              "Month": "={{ $json.month }}",
+              "row_number": 0,
+              "Payment": "={{ $json.amount }}",
+              "Subject": "={{ $json.emailSubject }}",
+              "Content": "={{ $json.emailContent }}"
+            },
+            "matchingColumns": [
+              "Email"
+            ],
+            "schema": [
+              {
+                "id": "Name",
+                "displayName": "Name",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true,
+                "removed": true
+              },
+              {
+                "id": "Email",
+                "displayName": "Email",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true,
+                "removed": false
+              },
+              {
+                "id": "Rent amount",
+                "displayName": "Rent amount",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true,
+                "removed": true
+              },
+              {
+                "id": "Phone",
+                "displayName": "Phone",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true,
+                "removed": true
+              },
+              {
+                "id": "Location",
+                "displayName": "Location",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true,
+                "removed": true
+              },
+              {
+                "id": "Due date",
+                "displayName": "Due date",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true,
+                "removed": true
+              },
+              {
+                "id": "Payment",
+                "displayName": "Payment",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true,
+                "removed": false
+              },
+              {
+                "id": "Due",
+                "displayName": "Due",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true,
+                "removed": true
+              },
+              {
+                "id": "Last payment",
+                "displayName": "Last payment",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true
+              },
+              {
+                "id": "Month",
+                "displayName": "Month",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true,
+                "removed": true
+              },
+              {
+                "id": "Transaction type",
+                "displayName": "Transaction type",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true
+              },
+              {
+                "id": "Subject",
+                "displayName": "Subject",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true,
+                "removed": false
+              },
+              {
+                "id": "Content",
+                "displayName": "Content",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true,
+                "removed": false
+              },
+              {
+                "id": "EmailToSend",
+                "displayName": "EmailToSend",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true,
+                "removed": true
+              },
+              {
+                "id": "row_number",
+                "displayName": "row_number",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "number",
+                "canBeUsedToMatch": true,
+                "readOnly": true,
+                "removed": false
+              }
+            ],
+            "attemptToConvertTypes": false,
+            "convertFieldsToString": false
+          },
+          "options": {}
+        },
+        "id": "f3d86aac-146e-408f-8d9a-d68d82b372fa",
+        "name": "Add Payments to Sheet",
+        "type": "n8n-nodes-base.googleSheets",
+        "typeVersion": 4.7,
+        "position": [
+          4208,
+          0
+        ],
+        "credentials": {
+          "googleSheetsOAuth2Api": {
+            "id": "lKflw0vM8OPLHwhd",
+            "name": "Google Sheets account 2"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "documentId": {
+            "__rl": true,
+            "value": "1Sd-2cvtC9l0IAsN4ze2s22bvYbRphnG_ARSLWiZJcZM",
+            "mode": "list",
+            "cachedResultName": "Rent payment",
+            "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1Sd-2cvtC9l0IAsN4ze2s22bvYbRphnG_ARSLWiZJcZM/edit?usp=drivesdk"
+          },
+          "sheetName": {
+            "__rl": true,
+            "value": 1613306859,
+            "mode": "list",
+            "cachedResultName": "TenantsList",
+            "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1Sd-2cvtC9l0IAsN4ze2s22bvYbRphnG_ARSLWiZJcZM/edit#gid=1613306859"
+          },
+          "options": {}
+        },
+        "id": "57c584b2-a78c-4057-9aec-fbc9697becfe",
+        "name": "Get payments",
+        "type": "n8n-nodes-base.googleSheets",
+        "typeVersion": 4.7,
+        "position": [
+          4448,
+          208
+        ],
+        "executeOnce": true,
+        "credentials": {
+          "googleSheetsOAuth2Api": {
+            "id": "lKflw0vM8OPLHwhd",
+            "name": "Google Sheets account 2"
+          }
+        }
+      }
+    ],
+    "connections": {
+      "Monthly Trigger - 2nd of Month": {
+        "main": [
+          [
+            {
+              "node": "Workflow Configuration",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Workflow Configuration": {
+        "main": [
+          [
+            {
+              "node": "If",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Search Gmail for Interac Payments": {
+        "main": [
+          [
+            {
+              "node": "Parse Payment Details from Emails",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Parse Payment Details from Emails": {
+        "main": [
+          [
+            {
+              "node": "Aggregate Payments by Tenant",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Aggregate Payments by Tenant": {
+        "main": [
+          [
+            {
+              "node": "Add Payments to Sheet",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Read Tenant List": {
+        "main": [
+          [
+            {
+              "node": "Identify Unpaid Tenants",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Identify Unpaid Tenants": {
+        "main": [
+          [
+            {
+              "node": "Prepare Reminder Emails",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Prepare Reminder Emails": {
+        "main": [
+          [
+            {
+              "node": "Update Due",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Update Due": {
+        "main": [
+          [
+            {
+              "node": "Send Payment Reminders",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "HTML": {
+        "main": [
+          [
+            {
+              "node": "Respond to Webhook",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "On webhook Trigger": {
+        "main": [
+          [
+            {
+              "node": "HTML",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Webhook": {
+        "main": [
+          [
+            {
+              "node": "Workflow Configuration",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Send Payment Reminders": {
+        "main": [
+          [
+            {
+              "node": "Get payments",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "If": {
+        "main": [
+          [
+            {
+              "node": "Add tenant",
+              "type": "main",
+              "index": 0
+            }
+          ],
+          [
+            {
+              "node": "Search Gmail for Interac Payments",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Add tenant": {
+        "main": [
+          [
+            {
+              "node": "Response",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Add Payments to Sheet": {
+        "main": [
+          [
+            {
+              "node": "Read Tenant List",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Get payments": {
+        "main": [
+          [
+            {
+              "node": "Response",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    },
+    "authors": "Aurelien Bonin",
+    "name": null,
+    "description": null,
+    "autosaved": false
+  },
+  "activeVersionId": "42ad0fd3-8c79-4adb-8c4d-752397e0ab56",
+  "connections": {
+    "Monthly Trigger - 2nd of Month": {
+      "main": [
+        [
+          {
+            "node": "Workflow Configuration",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Workflow Configuration": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Search Gmail for Interac Payments": {
+      "main": [
+        [
+          {
+            "node": "Parse Payment Details from Emails",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse Payment Details from Emails": {
+      "main": [
+        [
+          {
+            "node": "Aggregate Payments by Tenant",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Aggregate Payments by Tenant": {
+      "main": [
+        [
+          {
+            "node": "Add Payments to Sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read Tenant List": {
+      "main": [
+        [
+          {
+            "node": "Identify Unpaid Tenants",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Identify Unpaid Tenants": {
+      "main": [
+        [
+          {
+            "node": "Prepare Reminder Emails",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare Reminder Emails": {
+      "main": [
+        [
+          {
+            "node": "Update Due",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update Due": {
+      "main": [
+        [
+          {
+            "node": "Send Payment Reminders",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTML": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "On webhook Trigger": {
+      "main": [
+        [
+          {
+            "node": "HTML",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Workflow Configuration",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send Payment Reminders": {
+      "main": [
+        [
+          {
+            "node": "Get payments",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Add tenant",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Search Gmail for Interac Payments",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Add tenant": {
+      "main": [
+        [
+          {
+            "node": "Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Add Payments to Sheet": {
+      "main": [
+        [
+          {
+            "node": "Read Tenant List",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get payments": {
+      "main": [
+        [
+          {
+            "node": "Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "createdAt": "2025-11-15T06:17:50.116Z",
+  "id": "j6AdUwzGeFVrDHLx",
+  "isArchived": false,
+  "meta": {
+    "templateCredsSetupCompleted": true
+  },
+  "name": "Monthly Tenant Rent Payment Tracking and Reminder System",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "months",
+              "triggerAtDayOfMonth": 2
+            }
+          ]
+        }
+      },
+      "id": "cd37bdd3-2bbd-4a69-b10f-fb8e044acf33",
+      "name": "Monthly Trigger - 2nd of Month",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        2896,
+        -16
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "id-1",
+              "name": "searchQuery",
+              "value": "={{ $json.body.searchQuery }}",
+              "type": "string"
+            },
+            {
+              "id": "id-2",
+              "name": "searchPeriodDays",
+              "value": "={{ $json.body.searchPeriodDays }}",
+              "type": "string"
+            },
+            {
+              "id": "1fe78f31-01b6-4cf3-a810-26fb3d08f6e2",
+              "name": "track_payment",
+              "value": "={{ $json.body.track_payme || null }}",
+              "type": "string"
+            },
+            {
+              "id": "c7cacfb1-7e82-4503-afa8-b39cd6ca7f16",
+              "name": "tenantName",
+              "value": "={{ $json.body.tenantName || null }}",
+              "type": "string"
+            },
+            {
+              "id": "2ad36b9d-d030-413c-a7e9-ff051e79b808",
+              "name": "tenantEmail",
+              "value": "={{ $json.body.tenantEmail || null }}",
+              "type": "string"
+            },
+            {
+              "id": "d1a0782d-14b6-400a-bc12-9f11f569a7d1",
+              "name": "rentAmount",
+              "value": "={{ $json.body.rentAmount || null }}",
+              "type": "string"
+            },
+            {
+              "id": "6016f4f9-a447-480b-8db2-2fc7a724adab",
+              "name": "dueDate",
+              "value": "={{ $json.body.dueDate || null }}",
+              "type": "string"
+            },
+            {
+              "id": "321aeafc-bbb2-4776-8482-b14db11a36b8",
+              "name": "unitNumber",
+              "value": "={{ $json.body.unitNumber || null }}",
+              "type": "string"
+            },
+            {
+              "id": "b1d7b638-4efc-4075-82a1-1c478f0405ec",
+              "name": "phoneNumber",
+              "value": "={{ $json.body.phoneNumber || null }}",
+              "type": "string"
+            },
+            {
+              "id": "ca521056-7b38-4693-b5ad-c8b8c490063b",
+              "name": "paymentMethod",
+              "value": "={{ $json.body.paymentMethod || null }}",
+              "type": "string"
+            },
+            {
+              "id": "fddf9e5b-1d16-4691-a00a-b91a58ed4222",
+              "name": "notes",
+              "value": "={{ $json.body.notes || null }}",
+              "type": "string"
+            }
+          ]
+        },
+        "includeOtherFields": true,
+        "options": {}
+      },
+      "id": "ae431a07-b18b-4ba6-85d9-f99ecd842e64",
+      "name": "Workflow Configuration",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        3168,
+        -208
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "getAll",
+        "limit": 100,
+        "simple": false,
+        "filters": {
+          "q": "={{ $json.searchQuery || interac }}",
+          "receivedAfter": "={{ $now.minus({ days: $json.searchPeriodDays }).toISO() }}"
+        },
+        "options": {}
+      },
+      "id": "07462cdf-b834-4cd8-a4fe-78adb44cacad",
+      "name": "Search Gmail for Interac Payments",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        3584,
+        0
+      ],
+      "webhookId": "fb238b62-1478-47a8-8a9d-1597d1bc8b55",
+      "executeOnce": true,
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "pcIKnGBryHHONrSG",
+          "name": "Relay"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Parse Interac payment details from Gmail and Yahoo emails\nconst payments = [];\n\nfor (const item of $input.all()) {\n  try {\n    // Récupérer le contenu de l'email (texte ou HTML)\n    const emailBody = item.json.text || item.json.textPlain || item.json.snippet || '';\n    const emailHtml = item.json.html || item.json.textAsHtml || '';\n    const emailSubject = item.json.subject || '';\n    const emailDate = item.json.date || item.json.receivedDateTime || new Date().toISOString();\n    \n    // Déterminer la source\n    const emailSource = item.json.labelIds ? 'Gmail' : 'Yahoo';\n    \n    // Combine text and HTML for better parsing\n    const fullContent = emailBody + ' ' + emailHtml;\n    \n    // === EXTRACTION DU MONTANT ===\n    let amount = null;\n    \n    // Pattern 1: \"requested $XXX.XX from you\" (Interac request)\n    let amountMatch = fullContent.match(/requested\\s+\\$([0-9,]+\\.?[0-9]{0,2})\\s+from\\s+you/i);\n    \n    // Pattern 2: \"Transfer Amount XXX.XX CAD\" (Western Union)\n    if (!amountMatch) {\n      amountMatch = fullContent.match(/Transfer\\s+Amount\\s+([0-9,]+\\.?[0-9]{0,2})\\s+CAD/i);\n    }\n    \n    // Pattern 3: Generic \"$XXX.XX (CAD)\" or \"$XXX.XX CAD\"\n    if (!amountMatch) {\n      amountMatch = fullContent.match(/\\$([0-9,]+\\.?[0-9]{0,2})\\s*\\(CAD\\)/i);\n    }\n    \n    // Pattern 4: Generic \"CAD XXX.XX\" or \"$XXX.XX\"\n    if (!amountMatch) {\n      amountMatch = fullContent.match(/(?:CAD|\\$)\\s*([0-9,]+\\.?[0-9]{0,2})/i);\n    }\n    \n    if (amountMatch) {\n      amount = parseFloat(amountMatch[1].replace(/,/g, ''));\n    }\n    \n    // === EXTRACTION DU NOM DU LOCATAIRE ===\n    let tenantName = '';\n    \n    // Pattern 1: From subject \"SENDER_NAME has requested\"\n    let nameMatch = emailSubject.match(/^Interac\\s+e-Transfer:\\s+([A-Z\\s]+)\\s+has\\s+requested/i);\n    \n    // Pattern 2: From \"Receiver Details\" section (Western Union)\n    if (!nameMatch) {\n      nameMatch = fullContent.match(/Receiver\\s+Details[^N]+Name\\s+([A-Za-z\\s-]+?)(?:\\s+Payout|<)/i);\n    }\n    \n    // Pattern 3: From \"Hi [NAME]\" or \"Sent From: [NAME]\"\n    if (!nameMatch) {\n      nameMatch = fullContent.match(/(?:Hi|Sent\\s+From:)\\s+([A-Z][a-z]+(?:\\s+[A-Z][a-z]+)+)/);\n    }\n    \n    // Pattern 4: From email sender field\n    if (!nameMatch) {\n      const fromField = item.json.from?.value?.[0]?.name || item.json.from?.text || '';\n      if (fromField && !fromField.includes('Union') && !fromField.includes('Interac') && !fromField.includes('notify')) {\n        tenantName = fromField.replace(/[<>\"]/g, '').trim();\n      }\n    }\n    \n    if (nameMatch) {\n      tenantName = nameMatch[1].trim();\n    }\n    \n    // === EXTRACTION DE L'EMAIL DU LOCATAIRE ===\n    let tenantEmail = '';\n    \n    // From reply-to field\n    if (item.json.replyTo?.value?.[0]?.address) {\n      tenantEmail = item.json.replyTo.value[0].address;\n    }\n    \n    // Fallback to from field if reply-to doesn't exist\n    if (!tenantEmail && item.json.from?.value?.[0]?.address) {\n      const fromAddr = item.json.from.value[0].address;\n      // Avoid system emails\n      if (!fromAddr.includes('notify@') && !fromAddr.includes('noreply@')) {\n        tenantEmail = fromAddr;\n      }\n    }\n    \n    // === PARSE DATE ===\n    const paymentDate = new Date(emailDate).toISOString().split('T')[0];\n    \n    // === DÉTECTION DU TYPE DE TRANSACTION ===\n    let transactionType = 'Unknown';\n    if (emailSubject.includes('has requested')) {\n      transactionType = 'Interac Request';\n    } else if (emailSubject.includes('ready for pickup') || fullContent.includes('Western Union')) {\n      transactionType = 'Western Union Transfer';\n    } else if (emailSubject.includes('Interac e-Transfer')) {\n      transactionType = 'Interac Transfer';\n    }\n    \n    // === EXTRACTION DU MTCN (Western Union) ===\n    let mtcn = '';\n    const mtcnMatch = fullContent.match(/MTCN[:\\s]+(\\d{10})/i);\n    if (mtcnMatch) {\n      mtcn = mtcnMatch[1];\n    }\n    \n    // === EXTRACTION DU MESSAGE CONTENT ===\n    let extractedMessage = '';\n    // Find the 'Message:' section and extract text until next section or end\n    const messageMatch = fullContent.match(/Message:\\s*([\\s\\S]*?)(?=\\s*(?:Date:|FAQ:|Security|Transfer|Amount:|MTCN:|$))/i);\n    if (messageMatch && messageMatch[1]) {\n      // Clean up the extracted message and limit to 500 characters\n      extractedMessage = messageMatch[1]\n        .replace(/<[^>]*>/g, '') // Remove HTML tags\n        .replace(/\\s+/g, ' ') // Normalize whitespace\n        .trim()\n        .substring(0, 500);\n    }\n    \n    // Only add if we have at least amount and name\n    if (amount && tenantName) {\n      payments.push({\n        json: {\n          tenantName: tenantName,\n          tenantEmail: tenantEmail,\n          amount: amount,\n          date: paymentDate,\n          source: emailSource,\n          transactionType: transactionType,\n          mtcn: mtcn || 'N/A',\n          subject: emailSubject,\n          rawSnippet: emailBody.substring(0, 150),\n          emailSubject: emailSubject,\n          emailContent: extractedMessage || fullContent.substring(0, 500)\n        }\n      });\n    } else {\n      console.log(`Skipped email - Amount: ${amount}, Name: ${tenantName}`);\n    }\n    \n  } catch (error) {\n    console.log('Error parsing email:', error.message, error.stack);\n  }\n}\n\nconsole.log(`Successfully parsed ${payments.length} payments`);\nreturn payments;"
+      },
+      "id": "091540a2-0409-4bcd-9f98-ca4014b6a25a",
+      "name": "Parse Payment Details from Emails",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        3808,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Aggregate payments by tenant email\n// Sum all payments from the same customer (handles multiple payments per month)\n// Include current month name\n// Preserve email subject and content from first payment\n\nconst aggregatedPayments = {};\n\n// Get current month name\nconst currentDate = new Date();\nconst monthNames = ['January', 'February', 'March', 'April', 'May', 'June',\n  'July', 'August', 'September', 'October', 'November', 'December'];\nconst currentMonth = monthNames[currentDate.getMonth()];\n\n// Group payments by email\nfor (const payment of $input.all()) {\n  const email = payment.json.tenantEmail?.toLowerCase().trim();\n  if (!email) continue;\n  \n  if (!aggregatedPayments[email]) {\n    aggregatedPayments[email] = {\n      tenantEmail: email,\n      tenantName: payment.json.tenantName,\n      totalAmount: 0,\n      lastPaymentDate: payment.json.date,\n      transactionType: payment.json.transactionType,\n      paymentCount: 0,\n      allDates: [],\n      month: currentMonth,\n      emailSubject: payment.json.subject || '',\n      emailContent: payment.json.emailContent || ''\n    };\n  }\n  \n  // Add to total\n  aggregatedPayments[email].totalAmount += parseFloat(payment.json.amount) || 0;\n  aggregatedPayments[email].paymentCount += 1;\n  aggregatedPayments[email].allDates.push(payment.json.date);\n  \n  // Keep the latest date\n  if (payment.json.date > aggregatedPayments[email].lastPaymentDate) {\n    aggregatedPayments[email].lastPaymentDate = payment.json.date;\n  }\n}\n\n// Convert to array format for n8n\nconst result = Object.values(aggregatedPayments).map(agg => ({\n  json: {\n    tenantEmail: agg.tenantEmail,\n    tenantName: agg.tenantName,\n    amount: agg.totalAmount,\n    date: agg.lastPaymentDate,\n    month: agg.month,\n    transactionType: agg.transactionType,\n    paymentCount: agg.paymentCount,\n    allPaymentDates: agg.allDates.join(', '),\n    emailSubject: agg.emailSubject,\n    emailContent: agg.emailContent\n  }\n}));\n\nconsole.log(`Aggregated ${Object.keys(aggregatedPayments).length} unique tenants with ${$input.all().length} total payments for ${currentMonth}`);\nreturn result;"
+      },
+      "id": "517fc15d-4069-4912-952d-e7a71811ad1e",
+      "name": "Aggregate Payments by Tenant",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        4032,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1Sd-2cvtC9l0IAsN4ze2s22bvYbRphnG_ARSLWiZJcZM",
+          "mode": "list",
+          "cachedResultName": "Rent payment",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1Sd-2cvtC9l0IAsN4ze2s22bvYbRphnG_ARSLWiZJcZM/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1613306859,
+          "mode": "list",
+          "cachedResultName": "TenantsList",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1Sd-2cvtC9l0IAsN4ze2s22bvYbRphnG_ARSLWiZJcZM/edit#gid=1613306859"
+        },
+        "options": {}
+      },
+      "id": "a0e2282e-9390-4cc9-930e-0a8c43898e71",
+      "name": "Read Tenant List",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        3600,
+        208
+      ],
+      "executeOnce": true,
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "lKflw0vM8OPLHwhd",
+          "name": "Google Sheets account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Identify tenants with payment issues\n// Check for: No payment OR Partial payment (less than Rent amount)\n// Filter: Skip invalid entries (no rent amount, duplicate emails, etc.)\n\nconst allTenants = $('Read Tenant List').all();\nconst unpaidTenants = [];\nconst seenEmails = new Set(); // Track seen emails to avoid duplicates\n\nfor (const tenant of allTenants) {\n  const tenantData = tenant.json;\n  \n  // Skip if no email\n  if (!tenantData.Email || tenantData.Email.trim() === '') {\n    continue;\n  }\n  \n  // Skip if no rent amount defined (invalid tenant)\n  const rentAmount = parseFloat(tenantData['Rent amount']) || 0;\n  if (rentAmount === 0) {\n    console.log(`Skipped tenant ${tenantData.Name} - no rent amount defined`);\n    continue;\n  }\n  \n  const tenantEmail = tenantData.Email.toLowerCase().trim();\n  \n  // Skip if we already processed this email (avoid duplicates)\n  if (seenEmails.has(tenantEmail)) {\n    console.log(`Skipped duplicate email: ${tenantEmail}`);\n    continue;\n  }\n  seenEmails.add(tenantEmail);\n  \n  const tenantName = tenantData.Name || 'Unknown';\n  const payment = parseFloat(tenantData.Payment) || 0;\n  \n  // Check if:\n  // 1. No payment at all (payment = 0)\n  // 2. Partial payment (payment < rent amount)\n  if (payment === 0) {\n    unpaidTenants.push({\n      json: {\n        name: tenantName,\n        email: tenantEmail,\n        rentAmount: rentAmount,\n        amountPaid: 0,\n        amountDue: rentAmount,\n        lastPaymentDate: tenantData['Last payment'] || 'Never',\n        status: 'UNPAID',\n        paymentStatus: 'NO_PAYMENT'\n      }\n    });\n  } else if (payment < rentAmount) {\n    unpaidTenants.push({\n      json: {\n        name: tenantName,\n        email: tenantEmail,\n        rentAmount: rentAmount,\n        amountPaid: payment,\n        amountDue: rentAmount - payment,\n        lastPaymentDate: tenantData['Last payment'] || 'Never',\n        status: 'PARTIAL_PAYMENT',\n        paymentStatus: 'PARTIAL'\n      }\n    });\n  }\n}\n\nconsole.log(`Found ${unpaidTenants.length} tenants with payment issues (unpaid or partial)`);\nreturn unpaidTenants;"
+      },
+      "id": "ff62fa33-c595-42df-988c-9963a37d79f1",
+      "name": "Identify Unpaid Tenants",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        3776,
+        208
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Prepare personalized reminder emails based on payment status\n\nconst reminderEmails = [];\n\nfor (const unpaidTenant of $input.all()) {\n  const tenant = unpaidTenant.json;\n  \n  if (!tenant.email) {\n    continue;\n  }\n  \n  let emailBody = '';\n  let subject = '';\n  \n  if (tenant.paymentStatus === 'NO_PAYMENT') {\n    // No payment at all\n    subject = `Rent Payment Due - $${tenant.rentAmount}`;\n    emailBody = `Hello ${tenant.name},\\n\\nThis is a friendly reminder that your rent payment of $${tenant.rentAmount} for this month is due.\\n\\nPlease send your payment as soon as possible via Interac e-Transfer.\\n\\nThank you,\\nProperty Management`;\n  } else if (tenant.paymentStatus === 'PARTIAL') {\n    // Partial payment\n    subject = `Outstanding Rent Balance - $${tenant.amountDue}`;\n    emailBody = `Hello ${tenant.name},\\n\\nWe have received your payment of $${tenant.amountPaid}. However, there is still an outstanding balance of $${tenant.amountDue} remaining for the full rent of $${tenant.rentAmount}.\\n\\nPlease send the remaining balance via Interac e-Transfer.\\n\\nThank you,\\nProperty Management`;\n  }\n  \n  reminderEmails.push({\n    json: {\n      email: tenant.email,\n      name: tenant.name,\n      rentAmount: tenant.rentAmount,\n      amountPaid: tenant.amountPaid,\n      amountDue: tenant.amountDue,\n      lastPaymentDate: tenant.lastPaymentDate,\n      subject: subject,\n      body: emailBody,\n      status: tenant.paymentStatus\n    }\n  });\n}\n\nconsole.log(`Prepared ${reminderEmails.length} reminder emails (${reminderEmails.filter(e => e.json.status === 'NO_PAYMENT').length} unpaid, ${reminderEmails.filter(e => e.json.status === 'PARTIAL').length} partial)`);\nreturn reminderEmails;"
+      },
+      "id": "9150a56c-b63a-4809-903f-324e7fce6e0f",
+      "name": "Prepare Reminder Emails",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        3936,
+        208
+      ]
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $('Prepare Reminder Emails').item.json.email }}",
+        "subject": "={{ $('Prepare Reminder Emails').item.json.subject }}",
+        "message": "={{ $('Prepare Reminder Emails').item.json.body }}",
+        "options": {
+          "appendAttribution": false
+        }
+      },
+      "id": "08289e02-ac83-4503-adf8-96a06deb9e13",
+      "name": "Send Payment Reminders",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        4272,
+        208
+      ],
+      "webhookId": "b331dc88-5df1-45fe-85a8-d9ff663f4420",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "pcIKnGBryHHONrSG",
+          "name": "Relay"
+        }
+      },
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "value": "1Sd-2cvtC9l0IAsN4ze2s22bvYbRphnG_ARSLWiZJcZM",
+          "mode": "list",
+          "cachedResultName": "Rent payment",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1Sd-2cvtC9l0IAsN4ze2s22bvYbRphnG_ARSLWiZJcZM/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1613306859,
+          "mode": "list",
+          "cachedResultName": "TenantsList",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1Sd-2cvtC9l0IAsN4ze2s22bvYbRphnG_ARSLWiZJcZM/edit#gid=1613306859"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Email": "={{ $json.email }}",
+            "row_number": 0,
+            "Due": "={{ $json.amountDue }}",
+            "EmailToSend": "={{ $json.subject }}\n\n{{ $json.body }}"
+          },
+          "matchingColumns": [
+            "Email"
+          ],
+          "schema": [
+            {
+              "id": "Name",
+              "displayName": "Name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Email",
+              "displayName": "Email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Rent amount",
+              "displayName": "Rent amount",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Phone",
+              "displayName": "Phone",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Location",
+              "displayName": "Location",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Due date",
+              "displayName": "Due date",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Payment",
+              "displayName": "Payment",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Due",
+              "displayName": "Due",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Last payment",
+              "displayName": "Last payment",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Month",
+              "displayName": "Month",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Transaction type",
+              "displayName": "Transaction type",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Subject",
+              "displayName": "Subject",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Content",
+              "displayName": "Content",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "EmailToSend",
+              "displayName": "EmailToSend",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "row_number",
+              "displayName": "row_number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true,
+              "readOnly": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "id": "707ec185-e22d-492e-b472-712aff626c44",
+      "name": "Update Due",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        4112,
+        208
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "lKflw0vM8OPLHwhd",
+          "name": "Google Sheets account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "html": "<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n    <meta charset=\"UTF-8\">\n    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n    <title>Rent Tracker Pro - Payment Management</title>\n    <style>\n        * {\n            margin: 0;\n            padding: 0;\n            box-sizing: border-box;\n        }\n\n        body {\n            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;\n            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);\n            min-height: 100vh;\n            display: flex;\n            align-items: center;\n            justify-content: center;\n            padding: 20px;\n        }\n\n        .form-container {\n            background: white;\n            padding: 40px;\n            border-radius: 20px;\n            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);\n            max-width: 600px;\n            width: 100%;\n            transform: translateY(0);\n            transition: all 0.3s ease;\n        }\n\n        .form-container:hover {\n            transform: translateY(-5px);\n            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.15);\n        }\n\n        .form-header {\n            text-align: center;\n            margin-bottom: 30px;\n        }\n\n        .form-title {\n            font-size: 2.5rem;\n            font-weight: 700;\n            background: linear-gradient(135deg, #667eea, #764ba2);\n            -webkit-background-clip: text;\n            -webkit-text-fill-color: transparent;\n            background-clip: text;\n            margin-bottom: 10px;\n        }\n\n        .form-description {\n            color: #666;\n            font-size: 1.1rem;\n            line-height: 1.5;\n        }\n\n        .form-group {\n            margin-bottom: 25px;\n        }\n\n        .form-label {\n            display: block;\n            font-weight: 600;\n            color: #333;\n            margin-bottom: 8px;\n            font-size: 1rem;\n        }\n\n        .required::after {\n            content: \" *\";\n            color: #e74c3c;\n            font-weight: bold;\n        }\n\n        .form-input, .form-select, .form-textarea {\n            width: 100%;\n            padding: 15px;\n            border: 2px solid #e1e8ed;\n            border-radius: 12px;\n            font-size: 1rem;\n            transition: all 0.3s ease;\n            background: #f8f9fa;\n        }\n\n        .form-textarea {\n            resize: vertical;\n            min-height: 100px;\n        }\n\n        .form-input:focus, .form-select:focus, .form-textarea:focus {\n            outline: none;\n            border-color: #667eea;\n            background: white;\n            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);\n            transform: translateY(-2px);\n        }\n\n        .form-input::placeholder, .form-textarea::placeholder {\n            color: #adb5bd;\n            font-style: italic;\n        }\n\n        .form-row {\n            display: grid;\n            grid-template-columns: 1fr 1fr;\n            gap: 15px;\n        }\n\n        @media (max-width: 600px) {\n            .form-row {\n                grid-template-columns: 1fr;\n            }\n        }\n\n        .submit-btn {\n            width: 100%;\n            padding: 18px;\n            background: linear-gradient(135deg, #667eea, #764ba2);\n            color: white;\n            border: none;\n            border-radius: 12px;\n            font-size: 1.2rem;\n            font-weight: 600;\n            cursor: pointer;\n            transition: all 0.3s ease;\n            text-transform: uppercase;\n            letter-spacing: 1px;\n        }\n\n        .submit-btn:hover {\n            transform: translateY(-3px);\n            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);\n        }\n\n        .submit-btn:active {\n            transform: translateY(-1px);\n        }\n\n        .form-footer {\n            text-align: center;\n            margin-top: 20px;\n            color: #666;\n            font-size: 0.9rem;\n        }\n\n        .info-box {\n            background: #f8f9fa;\n            padding: 20px;\n            border-radius: 12px;\n            margin-bottom: 25px;\n            border-left: 4px solid #667eea;\n        }\n\n        .info-box h4 {\n            color: #333;\n            margin-bottom: 10px;\n        }\n\n        .info-box p {\n            color: #666;\n            font-size: 0.9rem;\n            margin-bottom: 8px;\n        }\n\n        .feature-tabs {\n            display: flex;\n            margin-bottom: 30px;\n            border-radius: 12px;\n            overflow: hidden;\n            border: 2px solid #e1e8ed;\n        }\n\n        .tab-button {\n            flex: 1;\n            padding: 15px;\n            border: none;\n            background: #f8f9fa;\n            color: #666;\n            cursor: pointer;\n            transition: all 0.3s ease;\n            font-size: 1rem;\n            font-weight: 600;\n            text-transform: uppercase;\n            letter-spacing: 0.5px;\n        }\n\n        .tab-button:hover {\n            background: #e9ecef;\n        }\n\n        .tab-button.active {\n            background: linear-gradient(135deg, #667eea, #764ba2);\n            color: white;\n            box-shadow: 0 2px 10px rgba(102, 126, 234, 0.3);\n        }\n\n        @media (max-width: 600px) {\n            .form-container {\n                padding: 30px 20px;\n                margin: 10px;\n            }\n\n            .form-title {\n                font-size: 2rem;\n            }\n        }\n\n        /* Animation for form fields */\n        .form-group {\n            opacity: 0;\n            transform: translateY(20px);\n            animation: slideUp 0.6s ease forwards;\n        }\n\n        .form-group:nth-child(1) { animation-delay: 0.1s; }\n        .form-group:nth-child(2) { animation-delay: 0.2s; }\n        .form-group:nth-child(3) { animation-delay: 0.3s; }\n        .form-group:nth-child(4) { animation-delay: 0.4s; }\n        .form-group:nth-child(5) { animation-delay: 0.5s; }\n        .form-group:nth-child(6) { animation-delay: 0.6s; }\n\n        @keyframes slideUp {\n            to {\n                opacity: 1;\n                transform: translateY(0);\n            }\n        }\n    </style>\n</head>\n<body>\n    <div class=\"form-container\">\n        <div class=\"form-header\">\n            <h1 class=\"form-title\">🏠 Rent Tracker Pro</h1>\n            <p class=\"form-description\">Automated rent payment tracking and reminder system</p>\n        </div>\n\n        <!-- Feature Toggle Tabs -->\n        <div class=\"feature-tabs\" style=\"display: flex; margin-bottom: 30px; border-radius: 12px; overflow: hidden; border: 2px solid #e1e8ed;\">\n            <button type=\"button\" id=\"addTenantTab\" class=\"tab-button active\" onclick=\"switchTab('addTenant')\">👤 Add Tenant</button>\n            <button type=\"button\" id=\"trackPaymentTab\" class=\"tab-button\" onclick=\"switchTab('trackPayment')\">💰 Track Payment</button>\n        </div>\n\n        <div class=\"info-box\">\n            <h4>💡 How It Works</h4>\n            <p>• We automatically track Interac payments from your email</p>\n            <p>• Match payments to your tenant list</p>\n            <p>• Send reminders for unpaid/partial payments</p>\n            <p>• Update your Google Sheets in real-time</p>\n        </div>\n\n        <!-- Add Tenant Form -->\n        <div id=\"addTenantSection\">\n            <form id=\"rentTrackerForm\" action=\"https://boninaurelien.app.n8n.cloud/webhook/rent-tracker-webhook\" method=\"POST\">\n            <div class=\"form-row\">\n                <div class=\"form-group\">\n                    <label for=\"tenantName\" class=\"form-label required\">Tenant Name</label>\n                    <input\n                        type=\"text\"\n                        id=\"tenantName\"\n                        name=\"tenantName\"\n                        class=\"form-input\"\n                        placeholder=\"John Smith\"\n                        required\n                    >\n                </div>\n                <div class=\"form-group\">\n                    <label for=\"tenantEmail\" class=\"form-label required\">Tenant Email</label>\n                    <input\n                        type=\"email\"\n                        id=\"tenantEmail\"\n                        name=\"tenantEmail\"\n                        class=\"form-input\"\n                        placeholder=\"john.smith@email.com\"\n                        required\n                    >\n                </div>\n            </div>\n\n            <div class=\"form-row\">\n                <div class=\"form-group\">\n                    <label for=\"rentAmount\" class=\"form-label required\">Monthly Rent Amount</label>\n                    <input\n                        type=\"number\"\n                        id=\"rentAmount\"\n                        name=\"rentAmount\"\n                        class=\"form-input\"\n                        placeholder=\"1500\"\n                        step=\"0.01\"\n                        min=\"0\"\n                        required\n                    >\n                </div>\n                <div class=\"form-group\">\n                    <label for=\"dueDate\" class=\"form-label required\">Rent Due Date</label>\n                    <input\n                        type=\"date\"\n                        id=\"dueDate\"\n                        name=\"dueDate\"\n                        class=\"form-input\"\n                        required\n                    >\n                </div>\n            </div>\n\n            <div class=\"form-row\">\n                <div class=\"form-group\">\n                    <label for=\"unitNumber\" class=\"form-label\">Unit/Apartment Number</label>\n                    <input\n                        type=\"text\"\n                        id=\"unitNumber\"\n                        name=\"unitNumber\"\n                        class=\"form-input\"\n                        placeholder=\"Unit 2B\"\n                    >\n                </div>\n                <div class=\"form-group\">\n                    <label for=\"phoneNumber\" class=\"form-label\">Phone Number</label>\n                    <input\n                        type=\"tel\"\n                        id=\"phoneNumber\"\n                        name=\"phoneNumber\"\n                        class=\"form-input\"\n                        placeholder=\"+1 (555) 123-4567\"\n                    >\n                </div>\n            </div>\n\n            <div class=\"form-group\">\n                <label for=\"paymentMethod\" class=\"form-label\">Preferred Payment Method</label>\n                <select id=\"paymentMethod\" name=\"paymentMethod\" class=\"form-select\">\n                    <option value=\"interac\">Interac e-Transfer</option>\n                    <option value=\"check\">Check</option>\n                    <option value=\"cash\">Cash</option>\n                    <option value=\"bank\">Direct Bank Transfer</option>\n                    <option value=\"other\">Other</option>\n                </select>\n            </div>\n\n            <button type=\"submit\" class=\"submit-btn\">Add Tenant to System</button>\n        </form>\n        </div>\n\n        <!-- Track Payment Form -->\n        <div id=\"trackPaymentSection\" style=\"display: none;\">\n            <form id=\"trackPaymentForm\" action=\"https://boninaurelien.app.n8n.cloud/webhook/rent-tracker-webhook\" method=\"POST\">\n                <div class=\"form-row\">\n                    <div class=\"form-group\">\n                        <label for=\"searchQuery\" class=\"form-label required\">Search Terms</label>\n                        <input\n                            type=\"text\"\n                            id=\"searchQuery\"\n                            name=\"searchQuery\"\n                            class=\"form-input\"\n                            placeholder=\"Interac, rent, payment, landlord\"\n                            required\n                        >\n                    </div>\n                    <div class=\"form-group\">\n                        <label for=\"searchPeriodDays\" class=\"form-label required\">Search Period (days)</label>\n                        <input\n                            type=\"number\"\n                            id=\"searchPeriodDays\"\n                            name=\"searchPeriodDays\"\n                            class=\"form-input\"\n                            placeholder=\"15\"\n                            value=\"15\"\n                            min=\"1\"\n                            max=\"90\"\n                            required\n                        >\n                    </div>\n                </div>\n\n                <div class=\"form-group\">\n                    <label for=\"track_payme\" class=\"form-label\">Enable Automatic Processing</label>\n                    <select id=\"track_payme\" name=\"track_payme\" class=\"form-select\">\n                        <option value=\"true\">✅ Yes - Process found payments automatically</option>\n                        <option value=\"false\">📝 No - Search only, no processing</option>\n                    </select>\n                </div>\n\n                <button type=\"submit\" class=\"submit-btn\">🔍 Search Gmail for Payments</button>\n            </form>\n        </div>\n\n        <div class=\"form-footer\">\n            <p>🏢 Property Management Automation</p>\n        </div>\n    </div>\n\n    <script>\n        // Tab switching function\n        function switchTab(tabName) {\n            // Hide both sections\n            document.getElementById('addTenantSection').style.display = 'none';\n            document.getElementById('trackPaymentSection').style.display = 'none';\n\n            // Remove active class from both tabs\n            document.getElementById('addTenantTab').classList.remove('active');\n            document.getElementById('trackPaymentTab').classList.remove('active');\n\n            // Show selected section and highlight tab\n            if (tabName === 'addTenant') {\n                document.getElementById('addTenantSection').style.display = 'block';\n                document.getElementById('addTenantTab').classList.add('active');\n            } else if (tabName === 'trackPayment') {\n                document.getElementById('trackPaymentSection').style.display = 'block';\n                document.getElementById('trackPaymentTab').classList.add('active');\n            }\n        }\n\n        // Function to show success page\n        function showSuccessPage() {\n            document.body.innerHTML = `\n                <div class=\"form-container\" style=\"text-align: center; max-width: 600px;\">\n                    <div style=\"margin-bottom: 30px;\">\n                        <div style=\"font-size: 4rem; margin-bottom: 20px;\">🏠✅</div>\n                        <h1 style=\"color: #667eea; font-size: 2.5rem; margin-bottom: 15px;\">Tenant Added Successfully!</h1>\n                        <p style=\"color: #666; font-size: 1.2rem; line-height: 1.6;\">\n                            Your tenant has been added to the rent tracking system.\n                            We'll automatically monitor payments and send reminders when needed.\n                        </p>\n                    </div>\n\n                    <div style=\"background: #f8f9fa; padding: 25px; border-radius: 15px; margin: 30px 0;\">\n                        <h3 style=\"color: #333; margin-bottom: 15px;\">What happens next?</h3>\n                        <p style=\"color: #666; margin-bottom: 10px;\">📧 Automated payment tracking via email</p>\n                        <p style=\"color: #666; margin-bottom: 10px;\">📊 Real-time Google Sheets updates</p>\n                        <p style=\"color: #666; margin-bottom: 10px;\">⏰️ Monthly reminders on the 2nd</p>\n                        <p style=\"color: #666;\">🔔 Smart payment notifications</p>\n                    </div>\n\n                    <button onclick=\"location.reload()\" style=\"\n                        padding: 15px 30px;\n                        background: linear-gradient(135deg, #667eea, #764ba2);\n                        color: white;\n                        border: none;\n                        border-radius: 10px;\n                        font-size: 1.1rem;\n                        cursor: pointer;\n                        margin-top: 20px;\n                    \">Add Another Tenant</button>\n                </div>\n            `;\n        }\n\n        // Function to show error page\n        function showErrorPage() {\n            document.body.innerHTML = `\n                <div class=\"form-container\" style=\"text-align: center; max-width: 600px;\">\n                    <div style=\"margin-bottom: 30px;\">\n                        <div style=\"font-size: 4rem; margin-bottom: 20px;\">⚠️</div>\n                        <h1 style=\"color: #e74c3c; font-size: 2.5rem; margin-bottom: 15px;\">Submission Failed</h1>\n                        <p style=\"color: #666; font-size: 1.2rem; line-height: 1.6;\">\n                            There was an issue adding this tenant to the system.\n                            Please check your connection and try again.\n                        </p>\n                    </div>\n\n                    <button onclick=\"location.reload()\" style=\"\n                        padding: 15px 30px;\n                        background: linear-gradient(135deg, #667eea, #764ba2);\n                        color: white;\n                        border: none;\n                        border-radius: 10px;\n                        font-size: 1.1rem;\n                        cursor: pointer;\n                        margin: 10px;\n                    \">Try Again</button>\n                </div>\n            `;\n        }\n\n        // Set default due date to 1st of next month\n        document.addEventListener('DOMContentLoaded', function() {\n            const dueDateInput = document.getElementById('dueDate');\n            const nextMonth = new Date();\n            nextMonth.setMonth(nextMonth.getMonth() + 1);\n            nextMonth.setDate(1);\n            dueDateInput.value = nextMonth.toISOString().split('T')[0];\n        });\n\n        document.getElementById('rentTrackerForm').addEventListener('submit', function(e) {\n            e.preventDefault();\n\n            // Basic validation\n            const tenantName = document.getElementById('tenantName').value.trim();\n            const tenantEmail = document.getElementById('tenantEmail').value.trim();\n            const rentAmount = document.getElementById('rentAmount').value;\n            const dueDate = document.getElementById('dueDate').value;\n\n            if (!tenantName || !tenantEmail || !rentAmount || !dueDate) {\n                alert('Please fill in all required fields.');\n                return;\n            }\n\n            // Email validation\n            const emailRegex = /^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/;\n            if (!emailRegex.test(tenantEmail)) {\n                alert('Please enter a valid email address.');\n                return;\n            }\n\n            // Show loading state\n            const submitBtn = document.querySelector('.submit-btn');\n            submitBtn.textContent = 'Adding Tenant...';\n            submitBtn.disabled = true;\n            submitBtn.style.opacity = '0.7';\n\n            // Prepare form data\n            const formData = new FormData();\n            formData.append('tenantName', tenantName);\n            formData.append('tenantEmail', tenantEmail);\n            formData.append('rentAmount', rentAmount);\n            formData.append('dueDate', dueDate);\n            formData.append('unitNumber', document.getElementById('unitNumber').value);\n            formData.append('phoneNumber', document.getElementById('phoneNumber').value);\n            formData.append('paymentMethod', document.getElementById('paymentMethod').value);\n            formData.append('notes', document.getElementById('notes').value);\n            formData.append('requestType', 'add_tenant');\n            formData.append('timestamp', new Date().toISOString());\n\n            // Try fetch first (for CORS-enabled webhooks)\n            fetch('https://boninaurelien.app.n8n.cloud/webhook/rent-tracker-webhook', {\n                method: 'POST',\n                body: formData,\n                mode: 'no-cors' // This allows the request to go through even with CORS issues\n            })\n            .then(() => {\n                // With no-cors mode, we can't read the response, but the request was sent\n                showSuccessPage();\n            })\n            .catch(() => {\n                // If fetch fails completely, try form submission as fallback\n                submitFormDirectly();\n            });\n        });\n\n        // Fallback: Direct form submission\n        function submitFormDirectly() {\n            // Create a hidden form that will actually submit\n            const hiddenForm = document.createElement('form');\n            hiddenForm.method = 'POST';\n            hiddenForm.action = 'https://boninaurelien.app.n8n.cloud/webhook/rent-tracker-webhook';\n            hiddenForm.style.display = 'none';\n\n            // Add all form fields\n            const fields = [\n                'tenantName', 'tenantEmail', 'rentAmount', 'dueDate',\n                'unitNumber', 'phoneNumber', 'paymentMethod', 'notes'\n            ];\n\n            fields.forEach(fieldName => {\n                const input = document.createElement('input');\n                input.type = 'hidden';\n                input.name = fieldName;\n                input.value = document.getElementById(fieldName).value;\n                hiddenForm.appendChild(input);\n            });\n\n            // Add metadata\n            const requestType = document.createElement('input');\n            requestType.type = 'hidden';\n            requestType.name = 'requestType';\n            requestType.value = 'add_tenant';\n            hiddenForm.appendChild(requestType);\n\n            const timestamp = document.createElement('input');\n            timestamp.type = 'hidden';\n            timestamp.name = 'timestamp';\n            timestamp.value = new Date().toISOString();\n            hiddenForm.appendChild(timestamp);\n\n            document.body.appendChild(hiddenForm);\n            hiddenForm.submit();\n        }\n\n        // Track Payment Form submission - Triggers Gmail Search\n        document.getElementById('trackPaymentForm').addEventListener('submit', function(e) {\n            e.preventDefault();\n\n            // Basic validation\n            const searchQuery = document.getElementById('searchQuery').value.trim();\n            const searchPeriodDays = document.getElementById('searchPeriodDays').value;\n            const trackPayme = document.getElementById('track_payme').value;\n\n            if (!searchQuery || !searchPeriodDays) {\n                alert('Please fill in all required fields.');\n                return;\n            }\n\n            // Show loading state\n            const submitBtn = document.querySelector('#trackPaymentForm .submit-btn');\n            submitBtn.textContent = 'Searching Gmail...';\n            submitBtn.disabled = true;\n            submitBtn.style.opacity = '0.7';\n\n            // Prepare form data for Gmail search workflow\n            const formData = new FormData();\n            formData.append('searchQuery', searchQuery);\n            formData.append('searchPeriodDays', searchPeriodDays);\n            formData.append('track_payme', trackPayme);\n            formData.append('searchNotes', document.getElementById('searchNotes').value);\n            formData.append('requestType', 'search_gmail');\n            formData.append('timestamp', new Date().toISOString());\n\n            // Send to webhook to trigger Gmail search workflow\n            fetch('https://boninaurelien.app.n8n.cloud/webhook/rent-tracker-webhook', {\n                method: 'POST',\n                body: formData\n            })\n            .then(response => response.json())\n            .then(data => {\n                // Display the webhook response data\n                showGmailSearchSuccessPage(data, searchQuery, searchPeriodDays);\n            })\n            .catch(error => {\n                console.error('Error:', error);\n                // If fetch fails, show error message\n                alert('Error occurred. Please try again.');\n                submitBtn.textContent = 'Track Payment';\n                submitBtn.disabled = false;\n                submitBtn.style.opacity = '1';\n            });\n        });\n\n        // Function to show Gmail search success page with webhook response data\n        function showGmailSearchSuccessPage(responseData, searchQuery, searchPeriodDays) {\n            // Ensure responseData is an array\n            const tenantData = Array.isArray(responseData) ? responseData : [responseData];\n            \n            // Calculate summary stats\n            const totalTenants = tenantData.length;\n            const paidTenants = tenantData.filter(t => t.Payment && t.Payment > 0).length;\n            const unpaidTenants = tenantData.filter(t => !t.Payment || t.Payment === '' || t.Due > 0).length;\n            const totalPaymentReceived = tenantData.reduce((sum, t) => sum + (t.Payment || 0), 0);\n            \n            // Create table rows for tenant data\n            const tableRows = tenantData.map(tenant => `\n                <tr>\n                    <td style=\"padding: 12px; text-align: left; border-bottom: 1px solid #e1e8ed;\">${tenant.Name || '-'}</td>\n                    <td style=\"padding: 12px; text-align: center; border-bottom: 1px solid #e1e8ed;\">$${tenant['Rent amount'] || 0}</td>\n                    <td style=\"padding: 12px; text-align: center; border-bottom: 1px solid #e1e8ed; color: ${tenant.Payment ? '#27ae60' : '#e74c3c'};\">\n                        ${tenant.Payment ? '$' + tenant.Payment : '-'}\n                    </td>\n                    <td style=\"padding: 12px; text-align: center; border-bottom: 1px solid #e1e8ed; color: ${tenant.Due && tenant.Due > 0 ? '#e74c3c' : '#27ae60'};\">\n                        ${tenant.Due ? '$' + tenant.Due : 'Paid'}\n                    </td>\n                    <td style=\"padding: 12px; text-align: center; border-bottom: 1px solid #e1e8ed; font-size: 0.9rem; color: #666;\">\n                        ${tenant['Last payment'] || '-'}\n                    </td>\n                </tr>\n            `).join('');\n            \n            document.body.innerHTML = `\n                <div class=\"form-container\" style=\"text-align: center; max-width: 900px; max-height: 90vh; overflow-y: auto;\">\n                    <div style=\"margin-bottom: 30px;\">\n                        <div style=\"font-size: 4rem; margin-bottom: 20px;\">🔍✅</div>\n                        <h1 style=\"color: #667eea; font-size: 2.5rem; margin-bottom: 15px;\">Gmail Search Triggered!</h1>\n                        <p style=\"color: #666; font-size: 1.2rem; line-height: 1.6;\">\n                            Your Gmail search has been initiated. The system will search for payment emails\n                            matching \"<span style=\"font-weight: bold; color: #333;\">${searchQuery}</span>\"\n                            from the last ${searchPeriodDays} days and process any found payments.\n                        </p>\n                    </div>\n\n                    <div style=\"background: #f8f9fa; padding: 25px; border-radius: 15px; margin: 30px 0;\">\n                        <h3 style=\"color: #333; margin-bottom: 15px;\">Payment Processing Summary</h3>\n                        <div style=\"display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 15px; margin-bottom: 20px;\">\n                            <div style=\"background: white; padding: 15px; border-radius: 10px; border-left: 4px solid #667eea;\">\n                                <div style=\"font-size: 2rem; color: #667eea; font-weight: bold;\">${totalTenants}</div>\n                                <div style=\"color: #666; font-size: 0.9rem;\">Total Tenants</div>\n                            </div>\n                            <div style=\"background: white; padding: 15px; border-radius: 10px; border-left: 4px solid #27ae60;\">\n                                <div style=\"font-size: 2rem; color: #27ae60; font-weight: bold;\">${paidTenants}</div>\n                                <div style=\"color: #666; font-size: 0.9rem;\">Paid</div>\n                            </div>\n                            <div style=\"background: white; padding: 15px; border-radius: 10px; border-left: 4px solid #e74c3c;\">\n                                <div style=\"font-size: 2rem; color: #e74c3c; font-weight: bold;\">${unpaidTenants}</div>\n                                <div style=\"color: #666; font-size: 0.9rem;\">Unpaid</div>\n                            </div>\n                            <div style=\"background: white; padding: 15px; border-radius: 10px; border-left: 4px solid #3498db;\">\n                                <div style=\"font-size: 2rem; color: #3498db; font-weight: bold;\">$${totalPaymentReceived.toLocaleString()}</div>\n                                <div style=\"color: #666; font-size: 0.9rem;\">Received</div>\n                            </div>\n                        </div>\n                    </div>\n\n                    <div style=\"margin: 30px 0;\">\n                        <h3 style=\"color: #333; margin-bottom: 15px;\">Payment Details</h3>\n                        <div style=\"overflow-x: auto; border-radius: 10px; border: 1px solid #e1e8ed;\">\n                            <table style=\"width: 100%; border-collapse: collapse; background: white;\">\n                                <thead>\n                                    <tr style=\"background: #f8f9fa; border-bottom: 2px solid #e1e8ed;\">\n                                        <th style=\"padding: 12px; text-align: left; font-weight: 600; color: #333;\">Tenant Name</th>\n                                        <th style=\"padding: 12px; text-align: center; font-weight: 600; color: #333;\">Rent</th>\n                                        <th style=\"padding: 12px; text-align: center; font-weight: 600; color: #333;\">Payment</th>\n                                        <th style=\"padding: 12px; text-align: center; font-weight: 600; color: #333;\">Due</th>\n                                        <th style=\"padding: 12px; text-align: center; font-weight: 600; color: #333;\">Last Payment</th>\n                                    </tr>\n                                </thead>\n                                <tbody>\n                                    ${tableRows}\n                                </tbody>\n                            </table>\n                        </div>\n                    </div>\n\n                    <button onclick=\"location.reload()\" style=\"\n                        padding: 15px 30px;\n                        background: linear-gradient(135deg, #667eea, #764ba2);\n                        color: white;\n                        border: none;\n                        border-radius: 10px;\n                        font-size: 1.1rem;\n                        cursor: pointer;\n                        margin-top: 20px;\n                    \">Search Again</button>\n                </div>\n            `;\n        }\n\n        // Add some interactive feedback\n        const inputs = document.querySelectorAll('.form-input, .form-select, .form-textarea');\n        inputs.forEach(input => {\n            input.addEventListener('focus', function() {\n                this.parentElement.style.transform = 'scale(1.02)';\n            });\n\n            input.addEventListener('blur', function() {\n                this.parentElement.style.transform = 'scale(1)';\n            });\n        });\n    </script>\n</body>\n</html>"
+      },
+      "type": "n8n-nodes-base.html",
+      "typeVersion": 1.2,
+      "position": [
+        3792,
+        -656
+      ],
+      "id": "ee6e5824-8987-49fc-a140-5827c04ee273",
+      "name": "HTML",
+      "notesInFlow": true
+    },
+    {
+      "parameters": {
+        "content": "# Interface",
+        "height": 520,
+        "width": 1080,
+        "color": 7
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        3296,
+        -848
+      ],
+      "typeVersion": 1,
+      "id": "854d65a8-3d85-4ab3-8285-0d08d9a18ed6",
+      "name": "Sticky Note12"
+    },
+    {
+      "parameters": {
+        "path": "rent-tracker-pro",
+        "responseMode": "responseNode",
+        "options": {
+          "allowedOrigins": "*"
+        }
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        3536,
+        -656
+      ],
+      "id": "3eca882c-150d-4823-982d-9b24f605b926",
+      "name": "On webhook Trigger",
+      "webhookId": "6ad5b353-df84-4a10-ae5d-dbfcd68d712a"
+    },
+    {
+      "parameters": {
+        "respondWith": "text",
+        "responseBody": "={{ $json.html }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        4016,
+        -656
+      ],
+      "id": "d5452a58-f4aa-4e24-9c43-5fcf73e5edc2",
+      "name": "Respond to Webhook"
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "rent-tracker-webhook",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        2880,
+        -224
+      ],
+      "id": "adb2fb23-0f1b-45bc-a0de-62c089eec4e3",
+      "name": "Webhook",
+      "webhookId": "c088c308-320c-40ac-8c74-fb306d6cc193"
+    },
+    {
+      "parameters": {
+        "respondWith": "allIncomingItems",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        4864,
+        -224
+      ],
+      "id": "6288b4ac-7d93-4dbc-a86c-fa4389d50de6",
+      "name": "Response"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "92fe91c7-22ff-4481-a991-70709914c77c",
+              "leftValue": "={{ $json.track_payment }}",
+              "rightValue": "null",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        3376,
+        -208
+      ],
+      "id": "21ca00d8-81c8-4dbf-8685-341b82dfad74",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "operation": "appendOrUpdate",
+        "documentId": {
+          "__rl": true,
+          "value": "1Sd-2cvtC9l0IAsN4ze2s22bvYbRphnG_ARSLWiZJcZM",
+          "mode": "list",
+          "cachedResultName": "Rent payment",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1Sd-2cvtC9l0IAsN4ze2s22bvYbRphnG_ARSLWiZJcZM/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1613306859,
+          "mode": "list",
+          "cachedResultName": "TenantsList",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1Sd-2cvtC9l0IAsN4ze2s22bvYbRphnG_ARSLWiZJcZM/edit#gid=1613306859"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Email": "={{ $json.tenantEmail }}",
+            "Transaction type": "={{ $json.paymentMethod }}",
+            "Month": "={{ $json.month }}",
+            "Name": "={{ $json.tenantName }}",
+            "Rent amount": "={{ $json.rentAmount }}",
+            "Phone": "={{ $json.phoneNumber }}",
+            "Due date": "={{ $json.dueDate }}"
+          },
+          "matchingColumns": [
+            "Email"
+          ],
+          "schema": [
+            {
+              "id": "Name",
+              "displayName": "Name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Email",
+              "displayName": "Email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Rent amount",
+              "displayName": "Rent amount",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Phone",
+              "displayName": "Phone",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Location",
+              "displayName": "Location",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Due date",
+              "displayName": "Due date",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Payment",
+              "displayName": "Payment",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Due",
+              "displayName": "Due",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Last payment",
+              "displayName": "Last payment",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Month",
+              "displayName": "Month",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Transaction type",
+              "displayName": "Transaction type",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Subject",
+              "displayName": "Subject",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Content",
+              "displayName": "Content",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "EmailToSend",
+              "displayName": "EmailToSend",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "id": "ba348935-e149-417e-9459-098b7798df1f",
+      "name": "Add tenant",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        3696,
+        -224
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "lKflw0vM8OPLHwhd",
+          "name": "Google Sheets account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "value": "1Sd-2cvtC9l0IAsN4ze2s22bvYbRphnG_ARSLWiZJcZM",
+          "mode": "list",
+          "cachedResultName": "Rent payment",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1Sd-2cvtC9l0IAsN4ze2s22bvYbRphnG_ARSLWiZJcZM/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1613306859,
+          "mode": "list",
+          "cachedResultName": "TenantsList",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1Sd-2cvtC9l0IAsN4ze2s22bvYbRphnG_ARSLWiZJcZM/edit#gid=1613306859"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Email": "={{ $json.tenantEmail }}",
+            "Last payment": "={{ $json.date }}",
+            "Transaction type": "={{ $json.transactionType }}",
+            "Month": "={{ $json.month }}",
+            "row_number": 0,
+            "Payment": "={{ $json.amount }}",
+            "Subject": "={{ $json.emailSubject }}",
+            "Content": "={{ $json.emailContent }}"
+          },
+          "matchingColumns": [
+            "Email"
+          ],
+          "schema": [
+            {
+              "id": "Name",
+              "displayName": "Name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Email",
+              "displayName": "Email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Rent amount",
+              "displayName": "Rent amount",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Phone",
+              "displayName": "Phone",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Location",
+              "displayName": "Location",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Due date",
+              "displayName": "Due date",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Payment",
+              "displayName": "Payment",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Due",
+              "displayName": "Due",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Last payment",
+              "displayName": "Last payment",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Month",
+              "displayName": "Month",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Transaction type",
+              "displayName": "Transaction type",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Subject",
+              "displayName": "Subject",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Content",
+              "displayName": "Content",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "EmailToSend",
+              "displayName": "EmailToSend",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "row_number",
+              "displayName": "row_number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true,
+              "readOnly": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "id": "f3d86aac-146e-408f-8d9a-d68d82b372fa",
+      "name": "Add Payments to Sheet",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        4208,
+        0
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "lKflw0vM8OPLHwhd",
+          "name": "Google Sheets account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1Sd-2cvtC9l0IAsN4ze2s22bvYbRphnG_ARSLWiZJcZM",
+          "mode": "list",
+          "cachedResultName": "Rent payment",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1Sd-2cvtC9l0IAsN4ze2s22bvYbRphnG_ARSLWiZJcZM/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1613306859,
+          "mode": "list",
+          "cachedResultName": "TenantsList",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1Sd-2cvtC9l0IAsN4ze2s22bvYbRphnG_ARSLWiZJcZM/edit#gid=1613306859"
+        },
+        "options": {}
+      },
+      "id": "57c584b2-a78c-4057-9aec-fbc9697becfe",
+      "name": "Get payments",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        4448,
+        208
+      ],
+      "executeOnce": true,
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "lKflw0vM8OPLHwhd",
+          "name": "Google Sheets account 2"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1",
+    "callerPolicy": "workflowsFromSameOwner",
+    "availableInMCP": false
+  },
+  "shared": [
+    {
+      "updatedAt": "2025-11-15T06:17:50.120Z",
+      "createdAt": "2025-11-15T06:17:50.120Z",
+      "role": "workflow:owner",
+      "workflowId": "j6AdUwzGeFVrDHLx",
+      "projectId": "K5c2PqoZjXPELHVa"
+    }
+  ],
+  "staticData": {
+    "node:Monthly Trigger - 2nd of Month": {
+      "recurrenceRules": []
+    }
+  },
+  "tags": [],
+  "triggerCount": 3,
+  "updatedAt": "2026-01-15T16:59:20.159Z",
+  "versionId": "b20569b2-239b-4fd3-b8f3-6fc966e9ce3f"
+}
