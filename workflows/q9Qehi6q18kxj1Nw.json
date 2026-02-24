@@ -1,0 +1,368 @@
+{
+  "active": false,
+  "activeVersion": null,
+  "activeVersionId": null,
+  "connections": {
+    "Manual Trigger": {
+      "main": [
+        [
+          {
+            "node": "Workflow Configuration",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Workflow Configuration": {
+      "main": [
+        [
+          {
+            "node": "Perplexity Research Parks",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Park URLs": {
+      "main": [
+        [
+          {
+            "node": "Cleanup & Deduplicate",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "OpenAI Enrich Park Details",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Cleanup & Deduplicate": {
+      "main": [
+        [
+          {
+            "node": "Append to Google Sheets",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Append to Google Sheets": {
+      "main": [
+        [
+          {
+            "node": "Send Completion Email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Perplexity Research Parks": {
+      "main": [
+        [
+          {
+            "node": "OpenAI Extract Park Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Extract Park Data": {
+      "main": [
+        [
+          {
+            "node": "Split Parks",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split Parks": {
+      "main": [
+        [
+          {
+            "node": "Loop Park URLs",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Enrich Park Details": {
+      "main": [
+        [
+          {
+            "node": "Loop Park URLs",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "createdAt": "2026-02-18T20:48:22.175Z",
+  "id": "q9Qehi6q18kxj1Nw",
+  "isArchived": false,
+  "meta": null,
+  "name": "Alberta & Saskatoon Mobile Home Park Data Scraper & Enrichment",
+  "nodes": [
+    {
+      "parameters": {},
+      "id": "91e4c993-9384-4d70-aa62-12cf91ac4148",
+      "name": "Manual Trigger",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -4192,
+        464
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "id-1",
+              "name": "searchRegion",
+              "value": "Alberta and Saskatoon, Saskatchewan",
+              "type": "string"
+            }
+          ]
+        },
+        "includeOtherFields": true,
+        "options": {}
+      },
+      "id": "d1ac1adb-0517-4f79-84cd-3374b2b12c34",
+      "name": "Workflow Configuration",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -3968,
+        464
+      ]
+    },
+    {
+      "parameters": {
+        "batchSize": 5,
+        "options": {}
+      },
+      "id": "ba5bfdee-5550-4ce0-bd9f-ef64542df5ff",
+      "name": "Loop Park URLs",
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        -2944,
+        464
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Aggregate all park data from the loop\nconst allParks = [];\n\n// Collect all items - handle both simplified OpenAI structure and enriched data\nfor (const item of $input.all()) {\n  allParks.push(item.json);\n}\n\n// Function to normalize phone numbers to +1 (XXX) XXX-XXXX format\nfunction normalizePhone(phone) {\n  if (!phone || phone === 'Not Found' || phone === 'N/A') return 'Not Found';\n  \n  // Remove all non-digit characters\n  const digits = phone.replace(/\\D/g, '');\n  \n  // Handle different digit lengths\n  if (digits.length === 10) {\n    // Format: (XXX) XXX-XXXX\n    return `+1 (${digits.slice(0, 3)}) ${digits.slice(3, 6)}-${digits.slice(6)}`;\n  } else if (digits.length === 11 && digits[0] === '1') {\n    // Format: +1 (XXX) XXX-XXXX\n    return `+1 (${digits.slice(1, 4)}) ${digits.slice(4, 7)}-${digits.slice(7)}`;\n  } else if (digits.length > 0) {\n    // Return as is with +1 prefix if it has some digits\n    return `+1 ${phone}`;\n  }\n  \n  return 'Not Found';\n}\n\n// Function to fill null/undefined values with 'Not Found'\nfunction fillNotFound(value) {\n  if (value === null || value === undefined || value === '' || value === 'null' || value === 'N/A') {\n    return 'Not Found';\n  }\n  return value;\n}\n\n// Merge and deduplicate parks by name + city combination\nconst parkMap = new Map();\n\nfor (const park of allParks) {\n  // Handle both simplified structure (name, city, phone) and full structure\n  const parkName = fillNotFound(park.park_name || park.name);\n  const parkCity = fillNotFound(park.park_city || park.city);\n  const key = `${parkName}_${parkCity}`.toLowerCase();\n  \n  if (!parkMap.has(key)) {\n    // Initialize with base data\n    parkMap.set(key, {\n      park_name: parkName,\n      owner_name: fillNotFound(park.owner_name),\n      owner_phone: normalizePhone(park.owner_phone || park.phone),\n      estimated_pads: fillNotFound(park.estimated_pads),\n      park_city: parkCity,\n      town_population: fillNotFound(park.town_population),\n      nearest_major_city: fillNotFound(park.nearest_major_city),\n      distance_km: fillNotFound(park.distance_km),\n      city_population: fillNotFound(park.city_population)\n    });\n  } else {\n    // Merge enrichment data with existing data\n    const existing = parkMap.get(key);\n    \n    // Update fields if they have better data (not 'Not Found')\n    if (park.owner_name && park.owner_name !== 'Not Found' && park.owner_name !== 'N/A') {\n      existing.owner_name = fillNotFound(park.owner_name);\n    }\n    if (park.owner_phone || park.phone) {\n      const newPhone = normalizePhone(park.owner_phone || park.phone);\n      if (newPhone !== 'Not Found') {\n        existing.owner_phone = newPhone;\n      }\n    }\n    if (park.estimated_pads && park.estimated_pads !== 'Not Found' && park.estimated_pads !== 'N/A') {\n      existing.estimated_pads = fillNotFound(park.estimated_pads);\n    }\n    if (park.town_population && park.town_population !== 'Not Found' && park.town_population !== 'N/A') {\n      existing.town_population = fillNotFound(park.town_population);\n    }\n    if (park.nearest_major_city && park.nearest_major_city !== 'Not Found' && park.nearest_major_city !== 'N/A') {\n      existing.nearest_major_city = fillNotFound(park.nearest_major_city);\n    }\n    if (park.distance_km && park.distance_km !== 'Not Found' && park.distance_km !== 'N/A') {\n      existing.distance_km = fillNotFound(park.distance_km);\n    }\n    if (park.city_population && park.city_population !== 'Not Found' && park.city_population !== 'N/A') {\n      existing.city_population = fillNotFound(park.city_population);\n    }\n  }\n}\n\n// Convert map to array\nconst uniqueParks = Array.from(parkMap.values());\n\n// Return the cleaned, merged, and deduplicated data\nreturn uniqueParks.map(park => ({ json: park }));"
+      },
+      "id": "127400da-b860-43de-809b-9382f5e61666",
+      "name": "Cleanup & Deduplicate",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -2656,
+        320
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "appendOrUpdate",
+        "documentId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "<__PLACEHOLDER_VALUE__Google Sheets Document ID__>"
+        },
+        "sheetName": {
+          "__rl": true,
+          "mode": "name",
+          "value": "<__PLACEHOLDER_VALUE__Sheet Name__>"
+        },
+        "columns": {
+          "mappingMode": "autoMapInputData",
+          "value": {},
+          "matchingColumns": [],
+          "schema": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "id": "2f5e3945-6538-451c-b5a6-1e6894b92d68",
+      "name": "Append to Google Sheets",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        -2368,
+        320
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "aTGWDwc4d28BUxCQ",
+          "name": "Google Sheets (Isaac)"
+        }
+      },
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "sendTo": "<__PLACEHOLDER_VALUE__Your Email Address__>",
+        "subject": "Mobile Home Park Scraping Complete",
+        "message": "=The workflow has completed. Total parks found: {{ $json.totalParks }}",
+        "options": {}
+      },
+      "id": "ae7e9097-eb8e-45ac-b8e8-a75f472e7413",
+      "name": "Send Completion Email",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        -2144,
+        320
+      ],
+      "webhookId": "1bdd944f-d7aa-4d33-baea-9951f26464e7",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "YqSn5D2YTWcoeiLR",
+          "name": "Des"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "messages": {
+          "message": [
+            {
+              "content": "=Find all mobile home parks in {{ $('Workflow Configuration').first().json.searchRegion }}. For each park, provide: park name, city/town, province, and any available contact information. Return a comprehensive list with as many parks as you can find."
+            }
+          ]
+        },
+        "options": {},
+        "requestOptions": {}
+      },
+      "id": "06caec54-4172-48a5-b215-9874aed9ded7",
+      "name": "Perplexity Research Parks",
+      "type": "n8n-nodes-base.perplexity",
+      "typeVersion": 1,
+      "position": [
+        -3744,
+        464
+      ],
+      "credentials": {
+        "perplexityApi": {
+          "id": "VpF9Gy1AeQp5h9Ip",
+          "name": "Perplexity account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "gpt-4o"
+        },
+        "responses": {
+          "values": [
+            {
+              "content": "=Extract all mobile home parks from this research. Return ONLY a valid JSON array where each park is an object with: park_name, city, province, phone (if available). Format: [{\"park_name\": \"...\", \"city\": \"...\", \"province\": \"...\", \"phone\": \"...\"}]. Research: {{ $json.choices[0].message.content }}"
+            }
+          ]
+        },
+        "builtInTools": {},
+        "options": {}
+      },
+      "id": "b0efec72-d48c-4a23-866a-5817ec6ed319",
+      "name": "OpenAI Extract Park Data",
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 2.1,
+      "position": [
+        -3520,
+        464
+      ],
+      "credentials": {
+        "openAiApi": {
+          "id": "vofRqqG7VEHTXxTs",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "output[0].content[0].text",
+        "options": {}
+      },
+      "id": "ce076098-77f9-44b9-9cf2-9257d5e88e88",
+      "name": "Split Parks",
+      "type": "n8n-nodes-base.splitOut",
+      "typeVersion": 1,
+      "position": [
+        -3168,
+        464
+      ]
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "gpt-4o"
+        },
+        "responses": {
+          "values": [
+            {
+              "content": "=Research this mobile home park and provide detailed information. Park: {{ $json.park_name }} in {{ $json.city }}, {{ $json.province }}. Find and return JSON with: owner_name, owner_phone, estimated_pads (number of lots/pads), nearest_major_city (Calgary, Edmonton, Saskatoon, Red Deer, Lethbridge, Medicine Hat, or Grande Prairie), distance_km (to nearest major city), city_population (of nearest major city), town_population (of park town). Use your knowledge and reasoning to estimate values if exact data unavailable."
+            }
+          ]
+        },
+        "builtInTools": {},
+        "options": {}
+      },
+      "id": "c698ed73-5358-4884-894f-537317614940",
+      "name": "OpenAI Enrich Park Details",
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 2.1,
+      "position": [
+        -2720,
+        512
+      ],
+      "credentials": {
+        "openAiApi": {
+          "id": "7ntEUHBKfH3b9H7t",
+          "name": "n8n free OpenAI API credits"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1",
+    "availableInMCP": false
+  },
+  "shared": [
+    {
+      "updatedAt": "2026-02-18T20:48:22.178Z",
+      "createdAt": "2026-02-18T20:48:22.178Z",
+      "role": "workflow:owner",
+      "workflowId": "q9Qehi6q18kxj1Nw",
+      "projectId": "K5c2PqoZjXPELHVa"
+    }
+  ],
+  "staticData": null,
+  "tags": [],
+  "triggerCount": 0,
+  "updatedAt": "2026-02-19T03:31:20.280Z",
+  "versionId": "8cb37df2-cac2-4639-a6e0-4fb030e68614"
+}
