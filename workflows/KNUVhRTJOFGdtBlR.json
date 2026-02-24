@@ -1,0 +1,1250 @@
+{
+  "active": true,
+  "activeVersion": {
+    "updatedAt": "2026-01-11T01:30:34.000Z",
+    "createdAt": "2026-01-11T01:30:29.040Z",
+    "versionId": "71d455b9-2c6c-497f-81eb-aa408e8969f1",
+    "workflowId": "KNUVhRTJOFGdtBlR",
+    "nodes": [
+      {
+        "parameters": {
+          "options": {}
+        },
+        "type": "n8n-nodes-base.respondToWebhook",
+        "typeVersion": 1.5,
+        "position": [
+          912,
+          -160
+        ],
+        "id": "5dc7a168-8605-4452-84ce-6c68b78589dd",
+        "name": "Respond to Webhook"
+      },
+      {
+        "parameters": {
+          "inputSource": "passthrough"
+        },
+        "type": "n8n-nodes-base.executeWorkflowTrigger",
+        "typeVersion": 1.1,
+        "position": [
+          -192,
+          -176
+        ],
+        "id": "69d0d862-a902-4d72-9062-300671758d67",
+        "name": "When Executed by Another Workflow"
+      },
+      {
+        "parameters": {
+          "promptType": "define",
+          "text": "={{ $json.query }}",
+          "options": {
+            "systemMessage": "=You are a contractor management assistant for Jules AI. Execute database operations immediately and report results concisely.\n\n**Database Schema:**\n- **name**: String (max 255 chars)\n- **phone_number**: String (max 50 chars) - Format: +1XXXXXXXXXX\n- **email**: String (max 255 chars)\n- **company_name**: String (max 255 chars) - Optional\n- **specialty**: String (max 100 chars) - e.g., 'Plumbing', 'Electrical', 'HVAC', 'Carpentry'\n- **hourly_rate**: Integer (stored in cents) - e.g., 5000 = $50.00\n- **status**: String (max 50 chars) - 'ACTIVE', 'INACTIVE', 'UNAVAILABLE'\n- **notes**: Text - Optional additional information\n\n**Phone Number Normalization:**\nAlways normalize to +1XXXXXXXXXX format:\n- \"(555) 123-4567\" → \"+15551234567\"\n- \"555-123-4567\" → \"+15551234567\"\n- \"5551234567\" → \"+15551234567\"\n\n**Hourly Rate Format:**\nStore in cents as integer:\n- \"$50/hour\" → 5000\n- \"$75.50/hour\" → 7550\n- \"$100/hour\" → 10000\n\n**Operations Protocol:**\n1. **CREATE**: Normalize phone → Validate fields → Create → Confirm\n2. **UPDATE**: Normalize lookup phone → Normalize new phone → Update → Confirm\n3. **GET/SEARCH**: Normalize phone → Execute search → Return results\n4. **DELETE**: Normalize phone → Delete → Confirm\n5. **LIST ALL**: Return all contractors with details\n\n**Specialty Examples:**\n- Plumbing\n- Electrical\n- HVAC\n- Carpentry\n- Painting\n- Roofing\n- Landscaping\n- General Maintenance\n\n**Response Format:**\nExecute the function immediately, then respond with results only:\n- \"Contractor found: John Smith, Plumbing, $50/hr, +14384541235\"\n- \"Contractor created: Jane Doe, Electrical, $75/hr, +15551234567\"\n- \"Contractor updated: Hourly rate changed to $65/hr\"\n- \"Error: Contractor not found for +15559876543\"\n\nAlways show normalized phone numbers and format hourly rates as dollars in confirmations."
+          }
+        },
+        "type": "@n8n/n8n-nodes-langchain.agent",
+        "typeVersion": 3.1,
+        "position": [
+          -16,
+          -176
+        ],
+        "id": "b45ecd65-2f22-4294-8464-0ef21a0fbaa0",
+        "name": "AI Agent"
+      },
+      {
+        "parameters": {
+          "model": {
+            "__rl": true,
+            "value": "gpt-4.1",
+            "mode": "list",
+            "cachedResultName": "gpt-4.1"
+          },
+          "responsesApiEnabled": false,
+          "options": {}
+        },
+        "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+        "typeVersion": 1.3,
+        "position": [
+          -144,
+          80
+        ],
+        "id": "91462004-974a-47d3-99be-39d276304447",
+        "name": "OpenAI Chat Model",
+        "credentials": {
+          "openAiApi": {
+            "id": "vofRqqG7VEHTXxTs",
+            "name": "OpenAi account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "descriptionType": "manual",
+          "toolDescription": "Creates a new contractor record in the database with all required information including name, phone number, specialty, hourly rate, company name, and status.",
+          "schema": {
+            "__rl": true,
+            "mode": "list",
+            "value": "public"
+          },
+          "table": {
+            "__rl": true,
+            "value": "contractors",
+            "mode": "list",
+            "cachedResultName": "contractors"
+          },
+          "columns": {
+            "mappingMode": "defineBelow",
+            "value": {
+              "name": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('name', `Full name of the contractor`, 'string') }}",
+              "phone_number": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('phone_number', `Phone number of the contractor`, 'string') }}",
+              "email": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('email', `Contractor email address`, 'string') }}",
+              "company_name": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('company_name', `Company name if applicable (optional)`, 'string') }}",
+              "specialty": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('specialty', `Trade specialty: Plumbing, Electrical, HVAC, Carpentry, Painting, etc.`, 'string') }}",
+              "hourly_rate": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('hourly_rate', `Hourly rate. Use $50 by default if not provided`, 'number') }}",
+              "status": "={{ $fromAI('status', 'Contractor status: ACTIVE, INACTIVE, or UNAVAILABLE', 'string') }}",
+              "notes": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('notes', `Additional notes about the contractor`, 'string') }}"
+            },
+            "matchingColumns": [
+              "id"
+            ],
+            "schema": [
+              {
+                "id": "id",
+                "displayName": "id",
+                "required": false,
+                "defaultMatch": true,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true,
+                "removed": true
+              },
+              {
+                "id": "name",
+                "displayName": "name",
+                "required": true,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true
+              },
+              {
+                "id": "phone_number",
+                "displayName": "phone_number",
+                "required": true,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true
+              },
+              {
+                "id": "email",
+                "displayName": "email",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true
+              },
+              {
+                "id": "company_name",
+                "displayName": "company_name",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true
+              },
+              {
+                "id": "specialty",
+                "displayName": "specialty",
+                "required": true,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true
+              },
+              {
+                "id": "hourly_rate",
+                "displayName": "hourly_rate",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "number",
+                "canBeUsedToMatch": true
+              },
+              {
+                "id": "status",
+                "displayName": "status",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "options",
+                "canBeUsedToMatch": true,
+                "options": [
+                  {
+                    "name": "ACTIVE",
+                    "value": "ACTIVE"
+                  },
+                  {
+                    "name": "INACTIVE",
+                    "value": "INACTIVE"
+                  },
+                  {
+                    "name": "UNAVAILABLE",
+                    "value": "UNAVAILABLE"
+                  }
+                ]
+              },
+              {
+                "id": "notes",
+                "displayName": "notes",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true
+              },
+              {
+                "id": "created_at",
+                "displayName": "created_at",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "dateTime",
+                "canBeUsedToMatch": true,
+                "removed": true
+              },
+              {
+                "id": "updated_at",
+                "displayName": "updated_at",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "dateTime",
+                "canBeUsedToMatch": true,
+                "removed": true
+              }
+            ],
+            "attemptToConvertTypes": false,
+            "convertFieldsToString": false
+          },
+          "options": {}
+        },
+        "id": "44ae01e5-7c15-44ad-a448-25d8e80b3b9f",
+        "name": "Create a contractor",
+        "type": "n8n-nodes-base.postgresTool",
+        "typeVersion": 2.6,
+        "position": [
+          288,
+          80
+        ],
+        "credentials": {
+          "postgres": {
+            "id": "u7j29OmyHuzkVDfZ",
+            "name": "Postgres account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "descriptionType": "manual",
+          "toolDescription": "Updates an existing contractor record in the database. Provide the phone number to identify the contractor and any fields you want to update. Only provided fields will be updated.",
+          "operation": "update",
+          "schema": {
+            "__rl": true,
+            "mode": "list",
+            "value": "public"
+          },
+          "table": {
+            "__rl": true,
+            "value": "contractors",
+            "mode": "list",
+            "cachedResultName": "contractors"
+          },
+          "columns": {
+            "mappingMode": "defineBelow",
+            "value": {
+              "name": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('name', `Updated contractor name (optional)`, 'string') }}",
+              "phone_number": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('phone_number__using_to_match_', `New phone number if changing (optional)`, 'string') }}",
+              "email": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('email', `Updated email (optional)`, 'string') }}",
+              "company_name": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('company_name', `Updated company name (optional)`, 'string') }}",
+              "specialty": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('specialty', `Updated specialty (optional)`, 'string') }}",
+              "hourly_rate": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('hourly_rate', `Hourly rate. Use $50 by default if not provided`, 'number') }}",
+              "status": "={{ $fromAI('status', 'Updated status: ACTIVE, INACTIVE, or UNAVAILABLE (optional)', 'string') }}",
+              "notes": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('notes', `Updated notes (optional)`, 'string') }}"
+            },
+            "matchingColumns": [
+              "phone_number"
+            ],
+            "schema": [
+              {
+                "id": "id",
+                "displayName": "id",
+                "required": false,
+                "defaultMatch": true,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true,
+                "removed": true
+              },
+              {
+                "id": "name",
+                "displayName": "name",
+                "required": true,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true
+              },
+              {
+                "id": "phone_number",
+                "displayName": "phone_number",
+                "required": true,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true,
+                "removed": false
+              },
+              {
+                "id": "email",
+                "displayName": "email",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true
+              },
+              {
+                "id": "company_name",
+                "displayName": "company_name",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true
+              },
+              {
+                "id": "specialty",
+                "displayName": "specialty",
+                "required": true,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true
+              },
+              {
+                "id": "hourly_rate",
+                "displayName": "hourly_rate",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "number",
+                "canBeUsedToMatch": true
+              },
+              {
+                "id": "status",
+                "displayName": "status",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "options",
+                "canBeUsedToMatch": true,
+                "options": [
+                  {
+                    "name": "ACTIVE",
+                    "value": "ACTIVE"
+                  },
+                  {
+                    "name": "INACTIVE",
+                    "value": "INACTIVE"
+                  },
+                  {
+                    "name": "UNAVAILABLE",
+                    "value": "UNAVAILABLE"
+                  }
+                ]
+              },
+              {
+                "id": "notes",
+                "displayName": "notes",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true
+              },
+              {
+                "id": "created_at",
+                "displayName": "created_at",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "dateTime",
+                "canBeUsedToMatch": true,
+                "removed": true
+              },
+              {
+                "id": "updated_at",
+                "displayName": "updated_at",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "dateTime",
+                "canBeUsedToMatch": true,
+                "removed": true
+              }
+            ],
+            "attemptToConvertTypes": false,
+            "convertFieldsToString": false
+          },
+          "options": {}
+        },
+        "id": "af561932-a866-4377-a957-3851503eb807",
+        "name": "Update a contractor",
+        "type": "n8n-nodes-base.postgresTool",
+        "typeVersion": 2.6,
+        "position": [
+          448,
+          80
+        ],
+        "credentials": {
+          "postgres": {
+            "id": "u7j29OmyHuzkVDfZ",
+            "name": "Postgres account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "descriptionType": "manual",
+          "toolDescription": "Deletes a contractor record from the database by phone number. This action is permanent and cannot be undone.",
+          "operation": "deleteTable",
+          "schema": {
+            "__rl": true,
+            "mode": "list",
+            "value": "public"
+          },
+          "table": {
+            "__rl": true,
+            "value": "contractors",
+            "mode": "list",
+            "cachedResultName": "contractors"
+          },
+          "deleteCommand": "delete",
+          "where": {
+            "values": [
+              {
+                "column": "phone_number",
+                "value": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('values0_Value', `Phone number of contractor to delete`, 'string') }}"
+              }
+            ]
+          },
+          "options": {}
+        },
+        "id": "3e34e0f3-9ef8-4a6d-b196-e1b13c259cec",
+        "name": "Delete a contractor",
+        "type": "n8n-nodes-base.postgresTool",
+        "typeVersion": 2.6,
+        "position": [
+          608,
+          80
+        ],
+        "credentials": {
+          "postgres": {
+            "id": "u7j29OmyHuzkVDfZ",
+            "name": "Postgres account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "descriptionType": "manual",
+          "toolDescription": "Retrieves all contractors information from the database. Returns contractors details including name, contact information, specialty, hourly rate, and status.",
+          "operation": "select",
+          "schema": {
+            "__rl": true,
+            "mode": "list",
+            "value": "public"
+          },
+          "table": {
+            "__rl": true,
+            "value": "contractors",
+            "mode": "list",
+            "cachedResultName": "contractors"
+          },
+          "returnAll": true,
+          "options": {}
+        },
+        "id": "740458c1-e9b5-4b44-85cb-6334e8f38106",
+        "name": "List contractors",
+        "type": "n8n-nodes-base.postgresTool",
+        "typeVersion": 2.6,
+        "position": [
+          144,
+          80
+        ],
+        "credentials": {
+          "postgres": {
+            "id": "u7j29OmyHuzkVDfZ",
+            "name": "Postgres account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "descriptionType": "manual",
+          "toolDescription": "Retrieves contractor information from the database by phone number. Returns contractor details including name, contact information, specialty, hourly rate, company name, and status.",
+          "operation": "select",
+          "schema": {
+            "__rl": true,
+            "mode": "list",
+            "value": "public"
+          },
+          "table": {
+            "__rl": true,
+            "value": "contractors",
+            "mode": "list",
+            "cachedResultName": "contractors"
+          },
+          "limit": 1,
+          "where": {
+            "values": [
+              {
+                "column": "phone_number",
+                "value": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('values0_Value', `The phone number of the contractor to search for`, 'string') }}"
+              }
+            ]
+          },
+          "options": {}
+        },
+        "id": "f60c3c72-4c07-4aa7-9478-60cc1755dc76",
+        "name": "Get a contractor",
+        "type": "n8n-nodes-base.postgresTool",
+        "typeVersion": 2.6,
+        "position": [
+          16,
+          80
+        ],
+        "credentials": {
+          "postgres": {
+            "id": "u7j29OmyHuzkVDfZ",
+            "name": "Postgres account"
+          }
+        }
+      }
+    ],
+    "connections": {
+      "When Executed by Another Workflow": {
+        "main": [
+          [
+            {
+              "node": "AI Agent",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "OpenAI Chat Model": {
+        "ai_languageModel": [
+          [
+            {
+              "node": "AI Agent",
+              "type": "ai_languageModel",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Create a contractor": {
+        "ai_tool": [
+          [
+            {
+              "node": "AI Agent",
+              "type": "ai_tool",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Update a contractor": {
+        "ai_tool": [
+          [
+            {
+              "node": "AI Agent",
+              "type": "ai_tool",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Delete a contractor": {
+        "ai_tool": [
+          [
+            {
+              "node": "AI Agent",
+              "type": "ai_tool",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "List contractors": {
+        "ai_tool": [
+          [
+            {
+              "node": "AI Agent",
+              "type": "ai_tool",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Get a contractor": {
+        "ai_tool": [
+          [
+            {
+              "node": "AI Agent",
+              "type": "ai_tool",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    },
+    "authors": "Aurelien Bonin",
+    "name": "Version 71d455b9",
+    "description": "",
+    "autosaved": false
+  },
+  "activeVersionId": "71d455b9-2c6c-497f-81eb-aa408e8969f1",
+  "connections": {
+    "When Executed by Another Workflow": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create a contractor": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update a contractor": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Delete a contractor": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "List contractors": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get a contractor": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "createdAt": "2026-01-10T23:40:44.869Z",
+  "id": "KNUVhRTJOFGdtBlR",
+  "isArchived": false,
+  "meta": null,
+  "name": "Contractors",
+  "nodes": [
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        912,
+        -160
+      ],
+      "id": "5dc7a168-8605-4452-84ce-6c68b78589dd",
+      "name": "Respond to Webhook"
+    },
+    {
+      "parameters": {
+        "inputSource": "passthrough"
+      },
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        -192,
+        -176
+      ],
+      "id": "69d0d862-a902-4d72-9062-300671758d67",
+      "name": "When Executed by Another Workflow"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.query }}",
+        "options": {
+          "systemMessage": "=You are a contractor management assistant for Jules AI. Execute database operations immediately and report results concisely.\n\n**Database Schema:**\n- **name**: String (max 255 chars)\n- **phone_number**: String (max 50 chars) - Format: +1XXXXXXXXXX\n- **email**: String (max 255 chars)\n- **company_name**: String (max 255 chars) - Optional\n- **specialty**: String (max 100 chars) - e.g., 'Plumbing', 'Electrical', 'HVAC', 'Carpentry'\n- **hourly_rate**: Integer (stored in cents) - e.g., 5000 = $50.00\n- **status**: String (max 50 chars) - 'ACTIVE', 'INACTIVE', 'UNAVAILABLE'\n- **notes**: Text - Optional additional information\n\n**Phone Number Normalization:**\nAlways normalize to +1XXXXXXXXXX format:\n- \"(555) 123-4567\" → \"+15551234567\"\n- \"555-123-4567\" → \"+15551234567\"\n- \"5551234567\" → \"+15551234567\"\n\n**Hourly Rate Format:**\nStore in cents as integer:\n- \"$50/hour\" → 5000\n- \"$75.50/hour\" → 7550\n- \"$100/hour\" → 10000\n\n**Operations Protocol:**\n1. **CREATE**: Normalize phone → Validate fields → Create → Confirm\n2. **UPDATE**: Normalize lookup phone → Normalize new phone → Update → Confirm\n3. **GET/SEARCH**: Normalize phone → Execute search → Return results\n4. **DELETE**: Normalize phone → Delete → Confirm\n5. **LIST ALL**: Return all contractors with details\n\n**Specialty Examples:**\n- Plumbing\n- Electrical\n- HVAC\n- Carpentry\n- Painting\n- Roofing\n- Landscaping\n- General Maintenance\n\n**Response Format:**\nExecute the function immediately, then respond with results only:\n- \"Contractor found: John Smith, Plumbing, $50/hr, +14384541235\"\n- \"Contractor created: Jane Doe, Electrical, $75/hr, +15551234567\"\n- \"Contractor updated: Hourly rate changed to $65/hr\"\n- \"Error: Contractor not found for +15559876543\"\n\nAlways show normalized phone numbers and format hourly rates as dollars in confirmations."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        -16,
+        -176
+      ],
+      "id": "b45ecd65-2f22-4294-8464-0ef21a0fbaa0",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "gpt-4.1",
+          "mode": "list",
+          "cachedResultName": "gpt-4.1"
+        },
+        "responsesApiEnabled": false,
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        -144,
+        80
+      ],
+      "id": "91462004-974a-47d3-99be-39d276304447",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "vofRqqG7VEHTXxTs",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "descriptionType": "manual",
+        "toolDescription": "Creates a new contractor record in the database with all required information including name, phone number, specialty, hourly rate, company name, and status.",
+        "schema": {
+          "__rl": true,
+          "mode": "list",
+          "value": "public"
+        },
+        "table": {
+          "__rl": true,
+          "value": "contractors",
+          "mode": "list",
+          "cachedResultName": "contractors"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "name": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('name', `Full name of the contractor`, 'string') }}",
+            "phone_number": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('phone_number', `Phone number of the contractor`, 'string') }}",
+            "email": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('email', `Contractor email address`, 'string') }}",
+            "company_name": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('company_name', `Company name if applicable (optional)`, 'string') }}",
+            "specialty": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('specialty', `Trade specialty: Plumbing, Electrical, HVAC, Carpentry, Painting, etc.`, 'string') }}",
+            "hourly_rate": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('hourly_rate', `Hourly rate. Use $50 by default if not provided`, 'number') }}",
+            "status": "={{ $fromAI('status', 'Contractor status: ACTIVE, INACTIVE, or UNAVAILABLE', 'string') }}",
+            "notes": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('notes', `Additional notes about the contractor`, 'string') }}"
+          },
+          "matchingColumns": [
+            "id"
+          ],
+          "schema": [
+            {
+              "id": "id",
+              "displayName": "id",
+              "required": false,
+              "defaultMatch": true,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "name",
+              "displayName": "name",
+              "required": true,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "phone_number",
+              "displayName": "phone_number",
+              "required": true,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "email",
+              "displayName": "email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "company_name",
+              "displayName": "company_name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "specialty",
+              "displayName": "specialty",
+              "required": true,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "hourly_rate",
+              "displayName": "hourly_rate",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "status",
+              "displayName": "status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "options",
+              "canBeUsedToMatch": true,
+              "options": [
+                {
+                  "name": "ACTIVE",
+                  "value": "ACTIVE"
+                },
+                {
+                  "name": "INACTIVE",
+                  "value": "INACTIVE"
+                },
+                {
+                  "name": "UNAVAILABLE",
+                  "value": "UNAVAILABLE"
+                }
+              ]
+            },
+            {
+              "id": "notes",
+              "displayName": "notes",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "created_at",
+              "displayName": "created_at",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "dateTime",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "updated_at",
+              "displayName": "updated_at",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "dateTime",
+              "canBeUsedToMatch": true,
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "id": "44ae01e5-7c15-44ad-a448-25d8e80b3b9f",
+      "name": "Create a contractor",
+      "type": "n8n-nodes-base.postgresTool",
+      "typeVersion": 2.6,
+      "position": [
+        288,
+        80
+      ],
+      "credentials": {
+        "postgres": {
+          "id": "u7j29OmyHuzkVDfZ",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "descriptionType": "manual",
+        "toolDescription": "Updates an existing contractor record in the database. Provide the phone number to identify the contractor and any fields you want to update. Only provided fields will be updated.",
+        "operation": "update",
+        "schema": {
+          "__rl": true,
+          "mode": "list",
+          "value": "public"
+        },
+        "table": {
+          "__rl": true,
+          "value": "contractors",
+          "mode": "list",
+          "cachedResultName": "contractors"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "name": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('name', `Updated contractor name (optional)`, 'string') }}",
+            "phone_number": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('phone_number__using_to_match_', `New phone number if changing (optional)`, 'string') }}",
+            "email": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('email', `Updated email (optional)`, 'string') }}",
+            "company_name": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('company_name', `Updated company name (optional)`, 'string') }}",
+            "specialty": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('specialty', `Updated specialty (optional)`, 'string') }}",
+            "hourly_rate": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('hourly_rate', `Hourly rate. Use $50 by default if not provided`, 'number') }}",
+            "status": "={{ $fromAI('status', 'Updated status: ACTIVE, INACTIVE, or UNAVAILABLE (optional)', 'string') }}",
+            "notes": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('notes', `Updated notes (optional)`, 'string') }}"
+          },
+          "matchingColumns": [
+            "phone_number"
+          ],
+          "schema": [
+            {
+              "id": "id",
+              "displayName": "id",
+              "required": false,
+              "defaultMatch": true,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "name",
+              "displayName": "name",
+              "required": true,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "phone_number",
+              "displayName": "phone_number",
+              "required": true,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "email",
+              "displayName": "email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "company_name",
+              "displayName": "company_name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "specialty",
+              "displayName": "specialty",
+              "required": true,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "hourly_rate",
+              "displayName": "hourly_rate",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "status",
+              "displayName": "status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "options",
+              "canBeUsedToMatch": true,
+              "options": [
+                {
+                  "name": "ACTIVE",
+                  "value": "ACTIVE"
+                },
+                {
+                  "name": "INACTIVE",
+                  "value": "INACTIVE"
+                },
+                {
+                  "name": "UNAVAILABLE",
+                  "value": "UNAVAILABLE"
+                }
+              ]
+            },
+            {
+              "id": "notes",
+              "displayName": "notes",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "created_at",
+              "displayName": "created_at",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "dateTime",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "updated_at",
+              "displayName": "updated_at",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "dateTime",
+              "canBeUsedToMatch": true,
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "id": "af561932-a866-4377-a957-3851503eb807",
+      "name": "Update a contractor",
+      "type": "n8n-nodes-base.postgresTool",
+      "typeVersion": 2.6,
+      "position": [
+        448,
+        80
+      ],
+      "credentials": {
+        "postgres": {
+          "id": "u7j29OmyHuzkVDfZ",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "descriptionType": "manual",
+        "toolDescription": "Deletes a contractor record from the database by phone number. This action is permanent and cannot be undone.",
+        "operation": "deleteTable",
+        "schema": {
+          "__rl": true,
+          "mode": "list",
+          "value": "public"
+        },
+        "table": {
+          "__rl": true,
+          "value": "contractors",
+          "mode": "list",
+          "cachedResultName": "contractors"
+        },
+        "deleteCommand": "delete",
+        "where": {
+          "values": [
+            {
+              "column": "phone_number",
+              "value": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('values0_Value', `Phone number of contractor to delete`, 'string') }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "3e34e0f3-9ef8-4a6d-b196-e1b13c259cec",
+      "name": "Delete a contractor",
+      "type": "n8n-nodes-base.postgresTool",
+      "typeVersion": 2.6,
+      "position": [
+        608,
+        80
+      ],
+      "credentials": {
+        "postgres": {
+          "id": "u7j29OmyHuzkVDfZ",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "descriptionType": "manual",
+        "toolDescription": "Retrieves all contractors information from the database. Returns contractors details including name, contact information, specialty, hourly rate, and status.",
+        "operation": "select",
+        "schema": {
+          "__rl": true,
+          "mode": "list",
+          "value": "public"
+        },
+        "table": {
+          "__rl": true,
+          "value": "contractors",
+          "mode": "list",
+          "cachedResultName": "contractors"
+        },
+        "returnAll": true,
+        "options": {}
+      },
+      "id": "740458c1-e9b5-4b44-85cb-6334e8f38106",
+      "name": "List contractors",
+      "type": "n8n-nodes-base.postgresTool",
+      "typeVersion": 2.6,
+      "position": [
+        144,
+        80
+      ],
+      "credentials": {
+        "postgres": {
+          "id": "u7j29OmyHuzkVDfZ",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "descriptionType": "manual",
+        "toolDescription": "Retrieves contractor information from the database by phone number. Returns contractor details including name, contact information, specialty, hourly rate, company name, and status.",
+        "operation": "select",
+        "schema": {
+          "__rl": true,
+          "mode": "list",
+          "value": "public"
+        },
+        "table": {
+          "__rl": true,
+          "value": "contractors",
+          "mode": "list",
+          "cachedResultName": "contractors"
+        },
+        "limit": 1,
+        "where": {
+          "values": [
+            {
+              "column": "phone_number",
+              "value": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('values0_Value', `The phone number of the contractor to search for`, 'string') }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "f60c3c72-4c07-4aa7-9478-60cc1755dc76",
+      "name": "Get a contractor",
+      "type": "n8n-nodes-base.postgresTool",
+      "typeVersion": 2.6,
+      "position": [
+        16,
+        80
+      ],
+      "credentials": {
+        "postgres": {
+          "id": "u7j29OmyHuzkVDfZ",
+          "name": "Postgres account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1",
+    "availableInMCP": false
+  },
+  "shared": [
+    {
+      "updatedAt": "2026-01-10T23:40:44.873Z",
+      "createdAt": "2026-01-10T23:40:44.873Z",
+      "role": "workflow:owner",
+      "workflowId": "KNUVhRTJOFGdtBlR",
+      "projectId": "K5c2PqoZjXPELHVa"
+    }
+  ],
+  "staticData": null,
+  "tags": [],
+  "triggerCount": 0,
+  "updatedAt": "2026-01-11T01:30:29.037Z",
+  "versionId": "71d455b9-2c6c-497f-81eb-aa408e8969f1"
+}
