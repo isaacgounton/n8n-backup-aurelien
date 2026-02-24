@@ -1,0 +1,115 @@
+{
+  "active": false,
+  "activeVersion": null,
+  "activeVersionId": null,
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "createdAt": "2025-12-29T19:10:47.957Z",
+  "id": "CGcWlSDFFgr3Fq4x",
+  "isArchived": false,
+  "meta": {
+    "templateCredsSetupCompleted": true
+  },
+  "name": "My workflow 5",
+  "nodes": [
+    {
+      "parameters": {
+        "path": "9d898805-f4e9-4868-9ab5-9014e59c8335",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -352,
+        -64
+      ],
+      "id": "d5552942-dfc6-49a7-bb59-88b7a504942b",
+      "name": "Webhook",
+      "webhookId": "9d898805-f4e9-4868-9ab5-9014e59c8335"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "link",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "ff",
+              "value": "ff"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "ff",
+              "value": "ff"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        -144,
+        -64
+      ],
+      "id": "de709172-9289-4be8-b377-e69a09ec6833",
+      "name": "HTTP Request"
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "-- 20251229000000_add_contractors.sql\n-- Add contractors table and update work_orders for contractor relationships\n\n-- Create ContractorStatus enum\nDO $$ BEGIN\n    CREATE TYPE contractorstatus AS ENUM ('ACTIVE', 'INACTIVE', 'PENDING');\nEXCEPTION WHEN duplicate_object THEN null;\nEND $$;\n\n-- Create contractors table\nCREATE TABLE IF NOT EXISTS contractors (\n    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),\n    name VARCHAR(255) NOT NULL,\n    phone_number VARCHAR(50) NOT NULL,\n    email VARCHAR(255),\n    company_name VARCHAR(255),\n    specialty VARCHAR(100) NOT NULL,\n    hourly_rate INTEGER,  -- Cost in cents\n    status contractorstatus NOT NULL DEFAULT 'ACTIVE',\n    notes TEXT,\n    created_at TIMESTAMPTZ NOT NULL DEFAULT now(),\n    updated_at TIMESTAMPTZ NOT NULL DEFAULT now()\n);\n\n-- Create indexes on contractors table\nCREATE INDEX IF NOT EXISTS ix_contractors_name ON contractors(name);\nCREATE INDEX IF NOT EXISTS ix_contractors_phone_number ON contractors(phone_number);\nCREATE INDEX IF NOT EXISTS ix_contractors_specialty ON contractors(specialty);\nCREATE INDEX IF NOT EXISTS ix_contractors_status ON contractors(status);\nCREATE INDEX IF NOT EXISTS ix_contractors_created_at ON contractors(created_at);\n\n-- Remove old contractor text fields from work_orders\nALTER TABLE work_orders DROP COLUMN IF EXISTS contractor;\nALTER TABLE work_orders DROP COLUMN IF EXISTS contractor_contact;\n\n-- Add contractor_id foreign key to work_orders\nDO $$ BEGIN\n    ALTER TABLE work_orders ADD COLUMN IF NOT EXISTS contractor_id UUID;\nEXCEPTION WHEN duplicate_column THEN null;\nEND $$;\n\n-- Add foreign key constraint if not exists\nDO $$ BEGIN\n    ALTER TABLE work_orders ADD CONSTRAINT fk_work_orders_contractor_id\n        FOREIGN KEY (contractor_id) REFERENCES contractors(id);\nEXCEPTION WHEN duplicate_object THEN null;\nEND $$;\n\n-- Create index on contractor_id\nCREATE INDEX IF NOT EXISTS ix_work_orders_contractor_id ON work_orders(contractor_id);\n",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        784,
+        -256
+      ],
+      "id": "b489dd7c-88d6-4498-b632-1e37c1d9985d",
+      "name": "Execute a SQL query",
+      "credentials": {
+        "postgres": {
+          "id": "u7j29OmyHuzkVDfZ",
+          "name": "Postgres account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1",
+    "availableInMCP": false
+  },
+  "shared": [
+    {
+      "updatedAt": "2025-12-29T19:10:47.962Z",
+      "createdAt": "2025-12-29T19:10:47.962Z",
+      "role": "workflow:owner",
+      "workflowId": "CGcWlSDFFgr3Fq4x",
+      "projectId": "K5c2PqoZjXPELHVa"
+    }
+  ],
+  "staticData": null,
+  "tags": [],
+  "triggerCount": 0,
+  "updatedAt": "2025-12-29T19:11:19.452Z",
+  "versionId": "d1fa8480-3802-4981-9267-8cfe43e1c318"
+}
