@@ -1,0 +1,33 @@
+{
+  "active": false,
+  "activeVersion": null,
+  "activeVersionId": null,
+  "connections": {},
+  "createdAt": "2026-01-01T21:21:16.498Z",
+  "id": "mjAORhnGQLLyN4d9",
+  "isArchived": false,
+  "meta": {
+    "templateCredsSetupCompleted": true
+  },
+  "name": "Hello",
+  "nodes": [],
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1",
+    "availableInMCP": false
+  },
+  "shared": [
+    {
+      "updatedAt": "2026-01-01T21:21:16.501Z",
+      "createdAt": "2026-01-01T21:21:16.501Z",
+      "role": "workflow:owner",
+      "workflowId": "mjAORhnGQLLyN4d9",
+      "projectId": "K5c2PqoZjXPELHVa"
+    }
+  ],
+  "staticData": null,
+  "tags": [],
+  "triggerCount": 0,
+  "updatedAt": "2026-01-10T08:28:13.202Z",
+  "versionId": "4da15d19-9f56-4554-8569-d3b35af609c1"
+}
