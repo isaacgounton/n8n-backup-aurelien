@@ -1,0 +1,2649 @@
+{
+  "active": false,
+  "activeVersion": null,
+  "activeVersionId": null,
+  "connections": {
+    "When chat message received": {
+      "main": [
+        [
+          {
+            "node": "HAL 9001",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Window Buffer Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "HAL 9001",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Telegram Trigger": {
+      "main": [
+        [
+          {
+            "node": "Switch1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch1": {
+      "main": [
+        [
+          {
+            "node": "Telegram1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Telegram",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Set Message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Telegram": {
+      "main": [
+        [
+          {
+            "node": "OpenAI2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Telegram1": {
+      "main": [
+        [
+          {
+            "node": "Get Image Info",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI4": {
+      "main": [
+        [
+          {
+            "node": "Set Message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Image Info": {
+      "main": [
+        [
+          {
+            "node": "OpenAI4",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set Message": {
+      "main": [
+        [
+          {
+            "node": "HAL 9001",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If2": {
+      "main": [
+        [
+          {
+            "node": "Telegram2",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Generate Audio",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract URLs": {
+      "main": [
+        [
+          {
+            "node": "Split Out",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split Out": {
+      "main": [
+        [
+          {
+            "node": "Telegram3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Aggregate": {
+      "main": [
+        [
+          {
+            "node": "Finish",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Telegram2": {
+      "main": [
+        [
+          {
+            "node": "Extract URLs",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Telegram3": {
+      "main": [
+        [
+          {
+            "node": "Aggregate",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Telegram4": {
+      "main": [
+        [
+          {
+            "node": "Telegram5",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Telegram5": {
+      "main": [
+        []
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "If2",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Code",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HAL 9001": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "HAL 9001",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generate Audio": {
+      "main": [
+        [
+          {
+            "node": "Telegram4",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI2": {
+      "main": [
+        [
+          {
+            "node": "Set Message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Email Agent": {
+      "ai_tool": [
+        [
+          {
+            "node": "Communication_Supervisor",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Slack Agent": {
+      "ai_tool": [
+        [
+          {
+            "node": "Communication_Supervisor",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "X Twitter Agent": {
+      "ai_tool": [
+        [
+          {
+            "node": "Communication_Supervisor",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Window Buffer Memory1": {
+      "ai_memory": [
+        [
+          {
+            "node": "Communication_Supervisor",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Communication_Supervisor",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Communication_Supervisor": {
+      "ai_tool": [
+        [
+          {
+            "node": "HAL 9001",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Calendar Agent": {
+      "ai_tool": [
+        [
+          {
+            "node": "Productivity_Supervisor",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Drive Agent": {
+      "ai_tool": [
+        [
+          {
+            "node": "Productivity_Supervisor",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Docs Agent": {
+      "ai_tool": [
+        [
+          {
+            "node": "Productivity_Supervisor",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Sheets Agent": {
+      "ai_tool": [
+        [
+          {
+            "node": "Productivity_Supervisor",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Airtable Agent": {
+      "ai_tool": [
+        [
+          {
+            "node": "Productivity_Supervisor",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Contact Agent": {
+      "ai_tool": [
+        [
+          {
+            "node": "Productivity_Supervisor",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Window Buffer Memory2": {
+      "ai_memory": [
+        [
+          {
+            "node": "Productivity_Supervisor",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model2": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Productivity_Supervisor",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CRM Agent": {
+      "ai_tool": [
+        [
+          {
+            "node": "Productivity_Supervisor",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "SEO Agent": {
+      "ai_tool": [
+        [
+          {
+            "node": "Insights Supervisor1",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Financial Markets Agent": {
+      "ai_tool": [
+        [
+          {
+            "node": "Insights Supervisor1",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Analytics": {
+      "ai_tool": [
+        [
+          {
+            "node": "Insights Supervisor1",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "News and Search Agent": {
+      "ai_tool": [
+        [
+          {
+            "node": "Insights Supervisor1",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Window Buffer Memory3": {
+      "ai_memory": [
+        [
+          {
+            "node": "Insights Supervisor1",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model3": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Insights Supervisor1",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Insights Supervisor1": {
+      "ai_tool": [
+        [
+          {
+            "node": "HAL 9001",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Notion Agent": {
+      "ai_tool": [
+        [
+          {
+            "node": "Lifestyle Supervisor",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Tasks Agent": {
+      "ai_tool": [
+        [
+          {
+            "node": "Lifestyle Supervisor",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Travel Agent": {
+      "ai_tool": [
+        [
+          {
+            "node": "Lifestyle Supervisor",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Window Buffer Memory4": {
+      "ai_memory": [
+        [
+          {
+            "node": "Lifestyle Supervisor",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model4": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Lifestyle Supervisor",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Lifestyle Supervisor": {
+      "ai_tool": [
+        [
+          {
+            "node": "HAL 9001",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Social Media Agent": {
+      "ai_tool": [
+        [
+          {
+            "node": "Publishing Supervisor",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Image Agent": {
+      "ai_tool": [
+        [
+          {
+            "node": "Publishing Supervisor",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch Markdown via Jina AI": {
+      "ai_tool": [
+        [
+          {
+            "node": "Publishing Supervisor",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Window Buffer Memory5": {
+      "ai_memory": [
+        [
+          {
+            "node": "Publishing Supervisor",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model5": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Publishing Supervisor",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Publishing Supervisor": {
+      "ai_tool": [
+        [
+          {
+            "node": "HAL 9001",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Productivity_Supervisor": {
+      "ai_tool": [
+        [
+          {
+            "node": "HAL 9001",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "createdAt": "2025-12-27T00:16:26.885Z",
+  "id": "u4QKyAYCV6H1QFHe",
+  "isArchived": false,
+  "meta": {
+    "templateCredsSetupCompleted": true
+  },
+  "name": "PA Main",
+  "nodes": [
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        -752,
+        944
+      ],
+      "id": "dc1747ef-29b7-4845-8861-fd1282cb6b12",
+      "name": "When chat message received",
+      "webhookId": "3c4e7443-bf1d-4fd0-af8f-e7be32aa6f10"
+    },
+    {
+      "parameters": {
+        "contextWindowLength": 40
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        944,
+        800
+      ],
+      "id": "3a730365-740a-47b5-9500-d4f989087eac",
+      "name": "Window Buffer Memory"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "gpt-5.2",
+          "mode": "list",
+          "cachedResultName": "gpt-5.2"
+        },
+        "options": {
+          "maxTokens": 1024
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        1040,
+        800
+      ],
+      "id": "fd1b838e-0249-49e4-8111-6ad15ce757f4",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "vofRqqG7VEHTXxTs",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "updates": [
+          "message"
+        ],
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegramTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        -736,
+        624
+      ],
+      "id": "98742845-4131-41fc-915c-fde6dfd76639",
+      "name": "Telegram Trigger",
+      "webhookId": "b33d2025-01c2-4386-b677-206a87a1856b",
+      "credentials": {
+        "telegramApi": {
+          "id": "31CT2zfW1Xx9YgF8",
+          "name": "Telegram (JulesAI)"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "b982f2f8-9f79-4303-821b-4d82117edf09",
+                    "leftValue": "={{ $json.message.photo }}",
+                    "rightValue": "image",
+                    "operator": {
+                      "type": "array",
+                      "operation": "exists",
+                      "singleValue": true
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Image"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.message.voice }}",
+                    "rightValue": "text",
+                    "operator": {
+                      "type": "object",
+                      "operation": "exists",
+                      "singleValue": true
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Audio"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "1a52b406-1df9-4c47-85c7-1de7e4c5365e",
+                    "leftValue": "={{ $json.message.text }}",
+                    "rightValue": "audio",
+                    "operator": {
+                      "type": "string",
+                      "operation": "exists",
+                      "singleValue": true
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Text"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.2,
+      "position": [
+        -512,
+        608
+      ],
+      "id": "8b22ee2c-e0d0-4eeb-8074-2763c720bfac",
+      "name": "Switch1"
+    },
+    {
+      "parameters": {
+        "resource": "audio",
+        "operation": "transcribe",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 1.8,
+      "position": [
+        160,
+        528
+      ],
+      "id": "ded8603c-0866-4c32-b5f5-d5d8ee461ace",
+      "name": "OpenAI2",
+      "credentials": {
+        "openAiApi": {
+          "id": "vofRqqG7VEHTXxTs",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "file",
+        "fileId": "={{ $json.message.voice.file_id }}",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        -64,
+        528
+      ],
+      "id": "536bf502-745a-48fb-b617-18d59457db28",
+      "name": "Telegram",
+      "webhookId": "06849504-8197-467f-9284-cb2780746c26",
+      "credentials": {
+        "telegramApi": {
+          "id": "31CT2zfW1Xx9YgF8",
+          "name": "Telegram (JulesAI)"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "file",
+        "fileId": "={{ $json.message.photo[$json.message.photo.length - 1].file_id }}",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        -64,
+        320
+      ],
+      "id": "7b5e90cb-e720-4393-b859-40475aabbc42",
+      "name": "Telegram1",
+      "webhookId": "9a8552f5-1ece-46a9-ab11-9c476af9b36d",
+      "credentials": {
+        "telegramApi": {
+          "id": "31CT2zfW1Xx9YgF8",
+          "name": "Telegram (JulesAI)"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "image",
+        "operation": "analyze",
+        "modelId": {
+          "__rl": true,
+          "value": "gpt-4o-mini",
+          "mode": "list",
+          "cachedResultName": "GPT-4O-MINI"
+        },
+        "inputType": "base64",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 1.8,
+      "position": [
+        368,
+        320
+      ],
+      "id": "99acfd90-e5ca-4e76-8f04-69dcf54da0f2",
+      "name": "OpenAI4",
+      "credentials": {
+        "openAiApi": {
+          "id": "vofRqqG7VEHTXxTs",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "information"
+      },
+      "type": "n8n-nodes-base.editImage",
+      "typeVersion": 1,
+      "position": [
+        144,
+        320
+      ],
+      "id": "626a3e07-84a3-4f67-afcc-7b2fa1c58c8c",
+      "name": "Get Image Info"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "c0fb56f9-3f37-4b79-a782-39bbd8030bb8",
+              "name": "userMessage",
+              "value": "={{ $json.text || $json.content || $json.body?.message || $json.message.text }}",
+              "type": "string"
+            },
+            {
+              "id": "48a0a0d8-82e8-4bef-838d-11e98d60a56a",
+              "name": "modal",
+              "value": "={{ \n\n$json.text \n  ? \"audio\"\n  : ($json.content \n    ? \"image\"\n    : \"text\")\n\n}}",
+              "type": "string"
+            },
+            {
+              "id": "ce4da91b-1a75-4589-9da7-ca9dcd7041b6",
+              "name": "sessionId",
+              "value": "={{ $json.message.chat.id }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        736,
+        656
+      ],
+      "id": "0c053170-52df-4cae-acfc-f8cd5e1b5689",
+      "name": "Set Message"
+    },
+    {
+      "parameters": {
+        "content": "# Telegram Trigger",
+        "height": 840,
+        "width": 1960,
+        "color": 4
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -1024,
+        64
+      ],
+      "id": "3dca982d-1ab0-4b25-b49a-a2dcfb541e6d",
+      "name": "Sticky Note1"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "39c1f3c0-0e12-402a-acbf-413efe979bc1",
+              "leftValue": "={{ $('OpenAI2').isExecuted }}",
+              "rightValue": "text",
+              "operator": {
+                "type": "boolean",
+                "operation": "false",
+                "singleValue": true
+              }
+            },
+            {
+              "id": "d2bfa117-f689-4d53-953d-2bdc816397c9",
+              "leftValue": "={{ $('OpenAI2').isExecuted && $json.output.length < 500}}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "false",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "or"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        1264,
+        224
+      ],
+      "id": "1ebef078-f293-44ee-a9ad-12bcbde86e3f",
+      "name": "If2"
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "gpt-5-nano",
+          "mode": "list",
+          "cachedResultName": "GPT-5-NANO"
+        },
+        "messages": {
+          "values": [
+            {
+              "content": "You will be provided a user message. Analyze and extract any image urls. \n\nOutput the image urls in JSON in the following format.\n\n{\n\"imageUrls\": [\n{\"image\": https://www....\"},\n{\"image\": https://www....\"}\n]\n}\n\nIf there are no image urls, then output an empty array",
+              "role": "system"
+            },
+            {
+              "content": "={{ $('HAL 9001').item.json.output }}"
+            }
+          ]
+        },
+        "jsonOutput": true,
+        "options": {
+          "temperature": 0.2
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 1.8,
+      "position": [
+        2704,
+        208
+      ],
+      "id": "2a5fbd62-698d-4095-9a83-f8b5eaf4b0f3",
+      "name": "Extract URLs",
+      "credentials": {
+        "openAiApi": {
+          "id": "vofRqqG7VEHTXxTs",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "message.content.imageUrls",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitOut",
+      "typeVersion": 1,
+      "position": [
+        2800,
+        448
+      ],
+      "id": "be2270e9-ed16-4576-b8f5-1c34dcef7118",
+      "name": "Split Out"
+    },
+    {
+      "parameters": {
+        "aggregate": "aggregateAllItemData",
+        "destinationFieldName": "array",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.aggregate",
+      "typeVersion": 1,
+      "position": [
+        3184,
+        448
+      ],
+      "id": "3a61f2d2-61dc-4eed-983a-c0a0a3bf4ea7",
+      "name": "Aggregate"
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Telegram Trigger').item.json.message.chat.id }}",
+        "text": "={{ $('HAL 9001').item.json.output }}",
+        "additionalFields": {
+          "appendAttribution": false,
+          "parse_mode": "HTML"
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        1856,
+        208
+      ],
+      "id": "d980f543-bce0-45f9-9c2a-02d31fe50bf5",
+      "name": "Telegram2",
+      "webhookId": "5306c97d-5cff-48dd-ad81-39df8a3733c5",
+      "credentials": {
+        "telegramApi": {
+          "id": "31CT2zfW1Xx9YgF8",
+          "name": "Telegram (JulesAI)"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "sendPhoto",
+        "chatId": "={{ $('Telegram Trigger').item.json.message.chat.id }}",
+        "file": "={{ $json.image }}",
+        "additionalFields": {
+          "parse_mode": "HTML"
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        2992,
+        448
+      ],
+      "id": "c8b73c85-4e3e-4f90-92f8-90ff318295e0",
+      "name": "Telegram3",
+      "webhookId": "40fe4e3a-1398-4e04-9c6f-d58147947d53",
+      "credentials": {
+        "telegramApi": {
+          "id": "31CT2zfW1Xx9YgF8",
+          "name": "Telegram (JulesAI)"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "sendAudio",
+        "chatId": "={{ $('Telegram Trigger').item.json.message.chat.id }}",
+        "binaryData": true,
+        "binaryPropertyName": "=data",
+        "additionalFields": {
+          "parse_mode": "HTML"
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        2032,
+        416
+      ],
+      "id": "5b8833bb-3951-4852-a206-9eb41adcb994",
+      "name": "Telegram4",
+      "webhookId": "d56c6411-491c-4d04-a990-aff6b0ba7ad2",
+      "credentials": {
+        "telegramApi": {
+          "id": "31CT2zfW1Xx9YgF8",
+          "name": "Telegram (JulesAI)"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Telegram Trigger').item.json.message.chat.id }}",
+        "text": "={{ $('HAL 9001').item.json.output }}",
+        "additionalFields": {
+          "appendAttribution": false,
+          "parse_mode": "HTML"
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        2352,
+        416
+      ],
+      "id": "0bd857d3-8c08-4a30-8ede-934fcce3c22b",
+      "name": "Telegram5",
+      "webhookId": "26eb158e-3573-435a-90c5-348a59dcf72a",
+      "credentials": {
+        "telegramApi": {
+          "id": "31CT2zfW1Xx9YgF8",
+          "name": "Telegram (JulesAI)"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const output = $input.first().json.output;\nreturn { output: output };\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        3376,
+        448
+      ],
+      "id": "db8f590e-c4f3-4568-9b65-70ee8410f8ad",
+      "name": "Finish",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "content": "# Telegram Response",
+        "height": 660,
+        "width": 2340,
+        "color": 4
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        1232,
+        160
+      ],
+      "id": "b8c3f955-bc51-4046-b0e2-95a5a4bdd693",
+      "name": "Sticky Note3"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "f8adc8f3-56d5-40de-ba94-d095097a2241",
+              "leftValue": "={{ $('Telegram Trigger').isExecuted }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        1312,
+        944
+      ],
+      "id": "6b1001cb-1e38-4286-b389-6cad89693628",
+      "name": "If",
+      "alwaysOutputData": false
+    },
+    {
+      "parameters": {
+        "jsCode": "// Do nothing\n\nreturn $input.all();"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1552,
+        976
+      ],
+      "id": "6c6371ba-0dad-49b7-8ae4-cd0918ae3af0",
+      "name": "Code"
+    },
+    {
+      "parameters": {
+        "content": "[![ETUGRAND](https://www.etugrand.com/logo.png)](https://www.etugrand.com/)",
+        "height": 100,
+        "width": 208,
+        "color": 7
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -608,
+        -112
+      ],
+      "id": "01efd866-85e1-4e8c-bfee-5aac2c7b1604",
+      "name": "Sticky Note8"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.chatInput || $json.userMessage}}",
+        "options": {
+          "systemMessage": "=# Role\n\nYou are Choudou, my helpful personal assistant (My name is {{ $('Switch1').item.json.message.from.first_name }}).\n\n# Responsibility\n\nYour primary role is to oversee and manage various specialized supervisors that handle different domains of user requests. You are responsible for intelligently delegating tasks to the appropriate supervisor, ensuring efficient workflow execution, and verifying the quality of the responses.\n\n# Your Available Agents Tools (Your Team)\n\nWe have implemented the “Agent as a tool” multi-agent system design.\n\nThe following are the supervisor agents/tools at your disposal:\n\n## **Productivity Supervisor**  \n**Responsibility:** Manages work-related tasks, document handling, scheduling, and CRM operations.  \n**Sub-Agents:**  \n- **Calendar Agent** – Manages Google Calendar events.  \n- **Google Drive Agent** – Handles file creation, retrieval, and organization.  \n- **Google Docs Agent** – Creates and updates Google Docs.  \n- **Google Sheets Agent** – Manages spreadsheets and data retrieval.  \n- **Airtable Agent** – Retrieves and manages Airtable records.  \n- **ClickUp Agent** – Manages task creation and updates.  \n- **Zoho CRM Agent** – Handles lead management and sales quotes.\n- **Contact Agent** - Create, retrieve, and update google contacts\n\n## **Communication Supervisor**  \n**Responsibility:** Manages email, Slack, and X (Twitter) communications.  \n**Sub-Agents:**  \n- **Email Agent** – Searches, drafts, send, reply, delete and labels Gmail emails.  \n- **Slack Agent** – Sends messages and retrieves user/channel data.  \n- **X Twitter Agent** – Searches tweets, retrieves user data, and sends DMs.  \n\n## **Lifestyle Supervisor**  \n**Responsibility:** Manages personal lifestyle tasks such as meal planning, task management, and travel.  \n**Sub-Agents:**  \n- **Notion Agent** – Manages meal plans, habits, and personal organization.  \n- **Google Tasks Agent** – Handles my personal task management and To do list.  \n- **Travel Agent** – Checks flight availability and retrieves airport codes.  \n\n## **Insights Supervisor**  \n**Responsibility:** Handles market research, SEO analysis, financial data, and website analytics.  \n**Sub-Agents:**  \n- **News and Search Agent** – Retrieves news and search results from Google. Can carry out deep research.  \n- **SEO Agent** – Manages keyword research and trends.  \n- **Financial Markets Agent** – Retrieves stock market data and financial insights.  \n- **Google Analytics Agent** – Provides website traffic and user behavior analysis.  \n\n## **Publishing Supervisor**  \n**Responsibility:** Oversees content creation, social media posting, and WordPress management.  \n**Sub-Agents:**  \n- **Social Media Agent** – Publishes content on social media platforms.  \n- **Image Agent** – Fetches stock images and generates AI-created visuals.  \n- **WordPress Agent** – Manages WordPress content and user data.  \n- **Fetch Markdown via Jina AI** – Extracts webpage content for republishing.  \n\n# Standard Operating Procedures (General)\n\n1. **Delegation:**  \n   - When a user request is received, determine the most relevant supervisor to handle the task.  \n   - Pass the request to the appropriate sub-agent via the assigned supervisor.  \n   \n2. **Multi-Step Tasks:**  \n   - If a request involves multiple steps (e.g., retrieving a file before updating a document), ensure the correct sequence of actions by delegating tasks in order.  \n\n3. **Verification & Quality Control:**  \n   - After receiving responses from sub-agents, validate the output for completeness and accuracy before delivering it to the user.  \n   - Request revisions from agents if necessary.  \n\n# Standard Operating Procedures (Specific)\n\n## Creating Docs / Tickets / Tasks etc\n\nIf you are asked to create a document / ticket / task, make sure that you get the data FIRST. Only when you have the data should you create the document / ticket / task.\n\n## Deep Research\n\nIf the user is asking specifically for \"Deep Research\" make sure to communicate this with the Insights Supervisor\n\n# Specifics\n- Current Date and Time: {{ $now }}\n- Be Detailed in your output\n- Only delegate tasks to agents that have the capabilities to complete those tasks\n- When a conversation starts, please refer to me by name. And mention my name every now and then\n- IMPORTANT: If asked to create a Google Doc, Post to Social or Create Wordpress Article, you MUST relay the FULL content to be included."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.7,
+      "position": [
+        928,
+        944
+      ],
+      "id": "f28c917e-563d-45a0-a667-2a2f756ce945",
+      "name": "HAL 9001"
+    },
+    {
+      "parameters": {
+        "content": "### ↑ Add Voice ID\n",
+        "height": 80,
+        "width": 150,
+        "color": 5
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        1664,
+        608
+      ],
+      "id": "a1c8ef65-758e-4bdd-8deb-fe8d8f7cce07",
+      "name": "Sticky Note2"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://openai.etugrand.com/v1/audio/speech",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "input",
+              "value": "={{ $('HAL 9001').item.json.output }}"
+            },
+            {
+              "name": "voice",
+              "value": "fr-FR-VivienneMultilingualNeural"
+            },
+            {
+              "name": "output_format",
+              "value": "mp3"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1680,
+        416
+      ],
+      "id": "3405764d-ff72-4ea0-b3de-ba0d4285eb32",
+      "name": "Generate Audio",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "N9RyyXZG5G2vUGqu",
+          "name": "DahoAI TTS"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "name": "Email_Agent",
+        "workflowId": {
+          "__rl": true,
+          "value": "DTnfmcfVsSGoONl2",
+          "mode": "list",
+          "cachedResultName": "___Email_Agent"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "message": "={{ $fromAI(\"message\",\"Populate this with a relevant message to this subagent\")}}",
+            "sessionId": "={{ $('Workflow Input Trigger').item.json.sessionId }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "message",
+              "displayName": "message",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string"
+            },
+            {
+              "id": "sessionId",
+              "displayName": "sessionId",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string"
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "typeVersion": 2,
+      "position": [
+        464,
+        1488
+      ],
+      "id": "e98089ec-f712-44d8-b92b-ccfd5df6117e",
+      "name": "Email Agent"
+    },
+    {
+      "parameters": {
+        "name": "Slack_Agent",
+        "workflowId": {
+          "__rl": true,
+          "value": "1JAqlVimvoul9BT4",
+          "mode": "list",
+          "cachedResultName": "__Slack_Agent"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "message": "={{ $fromAI(\"message\",\"Populate this with a relevant message to this subagent\")}}",
+            "sessionId": "={{ $('Workflow Input Trigger').item.json.sessionId }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "message",
+              "displayName": "message",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string"
+            },
+            {
+              "id": "sessionId",
+              "displayName": "sessionId",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string"
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "typeVersion": 2,
+      "position": [
+        688,
+        1488
+      ],
+      "id": "e290acc1-0019-4cd5-a9a0-1873eaa12702",
+      "name": "Slack Agent"
+    },
+    {
+      "parameters": {
+        "name": "X_Twitter_Agent",
+        "workflowId": {
+          "__rl": true,
+          "value": "ZgEYKla0rs0TNyyn",
+          "mode": "list",
+          "cachedResultName": "___Twitter_Agent"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "message": "={{ $fromAI(\"message\",\"Populate this with a relevant message to this subagent\")}}",
+            "sessionId": "={{ $('Workflow Input Trigger').item.json.sessionId }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "message",
+              "displayName": "message",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string"
+            },
+            {
+              "id": "sessionId",
+              "displayName": "sessionId",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string"
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "typeVersion": 2,
+      "position": [
+        576,
+        1488
+      ],
+      "id": "a981a0a2-03ff-4373-8c62-f37555e018a9",
+      "name": "X Twitter Agent"
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "={{ $('Workflow Input Trigger').item.json.sessionId }}-{{ $workflow.id }}",
+        "contextWindowLength": 40
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        368,
+        1488
+      ],
+      "id": "cbd86fc0-8c06-4df1-98bf-15242ee3bda2",
+      "name": "Window Buffer Memory1"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "gpt-5-mini",
+          "mode": "list",
+          "cachedResultName": "gpt-5-mini"
+        },
+        "options": {
+          "responseFormat": "text",
+          "temperature": 0.3
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        256,
+        1488
+      ],
+      "id": "6633c9e0-ab94-4a8c-a6a1-a1a172114c19",
+      "name": "OpenAI Chat Model1",
+      "credentials": {
+        "openAiApi": {
+          "id": "vofRqqG7VEHTXxTs",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "toolDescription": "Communication_Supervisor",
+        "text": "={{ $fromAI(\"message\",\"Populate this with a relevant message to this subagent\")}}",
+        "options": {
+          "systemMessage": "# Role\n\nYou are a Communication Supervisor Agent\n\n# Responsibility\n\nYour primary focus is to interpret the user's request, in the context of the conversation history, and then where relevant, delegate tasks to the appropriate agent tools, verify the quality of their work, and request revisions when necessary.\n\n# Your Available Agents Tools (Your Team)\n\nWe have implemented the “Agent as a tool” multi-agent system design.\n\nThe following are the agents/tools at your disposal:\n\n## **Email Agent**  \n**Responsibility:** Manage emails on Gmail by searching, drafting, retrieving labels, and adding labels to messages.  \n**Tools Available:**  \n- **Search Emails** – Retrieve emails based on specific criteria.  \n- **Draft Email** – Create a draft email in Gmail.  \n- **Get All Labels** – Fetch all available email labels.  \n- **Add Label to Email** – Assign a label to an email.\n- **Post to X** – Tweet a message with no image. \n\n## **Slack Agent**  \n**Responsibility:** Manage Slack communications by retrieving user and channel data, checking messages, and sending messages to users or channels.  \n**Tools Available:**  \n- **Get All Users** – Retrieve a list of all Slack users.  \n- **Get Users Status** – Check the online status of a specific user.  \n- **Send Message to User** – Directly message a specific Slack user.  \n- **Send Message to Channel** – Post a message in a Slack channel.  \n- **Check Recent Channel Messages** – Retrieve the latest messages from a Slack channel.  \n- **Get Slack Channels** – Fetch a list of all available Slack channels.  \n\n## **X Twitter Agent**  \n**Responsibility:** Interact with X (formerly Twitter) by searching tweets, retrieving user information, and sending direct messages.  \n**Tools Available:**  \n- **Search X Twitter** – Find tweets based on keywords.  \n- **Send a DM to a Username** – Send a direct message to a specific Twitter user.  \n- **Get a User by Username** – Retrieve user information by username.\n\n# Standard Operating Procedures (Example Tasks)\n\n# Specifics\n- Current Date and Time: {{ $now }}\n- Be Detailed in your output\n- Call tools multiple times if neccesary to achieve the desired outcome\n- Only delegate tasks to agents that have the capabilities to complete those tasks"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agentTool",
+      "typeVersion": 3,
+      "position": [
+        400,
+        1344
+      ],
+      "id": "2f31834c-5e49-4ce3-8ca1-da0800508987",
+      "name": "Communication_Supervisor"
+    },
+    {
+      "parameters": {
+        "name": "Calendar_Agent",
+        "workflowId": {
+          "__rl": true,
+          "value": "4zka6MYX7H7apQJO",
+          "mode": "list",
+          "cachedResultName": "___Calendar_Agent"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "message": "={{ $fromAI(\"query\",\"Populate this with a relevant message to this subagent\")}}",
+            "sessionId": "={{ $('Workflow Input Trigger').item.json.sessionId }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "message",
+              "displayName": "message",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string"
+            },
+            {
+              "id": "sessionId",
+              "displayName": "sessionId",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string"
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "typeVersion": 2,
+      "position": [
+        992,
+        1792
+      ],
+      "id": "8a0ea886-de73-4352-bc28-21d2c787d348",
+      "name": "Calendar Agent"
+    },
+    {
+      "parameters": {
+        "name": "Drive_Agent",
+        "workflowId": {
+          "__rl": true,
+          "value": "nCiknvRKzbRIVSpM",
+          "mode": "list",
+          "cachedResultName": "__DriveAgent"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "message": "={{ $fromAI(\"message\",\"Populate this with a relevant message to this subagent\")}}",
+            "sessionId": "={{ $('Workflow Input Trigger').item.json.sessionId }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "message",
+              "displayName": "message",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string"
+            },
+            {
+              "id": "sessionId",
+              "displayName": "sessionId",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string"
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "typeVersion": 2,
+      "position": [
+        1088,
+        1792
+      ],
+      "id": "88012354-c006-4e6a-a70a-09daafb64b63",
+      "name": "Drive Agent"
+    },
+    {
+      "parameters": {
+        "name": "Docs_Agent",
+        "workflowId": {
+          "__rl": true,
+          "value": "BjLZN0RxOSpMDvK6",
+          "mode": "list",
+          "cachedResultName": "__Docs_Agent"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "message": "={{ $fromAI(\"message\",\"Populate this with a relevant message to this subagent\")}}",
+            "sessionId": "={{ $('Workflow Input Trigger').item.json.sessionId }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "message",
+              "displayName": "message",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string"
+            },
+            {
+              "id": "sessionId",
+              "displayName": "sessionId",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string"
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "typeVersion": 2,
+      "position": [
+        1184,
+        1792
+      ],
+      "id": "03c566bb-b9c4-4011-bace-3d160155bcc9",
+      "name": "Docs Agent"
+    },
+    {
+      "parameters": {
+        "name": "Sheets_Agent",
+        "workflowId": {
+          "__rl": true,
+          "value": "lmorjTVPS7H9x5cU",
+          "mode": "list",
+          "cachedResultName": "__Sheets_Agent"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "message": "={{ $fromAI(\"message\",\"Populate this with a relevant message to this subagent\")}}",
+            "sessionId": "={{ $('Workflow Input Trigger').item.json.sessionId }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "message",
+              "displayName": "message",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string"
+            },
+            {
+              "id": "sessionId",
+              "displayName": "sessionId",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string"
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "typeVersion": 2,
+      "position": [
+        1280,
+        1792
+      ],
+      "id": "bcdfffa8-3ed4-427c-9b05-404d54fc3e63",
+      "name": "Sheets Agent"
+    },
+    {
+      "parameters": {
+        "name": "CRM_Agent",
+        "workflowId": {
+          "__rl": true,
+          "value": "bmgbCuXx7QxZb9NK",
+          "mode": "list",
+          "cachedResultName": "The AI Automators — TheAIAutomators.com - HAL3 - CRM Agent"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "message": "={{ $fromAI(\"message\",\"Populate this with a relevant message to this subagent\")}}",
+            "sessionId": "={{ $('Workflow Input Trigger').item.json.sessionId }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "message",
+              "displayName": "message",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string"
+            },
+            {
+              "id": "sessionId",
+              "displayName": "sessionId",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string"
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "typeVersion": 2,
+      "position": [
+        1376,
+        1792
+      ],
+      "id": "7f773414-588c-49b9-89f4-f56fcbc08bfd",
+      "name": "CRM Agent"
+    },
+    {
+      "parameters": {
+        "name": "Airtable_Agent",
+        "workflowId": {
+          "__rl": true,
+          "value": "2lFMWSz6EgA4BnWy",
+          "mode": "list",
+          "cachedResultName": "__Airtable_Agent"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "message": "={{ $fromAI(\"message\",\"Populate this with a relevant message to this subagent\")}}",
+            "sessionId": "={{ $('Workflow Input Trigger').item.json.sessionId }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "message",
+              "displayName": "message",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string"
+            },
+            {
+              "id": "sessionId",
+              "displayName": "sessionId",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string"
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "typeVersion": 2,
+      "position": [
+        1472,
+        1776
+      ],
+      "id": "00be705a-cacf-4237-8662-2aa8459200b3",
+      "name": "Airtable Agent"
+    },
+    {
+      "parameters": {
+        "name": "Contact_Agent",
+        "workflowId": {
+          "__rl": true,
+          "value": "qx1xlzvyoI45Yv86",
+          "mode": "list",
+          "cachedResultName": "___Contact_Agent"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "message": "={{ $fromAI(\"message\",\"Populate this with a relevant message to this subagent\")}}",
+            "sessionId": "={{ $('Workflow Input Trigger').item.json.sessionId }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "message",
+              "displayName": "message",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            },
+            {
+              "id": "sessionId",
+              "displayName": "sessionId",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "typeVersion": 2,
+      "position": [
+        1568,
+        1776
+      ],
+      "id": "69e399b1-7fdd-42c5-a464-52ff574862f2",
+      "name": "Contact Agent"
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "={{ $('Workflow Input Trigger').item.json.sessionId }}-{{ $workflow.id }}",
+        "contextWindowLength": 40
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        896,
+        1792
+      ],
+      "id": "68e3cf76-79e7-47c2-81a0-7cd15a86be23",
+      "name": "Window Buffer Memory2"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "gpt-5-mini",
+          "mode": "list",
+          "cachedResultName": "gpt-5-mini"
+        },
+        "options": {
+          "responseFormat": "text",
+          "temperature": 0.3
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        784,
+        1776
+      ],
+      "id": "ce93f07f-6567-4dc1-b3fc-9deeda0f320a",
+      "name": "OpenAI Chat Model2",
+      "credentials": {
+        "openAiApi": {
+          "id": "vofRqqG7VEHTXxTs",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "name": "SEO_Agent",
+        "workflowId": {
+          "__rl": true,
+          "value": "P5H1OHobIIFVUk6g",
+          "mode": "list",
+          "cachedResultName": "__SEO_Agent"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "message": "={{ $fromAI(\"message\",\"Populate this with a relevant message to this subagent\")}}",
+            "sessionId": "={{ $('Workflow Input Trigger').item.json.sessionId }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "message",
+              "displayName": "message",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string"
+            },
+            {
+              "id": "sessionId",
+              "displayName": "sessionId",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string"
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "typeVersion": 2,
+      "position": [
+        2176,
+        1536
+      ],
+      "id": "0ebcc3bc-2d76-44d6-8012-0df32166df33",
+      "name": "SEO Agent"
+    },
+    {
+      "parameters": {
+        "name": "Financial_Markets_Agent",
+        "workflowId": {
+          "__rl": true,
+          "value": "K2xxT5fkMFpz0c2e",
+          "mode": "list",
+          "cachedResultName": "__Financial_Market_Agent"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "message": "={{ $fromAI(\"message\",\"Populate this with a relevant message to this subagent\")}}",
+            "sessionId": "={{ $('Workflow Input Trigger').item.json.sessionId }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "message",
+              "displayName": "message",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string"
+            },
+            {
+              "id": "sessionId",
+              "displayName": "sessionId",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string"
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "typeVersion": 2,
+      "position": [
+        2272,
+        1536
+      ],
+      "id": "9b0a67dc-bbb4-471a-8fb3-b489c38090bd",
+      "name": "Financial Markets Agent"
+    },
+    {
+      "parameters": {
+        "name": "Google_Analytics_Agent",
+        "workflowId": {
+          "__rl": true,
+          "value": "bFDFiM9CzcgZ0g5p",
+          "mode": "list",
+          "cachedResultName": "__Google_Analytics_Agent"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "message": "={{ $fromAI(\"message\",\"Populate this with a relevant message to this subagent\")}}",
+            "sessionId": "={{ $('Workflow Input Trigger').item.json.sessionId }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "message",
+              "displayName": "message",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string"
+            },
+            {
+              "id": "sessionId",
+              "displayName": "sessionId",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string"
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "typeVersion": 2,
+      "position": [
+        2368,
+        1536
+      ],
+      "id": "ee2fae21-1ed7-4ee5-88c4-05897f1c436b",
+      "name": "Google Analytics"
+    },
+    {
+      "parameters": {
+        "name": "Google_News_Search_Agent",
+        "workflowId": {
+          "__rl": true,
+          "value": "VXCGC4NKkIRkQkPf",
+          "mode": "list",
+          "cachedResultName": "__News_Search_Agent"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "message": "={{ $fromAI(\"message\",\"Populate this with a relevant message to this subagent\")}}",
+            "sessionId": "={{ $('Workflow Input Trigger').item.json.sessionId }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "message",
+              "displayName": "message",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string"
+            },
+            {
+              "id": "sessionId",
+              "displayName": "sessionId",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string"
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "typeVersion": 2,
+      "position": [
+        2080,
+        1536
+      ],
+      "id": "98b25bf1-226f-44bf-8b76-1e2b26f4a40d",
+      "name": "News and Search Agent"
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "={{ $('Workflow Input Trigger').item.json.sessionId }}-{{ $workflow.id }}",
+        "contextWindowLength": 40
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        1968,
+        1536
+      ],
+      "id": "fb53fc1d-a6d6-4602-958b-175846563937",
+      "name": "Window Buffer Memory3"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "gpt-5-mini",
+          "mode": "list",
+          "cachedResultName": "gpt-5-mini"
+        },
+        "options": {
+          "responseFormat": "text",
+          "temperature": 0.3
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        1856,
+        1536
+      ],
+      "id": "d635232d-99af-40ef-8045-0cc7fe9109e2",
+      "name": "OpenAI Chat Model3",
+      "credentials": {
+        "openAiApi": {
+          "id": "vofRqqG7VEHTXxTs",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "toolDescription": "Insights Supervisor",
+        "text": "={{ $json.message }}",
+        "options": {
+          "systemMessage": "# Role\n\nYou are an Insights Supervisor Agent\n\n# Responsibility\n\nYour primary focus is to interpret the user's request, in the context of the conversation history, and then where relevant, delegate tasks to the appropriate agent tools, verify the quality of their work, and request revisions when necessary.\n\n# Your Available Agents Tools (Your Team)\n\nWe have implemented the “Agent as a tool” multi-agent system design.\n\nThe following are the agents/tools at your disposal:\n\n## **News and Search Agent**  \n**Responsibility:** Retrieve and process search and news data using DataForSEO, fetch webpage markdown via Jina AI, and facilitate information retrieval. Can also carry out Deep Research.\n**Tools Available:**  \n- **Google Search via DataForSEO** – Perform a Google search to retrieve relevant results.  \n- **Google News via DataForSEO** – Fetch the latest news articles from Google News.  \n- **Fetch Markdown via Jina AI** – Extract webpage content in markdown format. \n- **Deep Research via Jina AI** – DeepSearch combines web searching, reading, and reasoning for comprehensive investigation. Ideal for research tasks. \n\n## **SEO Agent**  \n**Responsibility:** Analyze and retrieve SEO-related data from DataForSEO, including trends, keyword search volume, and content analysis, to optimize digital marketing strategies.  \n**Tools Available:**  \n- **Get YouTube Trends Data** – Retrieve trending topics on YouTube.  \n- **Get Google Trends Data** – Fetch trending search queries from Google Trends.  \n- **Get Keyword Search Volume** – Analyze keyword popularity and competition.  \n- **Content Analysis** – Evaluate content for SEO effectiveness.  \n- **Get Google My Business Data** – Retrieve business performance insights from Google My Business.  \n- **Calculator** – Perform calculations related to SEO metrics.  \n\n## **Financial Markets Agent**  \n**Responsibility:** Assist with financial market data by performing market checks, looking up stock symbols, and handling calculations.  \n**Tools Available:**  \n- **Check Markets** – Retrieve stock market data and performance metrics.  \n- **Symbol Lookup** – Find stock ticker symbols for market queries.  \n- **Calculator** – Perform financial calculations and analyses.  \n\n## **Google Analytics Agent**  \n**Responsibility:** Retrieve and analyze website traffic data, user behavior, and source medium breakdowns to provide insights for digital strategy optimization.  \n**Tools Available:**  \n- **User Session Page View Report** – Retrieve session and page view metrics.  \n- **Country Report** – Analyze website traffic based on geographic location.  \n- **Browser Report** – Identify which browsers visitors use.  \n- **Top Pages** – Retrieve the most visited pages on a website.  \n- **Source Medium Breakdown** – Analyze traffic sources and mediums.  \n- **Calculator** – Perform calculations for analytics insights.  \n\n# Standard Operating Procedures (Example Tasks)\n\n## Deep Research\n\nIf the user is asking specifically for \"Deep Research\" make sure to communicate this with the News & Search Agent\n\n# Specifics\n- Current Date and Time: {{ $now }}\n- Be Detailed in your output\n- Call tools multiple times if neccesary to achieve the desired outcome\n- Only delegate tasks to agents that have the capabilities to complete those tasks"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agentTool",
+      "typeVersion": 3,
+      "position": [
+        2032,
+        1376
+      ],
+      "id": "9eb737ae-b5f8-4e95-b6fa-7974aaac35a2",
+      "name": "Insights Supervisor1"
+    },
+    {
+      "parameters": {
+        "name": "Notion_Agent",
+        "workflowId": {
+          "__rl": true,
+          "value": "HEcmjuSNko9J5TVd",
+          "mode": "list",
+          "cachedResultName": "__Notion_Agent"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "message": "={{ $fromAI(\"message\",\"Populate this with a relevant message to this subagent\")}}",
+            "sessionId": "={{ $('Workflow Input Trigger').item.json.sessionId }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "message",
+              "displayName": "message",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string"
+            },
+            {
+              "id": "sessionId",
+              "displayName": "sessionId",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string"
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "typeVersion": 2,
+      "position": [
+        560,
+        2208
+      ],
+      "id": "90babcb9-6cce-4a5f-b33e-171589997984",
+      "name": "Notion Agent"
+    },
+    {
+      "parameters": {
+        "name": "Tasks_Agent",
+        "workflowId": {
+          "__rl": true,
+          "value": "zCt6NYHU7rxIXbcH",
+          "mode": "list",
+          "cachedResultName": "__Tasks_Agent"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "message": "={{ $fromAI(\"message\",\"Populate this with a relevant message to this subagent\")}}",
+            "sessionId": "={{ $('Workflow Input Trigger').item.json.sessionId }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "message",
+              "displayName": "message",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string"
+            },
+            {
+              "id": "sessionId",
+              "displayName": "sessionId",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string"
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "typeVersion": 2,
+      "position": [
+        656,
+        2208
+      ],
+      "id": "8665fa5c-a0ca-418f-9cd1-209c537acb07",
+      "name": "Tasks Agent"
+    },
+    {
+      "parameters": {
+        "name": "Travel_Agent",
+        "workflowId": {
+          "__rl": true,
+          "value": "60Ugg3falCauVNXc",
+          "mode": "list",
+          "cachedResultName": "__Travel_Agent"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "message": "={{ $fromAI(\"message\",\"Populate this with a relevant message to this subagent\")}}",
+            "sessionId": "={{ $('Workflow Input Trigger').item.json.sessionId }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "message",
+              "displayName": "message",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string"
+            },
+            {
+              "id": "sessionId",
+              "displayName": "sessionId",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string"
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "typeVersion": 2,
+      "position": [
+        752,
+        2192
+      ],
+      "id": "502802ea-02fd-42dd-8992-6f303f603f6c",
+      "name": "Travel Agent"
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "={{ $('Workflow Input Trigger').item.json.sessionId }}-{{ $workflow.id }}",
+        "contextWindowLength": 40
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        464,
+        2208
+      ],
+      "id": "8115eda4-a257-450e-81f6-c759a1f338e0",
+      "name": "Window Buffer Memory4"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "gpt-5-mini",
+          "mode": "list",
+          "cachedResultName": "gpt-5-mini"
+        },
+        "options": {
+          "responseFormat": "text",
+          "temperature": 0.3
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        368,
+        2208
+      ],
+      "id": "1a60807c-fc9b-4f9c-9429-99a04102e014",
+      "name": "OpenAI Chat Model4",
+      "credentials": {
+        "openAiApi": {
+          "id": "vofRqqG7VEHTXxTs",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "toolDescription": "Lifestyle_Supervisor",
+        "text": "={{ $json.message }}",
+        "options": {
+          "systemMessage": "# Role\n\nYou are a Lifestyle Supervisor Agent\n\n# Responsibility\n\nYour primary focus is to interpret the user's request, in the context of the conversation history, and then where relevant, delegate tasks to the appropriate agent tools, verify the quality of their work, and request revisions when necessary.\n\n# Your Available Agents Tools (Your Team)\n\nWe have implemented the “Agent as a tool” multi-agent system design.\n\nThe following are the agents/tools at your disposal:\n\n## **Notion Agent**  \n**Responsibility:** Manage Notion data by retrieving and updating meal plans, habits, and other database entries.  \n**Tools Available:**  \n- **Get My Weekly Meal Planner** – Retrieve weekly meal plans from Notion.  \n- **Get My Meals** – Retrieve saved meal entries from Notion.  \n- **Get Habits** – Retrieve tracked habits from Notion.  \n- **Create Meal** – Add a new meal entry into Notion.  \n\n## **Google Tasks Agent**  \n**Responsibility:** Manage tasks by creating, updating, closing, deleting, and retrieving all tasks efficiently.  \n**Tools Available:**  \n- **Create Task** – Add a new task to Google Tasks.  \n- **Close Task** – Mark an existing task as complete.  \n- **Delete Task** – Remove a task from Google Tasks.  \n- **Update Task** – Modify details of an existing task.  \n- **Get All Tasks** – Retrieve a list of all tasks.  \n\n## **Travel Agent**  \n**Responsibility:** Assist with travel planning by retrieving airport codes and checking flight availability.  \n**Tools Available:**  \n- **Check Flights** – Retrieve flight availability and pricing.  \n- **Get Airport Code** – Look up the correct airport codes for flight searches.  \n\n# Standard Operating Procedures (Example Tasks)\n\n# Specifics\n- Current Date and Time: {{ $now }}\n- Be Detailed in your output\n- Call tools multiple times if neccesary to achieve the desired outcome\n- Only delegate tasks to agents that have the capabilities to complete those tasks"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agentTool",
+      "typeVersion": 3,
+      "position": [
+        464,
+        2016
+      ],
+      "id": "092a314b-6b14-40a2-b45e-96fd9ebd059c",
+      "name": "Lifestyle Supervisor"
+    },
+    {
+      "parameters": {
+        "name": "Social_Media_Agent",
+        "workflowId": {
+          "__rl": true,
+          "value": "oAfRlxlxWZPXANnx",
+          "mode": "list",
+          "cachedResultName": "__Social_Media_Agent"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "message": "={{ $fromAI(\"message\",\"Populate this with a relevant message to this subagent\")}}",
+            "sessionId": "={{ $('Workflow Input Trigger').item.json.sessionId }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "message",
+              "displayName": "message",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string"
+            },
+            {
+              "id": "sessionId",
+              "displayName": "sessionId",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string"
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "typeVersion": 2,
+      "position": [
+        2080,
+        2160
+      ],
+      "id": "ff5e41d1-82d7-41aa-91c6-543142122d86",
+      "name": "Social Media Agent"
+    },
+    {
+      "parameters": {
+        "name": "Image_Agent",
+        "workflowId": {
+          "__rl": true,
+          "value": "Mj8WpDyoMIgVUu5E",
+          "mode": "list",
+          "cachedResultName": "___Image_Agent"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "message": "={{ $fromAI(\"message\",\"Populate this with a relevant message to this subagent\")}}",
+            "sessionId": "={{ $('Workflow Input Trigger').item.json.sessionId }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "message",
+              "displayName": "message",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            },
+            {
+              "id": "sessionId",
+              "displayName": "sessionId",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "typeVersion": 2,
+      "position": [
+        2240,
+        2160
+      ],
+      "id": "ff0dcf18-1163-432e-a2e2-c5aef1d84c74",
+      "name": "Image Agent"
+    },
+    {
+      "parameters": {
+        "toolDescription": "Fetch Webpage Markdown via Jina AI. This is useful for getting details of a webpage found from the Google Search tools",
+        "url": "https://r.jina.ai/{url}",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "placeholderDefinitions": {
+          "values": [
+            {
+              "name": "url",
+              "description": "This is the url to be accessed via Jina to extract the pages markdown",
+              "type": "string"
+            }
+          ]
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolHttpRequest",
+      "typeVersion": 1.1,
+      "position": [
+        2384,
+        2160
+      ],
+      "id": "b4791626-14fd-4078-96a6-dc0a98ae821b",
+      "name": "Fetch Markdown via Jina AI"
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "={{ $('Workflow Input Trigger').item.json.sessionId }}-{{ $workflow.id }}",
+        "contextWindowLength": 40
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        1936,
+        2160
+      ],
+      "id": "386ef56e-cbcf-4864-aa8b-687e3152a18f",
+      "name": "Window Buffer Memory5"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "gpt-5-mini",
+          "mode": "list",
+          "cachedResultName": "gpt-5-mini"
+        },
+        "options": {
+          "responseFormat": "text",
+          "temperature": 0.3
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        1792,
+        2160
+      ],
+      "id": "d46d56e7-8b2d-403f-ba7c-24186613baa5",
+      "name": "OpenAI Chat Model5",
+      "credentials": {
+        "openAiApi": {
+          "id": "vofRqqG7VEHTXxTs",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "toolDescription": "Publishing_Supervisor",
+        "text": "={{ $json.message }}",
+        "options": {
+          "systemMessage": "# Role\n\nYou are a Publishing Supervisor Agent\n\n# Responsibility\n\nYour primary focus is to interpret the user's request, in the context of the conversation history, and then where relevant, delegate tasks to the appropriate agent tools, verify the quality of their work, and request revisions when necessary.\n\n# Your Available Agents Tools (Your Team)\n\nWe have implemented the “Agent as a tool” multi-agent system design.\n\nThe following are the agents/tools at your disposal:\n\n## **Social Media Agent**  \n**Responsibility:** Manage social media postings by requesting the publication of content on various platforms.  \n**Tools Available:**  \n- **Request Posting to Facebook** – Publish content to Facebook.  \n- **Request Posting to X (Twitter)** – Publish content to X (Twitter).  \n- **Request Posting to LinkedIn** – Publish content to LinkedIn.  \n- **Request Posting to Instagram** – Publish content to Instagram.  \n\n## **Image Agent**  \n**Responsibility:** Fetch stock images and generate AI-generated images.  \n**Tools Available:**  \n- **Fetch Stock Image (Powered by Pixabay)** – Retrieve stock images for content creation.  \n- **Generate AI Image (Powered by Flux1.1 Pro Ultra)** – Create AI-generated images based on user input.  \n\n## **WordPress Agent**  \n**Responsibility:** Manage WordPress content by creating posts, searching for existing content, and retrieving user data.  \n**Tools Available:**  \n- **Create WordPress Post** – Publish a new post on WordPress.  \n- **Search WordPress** – Look for existing posts based on keywords.  \n- **Get All Users** – Retrieve a list of WordPress users.  \n\n## **Fetch Markdown via Jina AI**  \n**Responsibility:** Extract webpage content in markdown format for republishing or reference.  \n**Tools Available:**  \n- **Fetch Markdown via Jina AI** – Retrieve and format web content in markdown.  \n\n# Standard Operating Procedures (Example Tasks)\n\n# Specifics\n- Current Date and Time: {{ $now }}\n- Be Detailed in your output\n- Call tools multiple times if neccesary to achieve the desired outcome\n- Only delegate tasks to agents that have the capabilities to complete those tasks"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agentTool",
+      "typeVersion": 3,
+      "position": [
+        1984,
+        2000
+      ],
+      "id": "8fa22bb5-770e-424d-9549-170c3e3396f9",
+      "name": "Publishing Supervisor"
+    },
+    {
+      "parameters": {
+        "toolDescription": "Productivity_Supervisor",
+        "text": "={{ $json.message }}",
+        "options": {
+          "systemMessage": "# Role\n\nYou are a Productivity Supervisor Agent\n\n# Responsibility\n\nYour primary focus is to interpret the user's request, in the context of the conversation history, and then where relevant, delegate tasks to the appropriate agent tools, verify the quality of their work, and request revisions when necessary.\n\n# Your Available Agents Tools (Your Team)\n\nWe have implemented the “Agent as a tool” multi-agent system design.\n\nThe following are the agents/tools at your disposal:\n\n## **Calendar Agent**  \n**Responsibility:** Manage Google Calendar by viewing, creating, updating, deleting events, and checking availability.  \n**Tools Available:**  \n- **View Calendar Events** – Retrieve scheduled events within a specific timeframe.  \n- **Create Event** – Schedule a new event in Google Calendar.  \n- **Check Availability** – Check if a specific time slot is free before scheduling an event.  \n- **Update Event** – Modify an existing event's details.  \n- **Delete Event** – Remove an event from Google Calendar.  \n\n## **Google Drive Agent**  \n**Responsibility:** Manage Google Drive files and folders by creating, searching, updating, and moving files as needed.  \n**Tools Available:**  \n- **Create Basic Text File** – Generate a new text file in Google Drive.  \n- **Search for Files & Folders** – Retrieve files or folders based on a query.  \n- **Create Folder** – Generate a new folder in Google Drive.  \n- **Update File** – Modify an existing file’s content or metadata.  \n- **Move a File** – Change a file’s location within Google Drive.  \n\n## **Google Docs Agent**  \n**Responsibility:** Manage Google Docs by creating, retrieving, and updating documents as needed.  \n**Tools Available:**  \n- **Create Document** – Generate a new Google Document.  \n- **Update Doc** – Modify the content of an existing Google Doc.  \n- **Get Doc** – Retrieve an existing Google Document by ID.  \n\n## **Google Sheets Agent**  \n**Responsibility:** Manage Google Sheets by creating new sheets, retrieving rows, appending data, and searching for specific sheets.  \n**Tools Available:**  \n- **Create a Google Sheet** – Generate a new spreadsheet in Google Sheets.  \n- **Retrieve Rows from Google Sheet** – Fetch data from specific rows in a spreadsheet.  \n- **Add to Household Expenses Sheet** – Append data to the \"Household Expenses\" sheet.  \n- **Get a Google Sheet** – Retrieve a specific Google Sheet by searching for its name.  \n\n## **Airtable Agent**  \n**Responsibility:** Interact with Airtable by retrieving bases, fetching base schemas, and searching for specific records within a base.  \n**Tools Available:**  \n- **Airtable Get Bases** – Retrieve a list of available bases in Airtable.  \n- **Airtable Get Base Schema** – Fetch the structure of a specific Airtable base.  \n- **Search Airtable Base** – Find specific records within an Airtable base.  \n\n## **Contact Agent**  \n**Responsibility:** Manage contacts by creating, retrieving, and updating contact information as needed.  \n**Tools Available:**  \n- **Create Contact** – Add a new contact with specified details (name, email, phone, etc.).  \n- **Update Contact** – Modify the information of an existing contact.  \n- **Get Contact** – Retrieve the details of a contact by ID or search parameters.\n\n## **ClickUp Agent**  \n**Responsibility:** Manage ClickUp tasks by creating, retrieving, updating, and deleting tasks as needed.  \n**Tools Available:**  \n- **Create ClickUp Task** – Generate a new task in ClickUp.  \n- **Get All Tasks** – Retrieve all tasks from ClickUp.  \n- **Update Task** – Modify an existing ClickUp task.  \n- **Delete Task** – Remove a task from ClickUp.  \n\n## **Zoho CRM Agent**  \n**Responsibility:** Manage customer relationship data by creating, updating, retrieving, and deleting leads, as well as handling quotes on the Zoho Platform.  \n**Tools Available:**  \n- **Create Update Lead** – Create a new lead or update an existing one.  \n- **Get All Leads** – Retrieve a list of all leads from Zoho CRM.  \n- **Delete a Lead** – Remove a lead from Zoho CRM.  \n- **Create Update Quote** – Generate or modify a sales quote in Zoho CRM.  \n\n# Standard Operating Procedures (Example Tasks)\n\n## **Updating a Google Doc or a Google Sheet**  \n- If you need to update an **existing** Google Doc or Google Sheet, **first liaise with the Google Drive Agent** to get the file ID.  \n- Once the file ID is retrieved, pass it to the **Google Docs Agent or Google Sheets Agent** to apply the required updates.  \n\n## **Creating a Google Sheet**  \n- If you need to **create** a new Google Sheet, **first request the Google Sheets Agent to create it**.  \n- Once the Google Sheets Agent provides the file ID, pass it to the **Google Drive Agent** to move it into the **Hal folder** (ID: `<ENTER FOLDER ID>`).  \n\n# Specifics\n- Current Date and Time: {{ $now }}\n- Be Detailed in your output\n- Call tools multiple times if neccesary to achieve the desired outcome\n- Only delegate tasks to agents that have the capabilities to complete those tasks"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agentTool",
+      "typeVersion": 3,
+      "position": [
+        1072,
+        1552
+      ],
+      "id": "15ee2e1e-e366-4744-8a6b-55b3431b72e0",
+      "name": "Productivity_Supervisor"
+    }
+  ],
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1",
+    "availableInMCP": false
+  },
+  "shared": [
+    {
+      "updatedAt": "2025-12-27T00:16:26.895Z",
+      "createdAt": "2025-12-27T00:16:26.895Z",
+      "role": "workflow:owner",
+      "workflowId": "u4QKyAYCV6H1QFHe",
+      "projectId": "K5c2PqoZjXPELHVa"
+    }
+  ],
+  "staticData": null,
+  "tags": [],
+  "triggerCount": 0,
+  "updatedAt": "2025-12-27T06:28:42.742Z",
+  "versionId": "99c86bca-a8a9-4e52-ac9e-5e100ee0b2fd"
+}
