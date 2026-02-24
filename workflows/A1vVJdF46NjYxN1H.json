@@ -1,0 +1,224 @@
+{
+  "active": false,
+  "activeVersion": null,
+  "activeVersionId": null,
+  "connections": {
+    "Chat Trigger": {
+      "main": [
+        [
+          {
+            "node": "Workflow Configuration",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Workflow Configuration": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          },
+          {
+            "node": "Chat Trigger",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Transcribe Audio",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "createdAt": "2026-02-09T04:35:10.781Z",
+  "id": "A1vVJdF46NjYxN1H",
+  "isArchived": false,
+  "meta": null,
+  "name": "Audio Transcription API Integration with Whisper Model",
+  "nodes": [
+    {
+      "parameters": {
+        "public": true,
+        "options": {
+          "loadPreviousSession": "memory"
+        }
+      },
+      "id": "f88f7b75-0e8f-4268-842e-6953d1ed601b",
+      "name": "Chat Trigger",
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "typeVersion": 1.4,
+      "position": [
+        0,
+        0
+      ],
+      "webhookId": "eddd3ad9-d326-46c7-912a-c55d2f985863"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "id-1",
+              "name": "speachesBaseUrl",
+              "value": "https://co8gg808woso8k0gc44oggoo.dahopevi.com",
+              "type": "string"
+            },
+            {
+              "id": "id-2",
+              "name": "transcriptionModelId",
+              "value": "Systran/faster-distil-whisper-small.en",
+              "type": "string"
+            }
+          ]
+        },
+        "includeOtherFields": true,
+        "options": {}
+      },
+      "id": "6740c928-b772-4fd6-acc6-2153b741a9b1",
+      "name": "Workflow Configuration",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        352,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "options": {
+          "systemMessage": "You are an audio transcription assistant. When a user provides an audio file, you will transcribe it using the Whisper model API.\n\nYour task is to:\n1. Accept audio file uploads from the user\n2. Send the audio file to the transcription API\n3. Return the transcribed text to the user\n4. Handle any errors gracefully\n\nBe helpful and let users know when transcription is complete."
+        }
+      },
+      "id": "b69d8b4c-d16d-428e-9516-dc8cce200f55",
+      "name": "AI Agent",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        576,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4.1-mini"
+        },
+        "builtInTools": {},
+        "options": {}
+      },
+      "id": "88a22724-e6a6-489b-b9d5-6a113ebd8d92",
+      "name": "OpenAI Chat Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        648,
+        224
+      ],
+      "credentials": {
+        "openAiApi": {
+          "id": "7ntEUHBKfH3b9H7t",
+          "name": "n8n free OpenAI API credits"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "id": "082a1dea-70fb-4e12-8bc6-26e329d7e803",
+      "name": "Simple Memory",
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        72,
+        224
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $('Workflow Configuration').first().json.speachesBaseUrl }}/v1/audio/transcriptions",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "multipart/form-data"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "model",
+              "value": "={{ $('Workflow Configuration').first().json.transcriptionModelId }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "89765b73-234e-4335-9c24-e23da384bc4f",
+      "name": "Transcribe Audio",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        928,
+        0
+      ]
+    }
+  ],
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1",
+    "availableInMCP": false
+  },
+  "shared": [
+    {
+      "updatedAt": "2026-02-09T04:35:10.784Z",
+      "createdAt": "2026-02-09T04:35:10.784Z",
+      "role": "workflow:owner",
+      "workflowId": "A1vVJdF46NjYxN1H",
+      "projectId": "K5c2PqoZjXPELHVa"
+    }
+  ],
+  "staticData": null,
+  "tags": [],
+  "triggerCount": 0,
+  "updatedAt": "2026-02-09T04:36:19.846Z",
+  "versionId": "8d908f12-d4ca-49eb-adf0-69bb31f98854"
+}
