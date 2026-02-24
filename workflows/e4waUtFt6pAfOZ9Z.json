@@ -1,0 +1,1424 @@
+{
+  "active": true,
+  "activeVersion": {
+    "updatedAt": "2026-02-09T03:30:47.000Z",
+    "createdAt": "2026-02-09T03:30:38.184Z",
+    "versionId": "9558fb49-849c-4830-87e7-b732ff7b55f6",
+    "workflowId": "e4waUtFt6pAfOZ9Z",
+    "nodes": [
+      {
+        "parameters": {
+          "inputSource": "passthrough"
+        },
+        "type": "n8n-nodes-base.executeWorkflowTrigger",
+        "typeVersion": 1.1,
+        "position": [
+          1296,
+          512
+        ],
+        "id": "f4ee420e-b07a-4377-9f6a-2cbcbc58c447",
+        "name": "When Executed by Another Workflow"
+      },
+      {
+        "parameters": {
+          "promptType": "define",
+          "text": "={{ $json.query }}",
+          "options": {
+            "systemMessage": "=You are a tenant management assistant for Jules AI. Execute database operations immediately and report results concisely.\n\n**Database Schema:**\n- **name**: String (max 255 chars)\n- **phone_number**: String (max 20 chars) - Format: +1XXXXXXXXXX\n- **email**: String (max 255 chars)\n- **unit_address**: String (max 255 chars)\n- **unit_type**: String (max 100 chars) - 'Studio', '1 Bedroom', '2 Bedroom'\n- **rent_amount**: Decimal/float\n- **lease_start_date**: String (ISO: YYYY-MM-DD)\n- **lease_end_date**: String (ISO: YYYY-MM-DD)\n- **status**: String (max 50 chars) - 'ACTIVE', 'INACTIVE', 'PENDING'\n- **preferred_language**: String (max 10 chars) - 'en', 'fr', 'es'\n\n**Phone Number Normalization:**\nAlways normalize to +1XXXXXXXXXX format:\n- \"(555) 123-4567\" → \"+15551234567\"\n- \"555-123-4567\" → \"+15551234567\"\n- \"5551234567\" → \"+15551234567\"\n\n**Operations Protocol:**\n1. **CREATE**: Normalize phone → Validate fields → Create → Confirm\n2. **UPDATE**: Normalize lookup phone → Normalize new phone → Update → Confirm\n3. **GET/SEARCH**: Normalize phone → Execute search → Return results\n4. **DELETE**: Normalize phone → Delete → Confirm\n\n**Response Format:**\nExecute the function immediately, then respond with results only:\n- \"Tenant found: John Doe, Unit 4B, +14384541235\"\n- \"Tenant created successfully: Jane Smith, +15551234567\"\n- \"Tenant updated: Rent changed to $1500\"\n- \"Error: Tenant not found for +15559876543\"\n\nAlways show normalized phone numbers in confirmations."
+          }
+        },
+        "type": "@n8n/n8n-nodes-langchain.agent",
+        "typeVersion": 3.1,
+        "position": [
+          1472,
+          512
+        ],
+        "id": "b197b978-5970-4fce-bb29-9e52c208dcc9",
+        "name": "AI Agent"
+      },
+      {
+        "parameters": {
+          "model": {
+            "__rl": true,
+            "mode": "list",
+            "value": "gpt-4.1-mini"
+          },
+          "responsesApiEnabled": false,
+          "options": {}
+        },
+        "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+        "typeVersion": 1.3,
+        "position": [
+          1344,
+          768
+        ],
+        "id": "9178726f-14aa-4fc8-b168-fc9e7887ea66",
+        "name": "OpenAI Chat Model",
+        "credentials": {
+          "openAiApi": {
+            "id": "vofRqqG7VEHTXxTs",
+            "name": "OpenAi account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "descriptionType": "manual",
+          "toolDescription": "Creates a new tenant record in the database with all required information including name, phone number, unit address, lease dates, contact details, and status.",
+          "schema": {
+            "__rl": true,
+            "mode": "list",
+            "value": "public"
+          },
+          "table": {
+            "__rl": true,
+            "value": "tenants",
+            "mode": "list",
+            "cachedResultName": "tenants"
+          },
+          "columns": {
+            "mappingMode": "defineBelow",
+            "value": {
+              "name": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('name', `Full name of the tenant`, 'string') }}",
+              "phone_number": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('phone_number', `Phone number of the tenant`, 'string') }}",
+              "unit_address": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('unit_address', `Unit address where tenant resides`, 'string') }}",
+              "lease_start_date": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('lease_start_date', `Lease start date in ISO format (YYYY-MM-DD)`, 'string') }}",
+              "lease_end_date": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('lease_end_date', `Lease end date in ISO format (YYYY-MM-DD)`, 'string') }}",
+              "contact_email": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('contact_email', `Tenant contact email address`, 'string') }}",
+              "emergency_contact": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('emergency_contact', `Emergency contact name`, 'string') }}",
+              "emergency_phone": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('emergency_phone', `Emergency contact phone number`, 'string') }}",
+              "preferred_language": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('preferred_language', `Preferred language code (e.g., en, fr)`, 'string') }}",
+              "notes": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('notes', `Additional notes about the tenant`, 'string') }}",
+              "status": "={{ $fromAI('status', 'Tenant status: ACTIVE, INACTIVE, or PENDING', 'string') }}"
+            },
+            "matchingColumns": [
+              "id"
+            ],
+            "schema": [
+              {
+                "id": "id",
+                "displayName": "id",
+                "required": false,
+                "defaultMatch": true,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true,
+                "removed": true
+              },
+              {
+                "id": "name",
+                "displayName": "name",
+                "required": true,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true
+              },
+              {
+                "id": "phone_number",
+                "displayName": "phone_number",
+                "required": true,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true
+              },
+              {
+                "id": "unit_address",
+                "displayName": "unit_address",
+                "required": true,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true
+              },
+              {
+                "id": "lease_start_date",
+                "displayName": "lease_start_date",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "dateTime",
+                "canBeUsedToMatch": true
+              },
+              {
+                "id": "lease_end_date",
+                "displayName": "lease_end_date",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "dateTime",
+                "canBeUsedToMatch": true
+              },
+              {
+                "id": "contact_email",
+                "displayName": "contact_email",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true
+              },
+              {
+                "id": "emergency_contact",
+                "displayName": "emergency_contact",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true
+              },
+              {
+                "id": "emergency_phone",
+                "displayName": "emergency_phone",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true
+              },
+              {
+                "id": "preferred_language",
+                "displayName": "preferred_language",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true
+              },
+              {
+                "id": "status",
+                "displayName": "status",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "options",
+                "canBeUsedToMatch": true,
+                "options": [
+                  {
+                    "name": "PENDING",
+                    "value": "PENDING"
+                  },
+                  {
+                    "name": "INACTIVE",
+                    "value": "INACTIVE"
+                  },
+                  {
+                    "name": "ACTIVE",
+                    "value": "ACTIVE"
+                  }
+                ]
+              },
+              {
+                "id": "notes",
+                "displayName": "notes",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true
+              },
+              {
+                "id": "created_at",
+                "displayName": "created_at",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "dateTime",
+                "canBeUsedToMatch": true,
+                "removed": true
+              },
+              {
+                "id": "updated_at",
+                "displayName": "updated_at",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "dateTime",
+                "canBeUsedToMatch": true,
+                "removed": true
+              }
+            ],
+            "attemptToConvertTypes": false,
+            "convertFieldsToString": false
+          },
+          "options": {}
+        },
+        "id": "e04f76b2-2581-4552-9a82-13a2c7a2282a",
+        "name": "Create a tenant",
+        "type": "n8n-nodes-base.postgresTool",
+        "typeVersion": 2.6,
+        "position": [
+          1776,
+          768
+        ],
+        "credentials": {
+          "postgres": {
+            "id": "u7j29OmyHuzkVDfZ",
+            "name": "Postgres account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "descriptionType": "manual",
+          "toolDescription": "Retrieves tenant information from the database by phone number. Returns tenant details including name, contact information, lease dates, and status.",
+          "operation": "select",
+          "schema": {
+            "__rl": true,
+            "mode": "list",
+            "value": "public"
+          },
+          "table": {
+            "__rl": true,
+            "value": "tenants",
+            "mode": "list",
+            "cachedResultName": "tenants"
+          },
+          "limit": 1,
+          "where": {
+            "values": [
+              {
+                "column": "phone_number",
+                "value": "={{ $fromAI('values0_Value', `The phone number of the tenant to search for`, 'string') }}"
+              }
+            ]
+          },
+          "options": {}
+        },
+        "id": "bf971d63-abd9-42c4-9251-87e276cb213b",
+        "name": "Get a tenant",
+        "type": "n8n-nodes-base.postgresTool",
+        "typeVersion": 2.6,
+        "position": [
+          1504,
+          768
+        ],
+        "credentials": {
+          "postgres": {
+            "id": "u7j29OmyHuzkVDfZ",
+            "name": "Postgres account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "descriptionType": "manual",
+          "toolDescription": "Updates an existing tenant record in the database. Provide the phone number to identify the tenant and any fields you want to update. Only provided fields will be updated.",
+          "operation": "update",
+          "schema": {
+            "__rl": true,
+            "mode": "list",
+            "value": "public"
+          },
+          "table": {
+            "__rl": true,
+            "value": "tenants",
+            "mode": "list",
+            "cachedResultName": "tenants"
+          },
+          "columns": {
+            "mappingMode": "defineBelow",
+            "value": {
+              "name": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('name', `Updated tenant name (optional)`, 'string') }}",
+              "phone_number": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('phone_number__using_to_match_', `New phone number if changing (optional)`, 'string') }}",
+              "unit_address": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('unit_address', `Updated unit address (optional)`, 'string') }}",
+              "contact_email": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('contact_email', `Updated contact email (optional)`, 'string') }}",
+              "emergency_contact": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('emergency_contact', `Updated emergency contact (optional)`, 'string') }}",
+              "emergency_phone": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('emergency_phone', `Updated emergency phone (optional)`, 'string') }}",
+              "preferred_language": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('preferred_language', `Updated preferred language (optional)`, 'string') }}",
+              "notes": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('notes', `Updated notes (optional)`, 'string') }}",
+              "status": "={{ $fromAI('status', 'Updated status: ACTIVE, INACTIVE, or PENDING (optional)', 'string') }}"
+            },
+            "matchingColumns": [
+              "phone_number"
+            ],
+            "schema": [
+              {
+                "id": "id",
+                "displayName": "id",
+                "required": false,
+                "defaultMatch": true,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true,
+                "removed": true
+              },
+              {
+                "id": "name",
+                "displayName": "name",
+                "required": true,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true
+              },
+              {
+                "id": "phone_number",
+                "displayName": "phone_number",
+                "required": true,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true,
+                "removed": false
+              },
+              {
+                "id": "unit_address",
+                "displayName": "unit_address",
+                "required": true,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true
+              },
+              {
+                "id": "lease_start_date",
+                "displayName": "lease_start_date",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "dateTime",
+                "canBeUsedToMatch": true,
+                "removed": true
+              },
+              {
+                "id": "lease_end_date",
+                "displayName": "lease_end_date",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "dateTime",
+                "canBeUsedToMatch": true,
+                "removed": true
+              },
+              {
+                "id": "contact_email",
+                "displayName": "contact_email",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true
+              },
+              {
+                "id": "emergency_contact",
+                "displayName": "emergency_contact",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true
+              },
+              {
+                "id": "emergency_phone",
+                "displayName": "emergency_phone",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true
+              },
+              {
+                "id": "preferred_language",
+                "displayName": "preferred_language",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true
+              },
+              {
+                "id": "status",
+                "displayName": "status",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "options",
+                "canBeUsedToMatch": true,
+                "options": [
+                  {
+                    "name": "PENDING",
+                    "value": "PENDING"
+                  },
+                  {
+                    "name": "INACTIVE",
+                    "value": "INACTIVE"
+                  },
+                  {
+                    "name": "ACTIVE",
+                    "value": "ACTIVE"
+                  }
+                ]
+              },
+              {
+                "id": "notes",
+                "displayName": "notes",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true
+              },
+              {
+                "id": "created_at",
+                "displayName": "created_at",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "dateTime",
+                "canBeUsedToMatch": true,
+                "removed": true
+              },
+              {
+                "id": "updated_at",
+                "displayName": "updated_at",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "dateTime",
+                "canBeUsedToMatch": true,
+                "removed": true
+              }
+            ],
+            "attemptToConvertTypes": false,
+            "convertFieldsToString": false
+          },
+          "options": {}
+        },
+        "id": "ac0e68b2-b841-43dc-9367-fc78fcfa162a",
+        "name": "Update a tenant",
+        "type": "n8n-nodes-base.postgresTool",
+        "typeVersion": 2.6,
+        "position": [
+          1888,
+          768
+        ],
+        "credentials": {
+          "postgres": {
+            "id": "u7j29OmyHuzkVDfZ",
+            "name": "Postgres account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "descriptionType": "manual",
+          "toolDescription": "Deletes a tenant record from the database by phone number. This action is permanent and cannot be undone.",
+          "operation": "deleteTable",
+          "schema": {
+            "__rl": true,
+            "mode": "list",
+            "value": "public"
+          },
+          "table": {
+            "__rl": true,
+            "value": "tenants",
+            "mode": "list",
+            "cachedResultName": "tenants"
+          },
+          "deleteCommand": "delete",
+          "where": {
+            "values": [
+              {
+                "column": "phone_number",
+                "value": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('values0_Value', `Phone number of tenant to delete`, 'string') }}"
+              }
+            ]
+          },
+          "options": {}
+        },
+        "id": "6c79d8e5-bb39-4b23-9cfa-7a74533485b6",
+        "name": "Delete a tenant",
+        "type": "n8n-nodes-base.postgresTool",
+        "typeVersion": 2.6,
+        "position": [
+          2016,
+          768
+        ],
+        "credentials": {
+          "postgres": {
+            "id": "u7j29OmyHuzkVDfZ",
+            "name": "Postgres account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "descriptionType": "manual",
+          "toolDescription": "Retrieves all tenants information from the database. Returns tenant details including name, contact information, lease dates, and status.",
+          "operation": "select",
+          "schema": {
+            "__rl": true,
+            "mode": "list",
+            "value": "public"
+          },
+          "table": {
+            "__rl": true,
+            "value": "tenants",
+            "mode": "list",
+            "cachedResultName": "tenants"
+          },
+          "returnAll": true,
+          "options": {}
+        },
+        "id": "9bcc9337-4b71-4189-a00c-0f8ef4956e19",
+        "name": "List tenants",
+        "type": "n8n-nodes-base.postgresTool",
+        "typeVersion": 2.6,
+        "position": [
+          1648,
+          768
+        ],
+        "credentials": {
+          "postgres": {
+            "id": "u7j29OmyHuzkVDfZ",
+            "name": "Postgres account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "httpMethod": "POST",
+          "path": "tenants_by_phone",
+          "responseMode": "responseNode",
+          "options": {}
+        },
+        "type": "n8n-nodes-base.webhook",
+        "typeVersion": 2.1,
+        "position": [
+          816,
+          544
+        ],
+        "id": "9d5ede1f-79f4-45f5-9145-680eff4952d3",
+        "name": "Webhook",
+        "webhookId": "d761b162-1dbb-40b6-a305-9e74ccc50ffe"
+      },
+      {
+        "parameters": {
+          "options": {}
+        },
+        "type": "n8n-nodes-base.respondToWebhook",
+        "typeVersion": 1.5,
+        "position": [
+          2192,
+          256
+        ],
+        "id": "fc7f89ef-7ebb-4784-9216-d36ad9a2f3fe",
+        "name": "Respond to Webhook"
+      }
+    ],
+    "connections": {
+      "When Executed by Another Workflow": {
+        "main": [
+          [
+            {
+              "node": "AI Agent",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "OpenAI Chat Model": {
+        "ai_languageModel": [
+          [
+            {
+              "node": "AI Agent",
+              "type": "ai_languageModel",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Create a tenant": {
+        "ai_tool": [
+          [
+            {
+              "node": "AI Agent",
+              "type": "ai_tool",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Get a tenant": {
+        "ai_tool": [
+          [
+            {
+              "node": "AI Agent",
+              "type": "ai_tool",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Update a tenant": {
+        "ai_tool": [
+          [
+            {
+              "node": "AI Agent",
+              "type": "ai_tool",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Delete a tenant": {
+        "ai_tool": [
+          [
+            {
+              "node": "AI Agent",
+              "type": "ai_tool",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "List tenants": {
+        "ai_tool": [
+          [
+            {
+              "node": "AI Agent",
+              "type": "ai_tool",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Webhook": {
+        "main": [
+          []
+        ]
+      },
+      "AI Agent": {
+        "main": [
+          []
+        ]
+      }
+    },
+    "authors": "Aurelien Bonin",
+    "name": "Version 9558fb49",
+    "description": "",
+    "autosaved": false
+  },
+  "activeVersionId": "9558fb49-849c-4830-87e7-b732ff7b55f6",
+  "connections": {
+    "When Executed by Another Workflow": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create a tenant": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get a tenant": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update a tenant": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Delete a tenant": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "List tenants": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook": {
+      "main": [
+        []
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        []
+      ]
+    }
+  },
+  "createdAt": "2025-12-17T03:03:02.637Z",
+  "id": "e4waUtFt6pAfOZ9Z",
+  "isArchived": false,
+  "meta": {
+    "templateCredsSetupCompleted": true
+  },
+  "name": "Tenants",
+  "nodes": [
+    {
+      "parameters": {
+        "inputSource": "passthrough"
+      },
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        1296,
+        512
+      ],
+      "id": "f4ee420e-b07a-4377-9f6a-2cbcbc58c447",
+      "name": "When Executed by Another Workflow"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.query }}",
+        "options": {
+          "systemMessage": "=You are a tenant management assistant for Jules AI. Execute database operations immediately and report results concisely.\n\n**Database Schema:**\n- **name**: String (max 255 chars)\n- **phone_number**: String (max 20 chars) - Format: +1XXXXXXXXXX\n- **email**: String (max 255 chars)\n- **unit_address**: String (max 255 chars)\n- **unit_type**: String (max 100 chars) - 'Studio', '1 Bedroom', '2 Bedroom'\n- **rent_amount**: Decimal/float\n- **lease_start_date**: String (ISO: YYYY-MM-DD)\n- **lease_end_date**: String (ISO: YYYY-MM-DD)\n- **status**: String (max 50 chars) - 'ACTIVE', 'INACTIVE', 'PENDING'\n- **preferred_language**: String (max 10 chars) - 'en', 'fr', 'es'\n\n**Phone Number Normalization:**\nAlways normalize to +1XXXXXXXXXX format:\n- \"(555) 123-4567\" → \"+15551234567\"\n- \"555-123-4567\" → \"+15551234567\"\n- \"5551234567\" → \"+15551234567\"\n\n**Operations Protocol:**\n1. **CREATE**: Normalize phone → Validate fields → Create → Confirm\n2. **UPDATE**: Normalize lookup phone → Normalize new phone → Update → Confirm\n3. **GET/SEARCH**: Normalize phone → Execute search → Return results\n4. **DELETE**: Normalize phone → Delete → Confirm\n\n**Response Format:**\nExecute the function immediately, then respond with results only:\n- \"Tenant found: John Doe, Unit 4B, +14384541235\"\n- \"Tenant created successfully: Jane Smith, +15551234567\"\n- \"Tenant updated: Rent changed to $1500\"\n- \"Error: Tenant not found for +15559876543\"\n\nAlways show normalized phone numbers in confirmations."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        1472,
+        512
+      ],
+      "id": "b197b978-5970-4fce-bb29-9e52c208dcc9",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4.1-mini"
+        },
+        "responsesApiEnabled": false,
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        1344,
+        768
+      ],
+      "id": "9178726f-14aa-4fc8-b168-fc9e7887ea66",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "vofRqqG7VEHTXxTs",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "descriptionType": "manual",
+        "toolDescription": "Creates a new tenant record in the database with all required information including name, phone number, unit address, lease dates, contact details, and status.",
+        "schema": {
+          "__rl": true,
+          "mode": "list",
+          "value": "public"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tenants",
+          "mode": "list",
+          "cachedResultName": "tenants"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "name": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('name', `Full name of the tenant`, 'string') }}",
+            "phone_number": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('phone_number', `Phone number of the tenant`, 'string') }}",
+            "unit_address": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('unit_address', `Unit address where tenant resides`, 'string') }}",
+            "lease_start_date": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('lease_start_date', `Lease start date in ISO format (YYYY-MM-DD)`, 'string') }}",
+            "lease_end_date": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('lease_end_date', `Lease end date in ISO format (YYYY-MM-DD)`, 'string') }}",
+            "contact_email": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('contact_email', `Tenant contact email address`, 'string') }}",
+            "emergency_contact": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('emergency_contact', `Emergency contact name`, 'string') }}",
+            "emergency_phone": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('emergency_phone', `Emergency contact phone number`, 'string') }}",
+            "preferred_language": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('preferred_language', `Preferred language code (e.g., en, fr)`, 'string') }}",
+            "notes": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('notes', `Additional notes about the tenant`, 'string') }}",
+            "status": "={{ $fromAI('status', 'Tenant status: ACTIVE, INACTIVE, or PENDING', 'string') }}"
+          },
+          "matchingColumns": [
+            "id"
+          ],
+          "schema": [
+            {
+              "id": "id",
+              "displayName": "id",
+              "required": false,
+              "defaultMatch": true,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "name",
+              "displayName": "name",
+              "required": true,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "phone_number",
+              "displayName": "phone_number",
+              "required": true,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "unit_address",
+              "displayName": "unit_address",
+              "required": true,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "lease_start_date",
+              "displayName": "lease_start_date",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "dateTime",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "lease_end_date",
+              "displayName": "lease_end_date",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "dateTime",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "contact_email",
+              "displayName": "contact_email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "emergency_contact",
+              "displayName": "emergency_contact",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "emergency_phone",
+              "displayName": "emergency_phone",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "preferred_language",
+              "displayName": "preferred_language",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "status",
+              "displayName": "status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "options",
+              "canBeUsedToMatch": true,
+              "options": [
+                {
+                  "name": "PENDING",
+                  "value": "PENDING"
+                },
+                {
+                  "name": "INACTIVE",
+                  "value": "INACTIVE"
+                },
+                {
+                  "name": "ACTIVE",
+                  "value": "ACTIVE"
+                }
+              ]
+            },
+            {
+              "id": "notes",
+              "displayName": "notes",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "created_at",
+              "displayName": "created_at",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "dateTime",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "updated_at",
+              "displayName": "updated_at",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "dateTime",
+              "canBeUsedToMatch": true,
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "id": "e04f76b2-2581-4552-9a82-13a2c7a2282a",
+      "name": "Create a tenant",
+      "type": "n8n-nodes-base.postgresTool",
+      "typeVersion": 2.6,
+      "position": [
+        1776,
+        768
+      ],
+      "credentials": {
+        "postgres": {
+          "id": "u7j29OmyHuzkVDfZ",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "descriptionType": "manual",
+        "toolDescription": "Retrieves tenant information from the database by phone number. Returns tenant details including name, contact information, lease dates, and status.",
+        "operation": "select",
+        "schema": {
+          "__rl": true,
+          "mode": "list",
+          "value": "public"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tenants",
+          "mode": "list",
+          "cachedResultName": "tenants"
+        },
+        "limit": 1,
+        "where": {
+          "values": [
+            {
+              "column": "phone_number",
+              "value": "={{ $fromAI('values0_Value', `The phone number of the tenant to search for`, 'string') }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "bf971d63-abd9-42c4-9251-87e276cb213b",
+      "name": "Get a tenant",
+      "type": "n8n-nodes-base.postgresTool",
+      "typeVersion": 2.6,
+      "position": [
+        1504,
+        768
+      ],
+      "credentials": {
+        "postgres": {
+          "id": "u7j29OmyHuzkVDfZ",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "descriptionType": "manual",
+        "toolDescription": "Updates an existing tenant record in the database. Provide the phone number to identify the tenant and any fields you want to update. Only provided fields will be updated.",
+        "operation": "update",
+        "schema": {
+          "__rl": true,
+          "mode": "list",
+          "value": "public"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tenants",
+          "mode": "list",
+          "cachedResultName": "tenants"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "name": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('name', `Updated tenant name (optional)`, 'string') }}",
+            "phone_number": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('phone_number__using_to_match_', `New phone number if changing (optional)`, 'string') }}",
+            "unit_address": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('unit_address', `Updated unit address (optional)`, 'string') }}",
+            "contact_email": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('contact_email', `Updated contact email (optional)`, 'string') }}",
+            "emergency_contact": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('emergency_contact', `Updated emergency contact (optional)`, 'string') }}",
+            "emergency_phone": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('emergency_phone', `Updated emergency phone (optional)`, 'string') }}",
+            "preferred_language": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('preferred_language', `Updated preferred language (optional)`, 'string') }}",
+            "notes": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('notes', `Updated notes (optional)`, 'string') }}",
+            "status": "={{ $fromAI('status', 'Updated status: ACTIVE, INACTIVE, or PENDING (optional)', 'string') }}"
+          },
+          "matchingColumns": [
+            "phone_number"
+          ],
+          "schema": [
+            {
+              "id": "id",
+              "displayName": "id",
+              "required": false,
+              "defaultMatch": true,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "name",
+              "displayName": "name",
+              "required": true,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "phone_number",
+              "displayName": "phone_number",
+              "required": true,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "unit_address",
+              "displayName": "unit_address",
+              "required": true,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "lease_start_date",
+              "displayName": "lease_start_date",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "dateTime",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "lease_end_date",
+              "displayName": "lease_end_date",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "dateTime",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "contact_email",
+              "displayName": "contact_email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "emergency_contact",
+              "displayName": "emergency_contact",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "emergency_phone",
+              "displayName": "emergency_phone",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "preferred_language",
+              "displayName": "preferred_language",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "status",
+              "displayName": "status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "options",
+              "canBeUsedToMatch": true,
+              "options": [
+                {
+                  "name": "PENDING",
+                  "value": "PENDING"
+                },
+                {
+                  "name": "INACTIVE",
+                  "value": "INACTIVE"
+                },
+                {
+                  "name": "ACTIVE",
+                  "value": "ACTIVE"
+                }
+              ]
+            },
+            {
+              "id": "notes",
+              "displayName": "notes",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "created_at",
+              "displayName": "created_at",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "dateTime",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "updated_at",
+              "displayName": "updated_at",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "dateTime",
+              "canBeUsedToMatch": true,
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "id": "ac0e68b2-b841-43dc-9367-fc78fcfa162a",
+      "name": "Update a tenant",
+      "type": "n8n-nodes-base.postgresTool",
+      "typeVersion": 2.6,
+      "position": [
+        1888,
+        768
+      ],
+      "credentials": {
+        "postgres": {
+          "id": "u7j29OmyHuzkVDfZ",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "descriptionType": "manual",
+        "toolDescription": "Deletes a tenant record from the database by phone number. This action is permanent and cannot be undone.",
+        "operation": "deleteTable",
+        "schema": {
+          "__rl": true,
+          "mode": "list",
+          "value": "public"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tenants",
+          "mode": "list",
+          "cachedResultName": "tenants"
+        },
+        "deleteCommand": "delete",
+        "where": {
+          "values": [
+            {
+              "column": "phone_number",
+              "value": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('values0_Value', `Phone number of tenant to delete`, 'string') }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "6c79d8e5-bb39-4b23-9cfa-7a74533485b6",
+      "name": "Delete a tenant",
+      "type": "n8n-nodes-base.postgresTool",
+      "typeVersion": 2.6,
+      "position": [
+        2016,
+        768
+      ],
+      "credentials": {
+        "postgres": {
+          "id": "u7j29OmyHuzkVDfZ",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "descriptionType": "manual",
+        "toolDescription": "Retrieves all tenants information from the database. Returns tenant details including name, contact information, lease dates, and status.",
+        "operation": "select",
+        "schema": {
+          "__rl": true,
+          "mode": "list",
+          "value": "public"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tenants",
+          "mode": "list",
+          "cachedResultName": "tenants"
+        },
+        "returnAll": true,
+        "options": {}
+      },
+      "id": "9bcc9337-4b71-4189-a00c-0f8ef4956e19",
+      "name": "List tenants",
+      "type": "n8n-nodes-base.postgresTool",
+      "typeVersion": 2.6,
+      "position": [
+        1648,
+        768
+      ],
+      "credentials": {
+        "postgres": {
+          "id": "u7j29OmyHuzkVDfZ",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "tenants_by_phone",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        816,
+        544
+      ],
+      "id": "9d5ede1f-79f4-45f5-9145-680eff4952d3",
+      "name": "Webhook",
+      "webhookId": "d761b162-1dbb-40b6-a305-9e74ccc50ffe"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        2192,
+        256
+      ],
+      "id": "fc7f89ef-7ebb-4784-9216-d36ad9a2f3fe",
+      "name": "Respond to Webhook"
+    }
+  ],
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1",
+    "availableInMCP": false
+  },
+  "shared": [
+    {
+      "updatedAt": "2025-12-17T03:03:02.641Z",
+      "createdAt": "2025-12-17T03:03:02.641Z",
+      "role": "workflow:owner",
+      "workflowId": "e4waUtFt6pAfOZ9Z",
+      "projectId": "K5c2PqoZjXPELHVa"
+    }
+  ],
+  "staticData": null,
+  "tags": [],
+  "triggerCount": 1,
+  "updatedAt": "2026-02-09T03:30:43.790Z",
+  "versionId": "9558fb49-849c-4830-87e7-b732ff7b55f6"
+}
