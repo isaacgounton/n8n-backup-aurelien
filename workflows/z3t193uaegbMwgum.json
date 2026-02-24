@@ -1,0 +1,1624 @@
+{
+  "active": true,
+  "activeVersion": {
+    "updatedAt": "2025-12-18T16:07:44.000Z",
+    "createdAt": "2025-12-18T16:06:49.079Z",
+    "versionId": "a1dd1ad2-bfa7-4212-ba40-f1958116e3fa",
+    "workflowId": "z3t193uaegbMwgum",
+    "nodes": [
+      {
+        "parameters": {
+          "httpMethod": "POST",
+          "path": "notification",
+          "authentication": "headerAuth",
+          "responseMode": "responseNode",
+          "options": {}
+        },
+        "type": "n8n-nodes-base.webhook",
+        "typeVersion": 2.1,
+        "position": [
+          -736,
+          -96
+        ],
+        "id": "ef3922d4-ac04-4b80-a4c1-de3a5e5da9ee",
+        "name": "Webhook",
+        "webhookId": "4289d04c-6e73-4c72-9e9c-85c6ea5b195c",
+        "credentials": {
+          "httpHeaderAuth": {
+            "id": "uvgqyRI1ddaWVLOw",
+            "name": "Jules Pipecat"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "rules": {
+            "values": [
+              {
+                "conditions": {
+                  "options": {
+                    "caseSensitive": true,
+                    "leftValue": "",
+                    "typeValidation": "strict",
+                    "version": 3
+                  },
+                  "conditions": [
+                    {
+                      "id": "rule-send-sms",
+                      "leftValue": "={{ $json.body.action }}",
+                      "rightValue": "send_sms",
+                      "operator": {
+                        "type": "string",
+                        "operation": "equals"
+                      }
+                    }
+                  ],
+                  "combinator": "and"
+                },
+                "renameOutput": true,
+                "outputKey": "send_sms"
+              },
+              {
+                "conditions": {
+                  "options": {
+                    "caseSensitive": true,
+                    "leftValue": "",
+                    "typeValidation": "strict",
+                    "version": 3
+                  },
+                  "conditions": [
+                    {
+                      "id": "rule-send-email",
+                      "leftValue": "={{ $json.body.action }}",
+                      "rightValue": "send_email",
+                      "operator": {
+                        "type": "string",
+                        "operation": "equals"
+                      }
+                    }
+                  ],
+                  "combinator": "and"
+                },
+                "renameOutput": true,
+                "outputKey": "send_email"
+              },
+              {
+                "conditions": {
+                  "options": {
+                    "caseSensitive": true,
+                    "leftValue": "",
+                    "typeValidation": "strict",
+                    "version": 3
+                  },
+                  "conditions": [
+                    {
+                      "id": "rule-work-order-notification",
+                      "leftValue": "={{ $json.body.action }}",
+                      "rightValue": "send_work_order_notification",
+                      "operator": {
+                        "type": "string",
+                        "operation": "equals"
+                      }
+                    }
+                  ],
+                  "combinator": "and"
+                },
+                "renameOutput": true,
+                "outputKey": "send_work_order_notification"
+              },
+              {
+                "conditions": {
+                  "options": {
+                    "caseSensitive": true,
+                    "leftValue": "",
+                    "typeValidation": "strict",
+                    "version": 3
+                  },
+                  "conditions": [
+                    {
+                      "id": "rule-emergency-alert",
+                      "leftValue": "={{ $json.body.action }}",
+                      "rightValue": "send_emergency_alert",
+                      "operator": {
+                        "type": "string",
+                        "operation": "equals"
+                      }
+                    }
+                  ],
+                  "combinator": "and"
+                },
+                "renameOutput": true,
+                "outputKey": "send_emergency_alert"
+              },
+              {
+                "conditions": {
+                  "options": {
+                    "caseSensitive": true,
+                    "leftValue": "",
+                    "typeValidation": "strict",
+                    "version": 3
+                  },
+                  "conditions": [
+                    {
+                      "id": "rule-not-sms",
+                      "leftValue": "={{ $json.body.action }}",
+                      "rightValue": "send_sms",
+                      "operator": {
+                        "type": "string",
+                        "operation": "notEqual"
+                      }
+                    },
+                    {
+                      "id": "rule-not-email",
+                      "leftValue": "={{ $json.body.action }}",
+                      "rightValue": "send_email",
+                      "operator": {
+                        "type": "string",
+                        "operation": "notEqual"
+                      }
+                    },
+                    {
+                      "id": "rule-not-work-order",
+                      "leftValue": "={{ $json.body.action }}",
+                      "rightValue": "send_work_order_notification",
+                      "operator": {
+                        "type": "string",
+                        "operation": "notEqual"
+                      }
+                    },
+                    {
+                      "id": "rule-not-emergency",
+                      "leftValue": "={{ $json.body.action }}",
+                      "rightValue": "send_emergency_alert",
+                      "operator": {
+                        "type": "string",
+                        "operation": "notEqual"
+                      }
+                    }
+                  ],
+                  "combinator": "and"
+                },
+                "renameOutput": true,
+                "outputKey": "error"
+              }
+            ]
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.switch",
+        "typeVersion": 3.4,
+        "position": [
+          -544,
+          -144
+        ],
+        "id": "bdf2c085-67ff-42c8-ad43-b30268d8ac49",
+        "name": "Switch"
+      },
+      {
+        "parameters": {
+          "schema": "public",
+          "table": "notification_logs",
+          "dataMode": "defineBelow",
+          "valuesToSend": {
+            "values": [
+              {
+                "column": "recipient",
+                "value": "={{ $json.body.recipient }}"
+              },
+              {
+                "column": "message",
+                "value": "={{ $json.body.message }}"
+              },
+              {
+                "column": "notification_type",
+                "value": "sms"
+              },
+              {
+                "column": "priority",
+                "value": "={{ $json.body.priority || 'normal' }}"
+              },
+              {
+                "column": "status",
+                "value": "pending"
+              },
+              {
+                "column": "created_at",
+                "value": "={{ $json.body.timestamp || new Date().toISOString() }}"
+              }
+            ]
+          },
+          "options": {}
+        },
+        "id": "2d725ab1-3a63-482e-902e-c51309aa930e",
+        "name": "Log SMS Notification",
+        "type": "n8n-nodes-base.postgres",
+        "typeVersion": 2,
+        "position": [
+          -128,
+          -272
+        ],
+        "credentials": {
+          "postgres": {
+            "id": "u7j29OmyHuzkVDfZ",
+            "name": "Postgres account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "schema": "public",
+          "table": "notification_logs",
+          "dataMode": "defineBelow",
+          "valuesToSend": {
+            "values": [
+              {
+                "column": "recipient",
+                "value": "={{ $json.body.recipient }}"
+              },
+              {
+                "column": "message",
+                "value": "={{ $json.body.message }}"
+              },
+              {
+                "column": "notification_type",
+                "value": "email"
+              },
+              {
+                "column": "priority",
+                "value": "={{ $json.body.priority || 'normal' }}"
+              },
+              {
+                "column": "status",
+                "value": "pending"
+              },
+              {
+                "column": "created_at",
+                "value": "={{ $json.body.timestamp || new Date().toISOString() }}"
+              }
+            ]
+          },
+          "options": {}
+        },
+        "id": "2416ae82-4387-4e69-ae29-d64e02290226",
+        "name": "Log Email Notification",
+        "type": "n8n-nodes-base.postgres",
+        "typeVersion": 2,
+        "position": [
+          -128,
+          -144
+        ],
+        "credentials": {
+          "postgres": {
+            "id": "u7j29OmyHuzkVDfZ",
+            "name": "Postgres account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "schema": "public",
+          "table": "notification_logs",
+          "dataMode": "defineBelow",
+          "valuesToSend": {
+            "values": [
+              {
+                "column": "recipient",
+                "value": "={{ $json.body.recipient }}"
+              },
+              {
+                "column": "message",
+                "value": "={{ $json.body.message }}"
+              },
+              {
+                "column": "notification_type",
+                "value": "work_order"
+              },
+              {
+                "column": "priority",
+                "value": "high"
+              },
+              {
+                "column": "status",
+                "value": "pending"
+              },
+              {
+                "column": "created_at",
+                "value": "={{ $json.body.timestamp || new Date().toISOString() }}"
+              }
+            ]
+          },
+          "options": {}
+        },
+        "id": "7f6896ba-458c-4566-976b-1177c823b46b",
+        "name": "Log Work Order Notification",
+        "type": "n8n-nodes-base.postgres",
+        "typeVersion": 2,
+        "position": [
+          -128,
+          -32
+        ],
+        "credentials": {
+          "postgres": {
+            "id": "u7j29OmyHuzkVDfZ",
+            "name": "Postgres account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "schema": "public",
+          "table": "notification_logs",
+          "dataMode": "defineBelow",
+          "valuesToSend": {
+            "values": [
+              {
+                "column": "recipient",
+                "value": "={{ $json.body.recipient }}"
+              },
+              {
+                "column": "message",
+                "value": "={{ $json.body.message }}"
+              },
+              {
+                "column": "notification_type",
+                "value": "emergency"
+              },
+              {
+                "column": "priority",
+                "value": "urgent"
+              },
+              {
+                "column": "status",
+                "value": "pending"
+              },
+              {
+                "column": "created_at",
+                "value": "={{ $json.body.timestamp || new Date().toISOString() }}"
+              }
+            ]
+          },
+          "options": {}
+        },
+        "id": "d48a8a0f-ea72-4e29-8648-0896d0110fed",
+        "name": "Log Emergency Alert",
+        "type": "n8n-nodes-base.postgres",
+        "typeVersion": 2,
+        "position": [
+          -128,
+          112
+        ],
+        "credentials": {
+          "postgres": {
+            "id": "u7j29OmyHuzkVDfZ",
+            "name": "Postgres account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "assignments": {
+            "assignments": [
+              {
+                "id": "d1e2f3g4-h5i6-47j8-9k0l-m1n2o3p4q5r6",
+                "name": "notification_id",
+                "value": "={{ $json.id }}",
+                "type": "number"
+              },
+              {
+                "id": "s7t8u9v0-w1x2-43y4-5z6a-b7c8d9e0f1g2",
+                "name": "recipient",
+                "value": "={{ $json.recipient }}",
+                "type": "string"
+              },
+              {
+                "id": "h3i4j5k6-l7m8-49n0-1o2p-q3r4s5t6u7v8",
+                "name": "notification_type",
+                "value": "={{ $json.notification_type }}",
+                "type": "string"
+              },
+              {
+                "id": "w9x0y1z2-3a4b-45c6-7d8e-f9g0h1i2j3k4",
+                "name": "priority",
+                "value": "={{ $json.priority }}",
+                "type": "string"
+              },
+              {
+                "id": "l5m6n7o8-p9q0-41r2-3s4t-u5v6w7x8y9z0",
+                "name": "status",
+                "value": "sent",
+                "type": "string"
+              }
+            ]
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.set",
+        "typeVersion": 3.4,
+        "position": [
+          48,
+          -272
+        ],
+        "id": "38fd4d71-60ab-4d87-8674-21fe1f43ec04",
+        "name": "Set SMS Response"
+      },
+      {
+        "parameters": {
+          "assignments": {
+            "assignments": [
+              {
+                "id": "f6g7h8i9-j0k1-42l3-4m5n-o6p7q8r9s0t1",
+                "name": "notification_id",
+                "value": "={{ $json.id }}",
+                "type": "number"
+              },
+              {
+                "id": "u2v3w4x5-y6z7-43a8-9b0c-d1e2f3g4h5i6",
+                "name": "recipient",
+                "value": "={{ $json.recipient }}",
+                "type": "string"
+              },
+              {
+                "id": "a3b4c5d6-e7f8-49g0-1h2i-j3k4l5m6n7o8",
+                "name": "notification_type",
+                "value": "={{ $json.notification_type }}",
+                "type": "string"
+              },
+              {
+                "id": "p9q0r1s2-t3u4-45v5-6w7x-y8z9a0b1c2d3",
+                "name": "priority",
+                "value": "={{ $json.priority }}",
+                "type": "string"
+              },
+              {
+                "id": "e4f5g6h7-i8j9-46k0-1l2m-n3o4p5q6r7s8",
+                "name": "status",
+                "value": "sent",
+                "type": "string"
+              }
+            ]
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.set",
+        "typeVersion": 3.4,
+        "position": [
+          48,
+          -144
+        ],
+        "id": "0dbe459b-03a7-4a73-8cb8-d641dad9e982",
+        "name": "Set Email Response"
+      },
+      {
+        "parameters": {
+          "assignments": {
+            "assignments": [
+              {
+                "id": "h0i1j2k3-l4m5-48n6-7o8p-q9r0s1t2u3v4",
+                "name": "notification_id",
+                "value": "={{ $json.id }}",
+                "type": "number"
+              },
+              {
+                "id": "r1s2t3u4-v5w6-49x7-8y9z-a0b1c2d3e4f5",
+                "name": "recipient",
+                "value": "={{ $json.recipient }}",
+                "type": "string"
+              },
+              {
+                "id": "i2j3k4l5-m6n7-50o8-9p0q-r1s2t3u4v5w6",
+                "name": "notification_type",
+                "value": "={{ $json.notification_type }}",
+                "type": "string"
+              },
+              {
+                "id": "s3t4u5v6-w7x8-51y9-0z1a-b2c3d4e5f6g7",
+                "name": "priority",
+                "value": "high",
+                "type": "string"
+              },
+              {
+                "id": "j4k5l6m7-n8o9-52p0-1q2r-s3t4u5v6w7x8",
+                "name": "status",
+                "value": "sent",
+                "type": "string"
+              }
+            ]
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.set",
+        "typeVersion": 3.4,
+        "position": [
+          48,
+          -32
+        ],
+        "id": "85a6a569-e7d3-4952-8e45-1a12253162f7",
+        "name": "Set Work Order Response"
+      },
+      {
+        "parameters": {
+          "assignments": {
+            "assignments": [
+              {
+                "id": "l6m7n8o9-p0q1-54r2-3s4t-u5v6w7x8y9z0",
+                "name": "notification_id",
+                "value": "={{ $json.id }}",
+                "type": "number"
+              },
+              {
+                "id": "t4u5v6w7-x8y9-55z0-a1b2-c3d4e5f6g7h8",
+                "name": "recipient",
+                "value": "={{ $json.recipient }}",
+                "type": "string"
+              },
+              {
+                "id": "m7n8o9p0-q1r2-56s3-4t5u-v6w7x8y9z0a1",
+                "name": "notification_type",
+                "value": "emergency",
+                "type": "string"
+              },
+              {
+                "id": "u5v6w7x8-y9z0-57a1-2b3c-d4e5f6g7h8i9",
+                "name": "priority",
+                "value": "urgent",
+                "type": "string"
+              },
+              {
+                "id": "n8o9p0q1-r2s3-58t4-5u6v-w7x8y9z0a1b2",
+                "name": "status",
+                "value": "sent",
+                "type": "string"
+              }
+            ]
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.set",
+        "typeVersion": 3.4,
+        "position": [
+          48,
+          96
+        ],
+        "id": "220eef9e-7c71-46d2-a1e5-a70c67d317fe",
+        "name": "Set Emergency Response"
+      },
+      {
+        "parameters": {
+          "respondWith": "json",
+          "responseBody": "={{ {\n  \"success\": true,\n  \"message\": \"SMS notification sent successfully\",\n  \"notification_id\": $json.notification_id,\n  \"recipient\": $json.recipient,\n  \"type\": $json.notification_type,\n  \"priority\": $json.priority,\n  \"sent_at\": new Date().toISOString()\n} }}",
+          "options": {}
+        },
+        "id": "b59f22ab-f3f8-46d2-8b48-753905bf41ed",
+        "name": "SMS Success Response",
+        "type": "n8n-nodes-base.respondToWebhook",
+        "typeVersion": 1,
+        "position": [
+          656,
+          -272
+        ]
+      },
+      {
+        "parameters": {
+          "respondWith": "json",
+          "responseBody": "={{ {\n  \"success\": true,\n  \"message\": \"Email notification sent successfully\",\n  \"notification_id\": $json.notification_id,\n  \"recipient\": $json.recipient,\n  \"type\": $json.notification_type,\n  \"priority\": $json.priority,\n  \"sent_at\": new Date().toISOString()\n} }}",
+          "options": {}
+        },
+        "id": "4d21dfd9-71e2-4ef8-9996-5b48bb29671a",
+        "name": "Email Success Response",
+        "type": "n8n-nodes-base.respondToWebhook",
+        "typeVersion": 1,
+        "position": [
+          656,
+          -144
+        ]
+      },
+      {
+        "parameters": {
+          "respondWith": "json",
+          "responseBody": "={{ {\n  \"success\": true,\n  \"message\": \"Work order notification sent successfully\",\n  \"notification_id\": $json.notification_id,\n  \"recipient\": $json.recipient,\n  \"type\": $json.notification_type,\n  \"priority\": $json.priority,\n  \"sent_at\": new Date().toISOString()\n} }}",
+          "options": {}
+        },
+        "id": "97b47554-bb9a-4d99-ab90-6d6ea0cae098",
+        "name": "Work Order Success Response",
+        "type": "n8n-nodes-base.respondToWebhook",
+        "typeVersion": 1,
+        "position": [
+          656,
+          -32
+        ]
+      },
+      {
+        "parameters": {
+          "respondWith": "json",
+          "responseBody": "={{ {\n  \"success\": true,\n  \"message\": \"Emergency alert sent successfully\",\n  \"notification_id\": $json.notification_id,\n  \"recipient\": $json.recipient,\n  \"type\": $json.notification_type,\n  \"priority\": $json.priority,\n  \"sent_at\": new Date().toISOString()\n} }}",
+          "options": {}
+        },
+        "id": "1a5d78d1-fd1f-4fca-a455-bc156e3354b7",
+        "name": "Emergency Success Response",
+        "type": "n8n-nodes-base.respondToWebhook",
+        "typeVersion": 1,
+        "position": [
+          656,
+          96
+        ]
+      },
+      {
+        "parameters": {
+          "respondWith": "json",
+          "responseBody": "={{ {\"success\": false, \"error\": \"Invalid action specified\", \"received\": $json.body.action} }}",
+          "options": {}
+        },
+        "id": "05d5e748-d79c-4aeb-9934-ca508df5830d",
+        "name": "Error Response",
+        "type": "n8n-nodes-base.respondToWebhook",
+        "typeVersion": 1,
+        "position": [
+          -128,
+          256
+        ]
+      }
+    ],
+    "connections": {
+      "Webhook": {
+        "main": [
+          [
+            {
+              "node": "Switch",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Switch": {
+        "main": [
+          [
+            {
+              "node": "Log SMS Notification",
+              "type": "main",
+              "index": 0
+            }
+          ],
+          [
+            {
+              "node": "Log Email Notification",
+              "type": "main",
+              "index": 0
+            }
+          ],
+          [
+            {
+              "node": "Log Work Order Notification",
+              "type": "main",
+              "index": 0
+            }
+          ],
+          [
+            {
+              "node": "Log Emergency Alert",
+              "type": "main",
+              "index": 0
+            }
+          ],
+          [
+            {
+              "node": "Error Response",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Log SMS Notification": {
+        "main": [
+          [
+            {
+              "node": "Set SMS Response",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Log Email Notification": {
+        "main": [
+          [
+            {
+              "node": "Set Email Response",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Log Work Order Notification": {
+        "main": [
+          [
+            {
+              "node": "Set Work Order Response",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Log Emergency Alert": {
+        "main": [
+          [
+            {
+              "node": "Set Emergency Response",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Set SMS Response": {
+        "main": [
+          [
+            {
+              "node": "SMS Success Response",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Set Email Response": {
+        "main": [
+          [
+            {
+              "node": "Email Success Response",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Set Work Order Response": {
+        "main": [
+          [
+            {
+              "node": "Work Order Success Response",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Set Emergency Response": {
+        "main": [
+          [
+            {
+              "node": "Emergency Success Response",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    },
+    "authors": "Aurelien Bonin",
+    "name": "Version a1dd1ad2",
+    "description": "",
+    "autosaved": false
+  },
+  "activeVersionId": "a1dd1ad2-bfa7-4212-ba40-f1958116e3fa",
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Switch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch": {
+      "main": [
+        [
+          {
+            "node": "Log SMS Notification",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Log Email Notification",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Log Work Order Notification",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Log Emergency Alert",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Error Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Log SMS Notification": {
+      "main": [
+        [
+          {
+            "node": "Set SMS Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Log Email Notification": {
+      "main": [
+        [
+          {
+            "node": "Set Email Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Log Work Order Notification": {
+      "main": [
+        [
+          {
+            "node": "Set Work Order Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Log Emergency Alert": {
+      "main": [
+        [
+          {
+            "node": "Set Emergency Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set SMS Response": {
+      "main": [
+        [
+          {
+            "node": "SMS Success Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set Email Response": {
+      "main": [
+        [
+          {
+            "node": "Email Success Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set Work Order Response": {
+      "main": [
+        [
+          {
+            "node": "Work Order Success Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set Emergency Response": {
+      "main": [
+        [
+          {
+            "node": "Emergency Success Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "createdAt": "2025-12-18T00:11:48.995Z",
+  "id": "z3t193uaegbMwgum",
+  "isArchived": false,
+  "meta": null,
+  "name": "Notifications Webhook",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "notification",
+        "authentication": "headerAuth",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -736,
+        -96
+      ],
+      "id": "ef3922d4-ac04-4b80-a4c1-de3a5e5da9ee",
+      "name": "Webhook",
+      "webhookId": "4289d04c-6e73-4c72-9e9c-85c6ea5b195c",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "uvgqyRI1ddaWVLOw",
+          "name": "Jules Pipecat"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "rule-send-sms",
+                    "leftValue": "={{ $json.body.action }}",
+                    "rightValue": "send_sms",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "send_sms"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "rule-send-email",
+                    "leftValue": "={{ $json.body.action }}",
+                    "rightValue": "send_email",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "send_email"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "rule-work-order-notification",
+                    "leftValue": "={{ $json.body.action }}",
+                    "rightValue": "send_work_order_notification",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "send_work_order_notification"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "rule-emergency-alert",
+                    "leftValue": "={{ $json.body.action }}",
+                    "rightValue": "send_emergency_alert",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "send_emergency_alert"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "rule-not-sms",
+                    "leftValue": "={{ $json.body.action }}",
+                    "rightValue": "send_sms",
+                    "operator": {
+                      "type": "string",
+                      "operation": "notEqual"
+                    }
+                  },
+                  {
+                    "id": "rule-not-email",
+                    "leftValue": "={{ $json.body.action }}",
+                    "rightValue": "send_email",
+                    "operator": {
+                      "type": "string",
+                      "operation": "notEqual"
+                    }
+                  },
+                  {
+                    "id": "rule-not-work-order",
+                    "leftValue": "={{ $json.body.action }}",
+                    "rightValue": "send_work_order_notification",
+                    "operator": {
+                      "type": "string",
+                      "operation": "notEqual"
+                    }
+                  },
+                  {
+                    "id": "rule-not-emergency",
+                    "leftValue": "={{ $json.body.action }}",
+                    "rightValue": "send_emergency_alert",
+                    "operator": {
+                      "type": "string",
+                      "operation": "notEqual"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "error"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.4,
+      "position": [
+        -544,
+        -144
+      ],
+      "id": "bdf2c085-67ff-42c8-ad43-b30268d8ac49",
+      "name": "Switch"
+    },
+    {
+      "parameters": {
+        "schema": "public",
+        "table": "notification_logs",
+        "dataMode": "defineBelow",
+        "valuesToSend": {
+          "values": [
+            {
+              "column": "recipient",
+              "value": "={{ $json.body.recipient }}"
+            },
+            {
+              "column": "message",
+              "value": "={{ $json.body.message }}"
+            },
+            {
+              "column": "notification_type",
+              "value": "sms"
+            },
+            {
+              "column": "priority",
+              "value": "={{ $json.body.priority || 'normal' }}"
+            },
+            {
+              "column": "status",
+              "value": "pending"
+            },
+            {
+              "column": "created_at",
+              "value": "={{ $json.body.timestamp || new Date().toISOString() }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "2d725ab1-3a63-482e-902e-c51309aa930e",
+      "name": "Log SMS Notification",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2,
+      "position": [
+        -128,
+        -272
+      ],
+      "credentials": {
+        "postgres": {
+          "id": "u7j29OmyHuzkVDfZ",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "schema": "public",
+        "table": "notification_logs",
+        "dataMode": "defineBelow",
+        "valuesToSend": {
+          "values": [
+            {
+              "column": "recipient",
+              "value": "={{ $json.body.recipient }}"
+            },
+            {
+              "column": "message",
+              "value": "={{ $json.body.message }}"
+            },
+            {
+              "column": "notification_type",
+              "value": "email"
+            },
+            {
+              "column": "priority",
+              "value": "={{ $json.body.priority || 'normal' }}"
+            },
+            {
+              "column": "status",
+              "value": "pending"
+            },
+            {
+              "column": "created_at",
+              "value": "={{ $json.body.timestamp || new Date().toISOString() }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "2416ae82-4387-4e69-ae29-d64e02290226",
+      "name": "Log Email Notification",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2,
+      "position": [
+        -128,
+        -144
+      ],
+      "credentials": {
+        "postgres": {
+          "id": "u7j29OmyHuzkVDfZ",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "schema": "public",
+        "table": "notification_logs",
+        "dataMode": "defineBelow",
+        "valuesToSend": {
+          "values": [
+            {
+              "column": "recipient",
+              "value": "={{ $json.body.recipient }}"
+            },
+            {
+              "column": "message",
+              "value": "={{ $json.body.message }}"
+            },
+            {
+              "column": "notification_type",
+              "value": "work_order"
+            },
+            {
+              "column": "priority",
+              "value": "high"
+            },
+            {
+              "column": "status",
+              "value": "pending"
+            },
+            {
+              "column": "created_at",
+              "value": "={{ $json.body.timestamp || new Date().toISOString() }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "7f6896ba-458c-4566-976b-1177c823b46b",
+      "name": "Log Work Order Notification",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2,
+      "position": [
+        -128,
+        -32
+      ],
+      "credentials": {
+        "postgres": {
+          "id": "u7j29OmyHuzkVDfZ",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "schema": "public",
+        "table": "notification_logs",
+        "dataMode": "defineBelow",
+        "valuesToSend": {
+          "values": [
+            {
+              "column": "recipient",
+              "value": "={{ $json.body.recipient }}"
+            },
+            {
+              "column": "message",
+              "value": "={{ $json.body.message }}"
+            },
+            {
+              "column": "notification_type",
+              "value": "emergency"
+            },
+            {
+              "column": "priority",
+              "value": "urgent"
+            },
+            {
+              "column": "status",
+              "value": "pending"
+            },
+            {
+              "column": "created_at",
+              "value": "={{ $json.body.timestamp || new Date().toISOString() }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "d48a8a0f-ea72-4e29-8648-0896d0110fed",
+      "name": "Log Emergency Alert",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2,
+      "position": [
+        -128,
+        112
+      ],
+      "credentials": {
+        "postgres": {
+          "id": "u7j29OmyHuzkVDfZ",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "d1e2f3g4-h5i6-47j8-9k0l-m1n2o3p4q5r6",
+              "name": "notification_id",
+              "value": "={{ $json.id }}",
+              "type": "number"
+            },
+            {
+              "id": "s7t8u9v0-w1x2-43y4-5z6a-b7c8d9e0f1g2",
+              "name": "recipient",
+              "value": "={{ $json.recipient }}",
+              "type": "string"
+            },
+            {
+              "id": "h3i4j5k6-l7m8-49n0-1o2p-q3r4s5t6u7v8",
+              "name": "notification_type",
+              "value": "={{ $json.notification_type }}",
+              "type": "string"
+            },
+            {
+              "id": "w9x0y1z2-3a4b-45c6-7d8e-f9g0h1i2j3k4",
+              "name": "priority",
+              "value": "={{ $json.priority }}",
+              "type": "string"
+            },
+            {
+              "id": "l5m6n7o8-p9q0-41r2-3s4t-u5v6w7x8y9z0",
+              "name": "status",
+              "value": "sent",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        48,
+        -272
+      ],
+      "id": "38fd4d71-60ab-4d87-8674-21fe1f43ec04",
+      "name": "Set SMS Response"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "f6g7h8i9-j0k1-42l3-4m5n-o6p7q8r9s0t1",
+              "name": "notification_id",
+              "value": "={{ $json.id }}",
+              "type": "number"
+            },
+            {
+              "id": "u2v3w4x5-y6z7-43a8-9b0c-d1e2f3g4h5i6",
+              "name": "recipient",
+              "value": "={{ $json.recipient }}",
+              "type": "string"
+            },
+            {
+              "id": "a3b4c5d6-e7f8-49g0-1h2i-j3k4l5m6n7o8",
+              "name": "notification_type",
+              "value": "={{ $json.notification_type }}",
+              "type": "string"
+            },
+            {
+              "id": "p9q0r1s2-t3u4-45v5-6w7x-y8z9a0b1c2d3",
+              "name": "priority",
+              "value": "={{ $json.priority }}",
+              "type": "string"
+            },
+            {
+              "id": "e4f5g6h7-i8j9-46k0-1l2m-n3o4p5q6r7s8",
+              "name": "status",
+              "value": "sent",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        48,
+        -144
+      ],
+      "id": "0dbe459b-03a7-4a73-8cb8-d641dad9e982",
+      "name": "Set Email Response"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "h0i1j2k3-l4m5-48n6-7o8p-q9r0s1t2u3v4",
+              "name": "notification_id",
+              "value": "={{ $json.id }}",
+              "type": "number"
+            },
+            {
+              "id": "r1s2t3u4-v5w6-49x7-8y9z-a0b1c2d3e4f5",
+              "name": "recipient",
+              "value": "={{ $json.recipient }}",
+              "type": "string"
+            },
+            {
+              "id": "i2j3k4l5-m6n7-50o8-9p0q-r1s2t3u4v5w6",
+              "name": "notification_type",
+              "value": "={{ $json.notification_type }}",
+              "type": "string"
+            },
+            {
+              "id": "s3t4u5v6-w7x8-51y9-0z1a-b2c3d4e5f6g7",
+              "name": "priority",
+              "value": "high",
+              "type": "string"
+            },
+            {
+              "id": "j4k5l6m7-n8o9-52p0-1q2r-s3t4u5v6w7x8",
+              "name": "status",
+              "value": "sent",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        48,
+        -32
+      ],
+      "id": "85a6a569-e7d3-4952-8e45-1a12253162f7",
+      "name": "Set Work Order Response"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "l6m7n8o9-p0q1-54r2-3s4t-u5v6w7x8y9z0",
+              "name": "notification_id",
+              "value": "={{ $json.id }}",
+              "type": "number"
+            },
+            {
+              "id": "t4u5v6w7-x8y9-55z0-a1b2-c3d4e5f6g7h8",
+              "name": "recipient",
+              "value": "={{ $json.recipient }}",
+              "type": "string"
+            },
+            {
+              "id": "m7n8o9p0-q1r2-56s3-4t5u-v6w7x8y9z0a1",
+              "name": "notification_type",
+              "value": "emergency",
+              "type": "string"
+            },
+            {
+              "id": "u5v6w7x8-y9z0-57a1-2b3c-d4e5f6g7h8i9",
+              "name": "priority",
+              "value": "urgent",
+              "type": "string"
+            },
+            {
+              "id": "n8o9p0q1-r2s3-58t4-5u6v-w7x8y9z0a1b2",
+              "name": "status",
+              "value": "sent",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        48,
+        96
+      ],
+      "id": "220eef9e-7c71-46d2-a1e5-a70c67d317fe",
+      "name": "Set Emergency Response"
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ {\n  \"success\": true,\n  \"message\": \"SMS notification sent successfully\",\n  \"notification_id\": $json.notification_id,\n  \"recipient\": $json.recipient,\n  \"type\": $json.notification_type,\n  \"priority\": $json.priority,\n  \"sent_at\": new Date().toISOString()\n} }}",
+        "options": {}
+      },
+      "id": "b59f22ab-f3f8-46d2-8b48-753905bf41ed",
+      "name": "SMS Success Response",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [
+        656,
+        -272
+      ]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ {\n  \"success\": true,\n  \"message\": \"Email notification sent successfully\",\n  \"notification_id\": $json.notification_id,\n  \"recipient\": $json.recipient,\n  \"type\": $json.notification_type,\n  \"priority\": $json.priority,\n  \"sent_at\": new Date().toISOString()\n} }}",
+        "options": {}
+      },
+      "id": "4d21dfd9-71e2-4ef8-9996-5b48bb29671a",
+      "name": "Email Success Response",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [
+        656,
+        -144
+      ]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ {\n  \"success\": true,\n  \"message\": \"Work order notification sent successfully\",\n  \"notification_id\": $json.notification_id,\n  \"recipient\": $json.recipient,\n  \"type\": $json.notification_type,\n  \"priority\": $json.priority,\n  \"sent_at\": new Date().toISOString()\n} }}",
+        "options": {}
+      },
+      "id": "97b47554-bb9a-4d99-ab90-6d6ea0cae098",
+      "name": "Work Order Success Response",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [
+        656,
+        -32
+      ]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ {\n  \"success\": true,\n  \"message\": \"Emergency alert sent successfully\",\n  \"notification_id\": $json.notification_id,\n  \"recipient\": $json.recipient,\n  \"type\": $json.notification_type,\n  \"priority\": $json.priority,\n  \"sent_at\": new Date().toISOString()\n} }}",
+        "options": {}
+      },
+      "id": "1a5d78d1-fd1f-4fca-a455-bc156e3354b7",
+      "name": "Emergency Success Response",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [
+        656,
+        96
+      ]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ {\"success\": false, \"error\": \"Invalid action specified\", \"received\": $json.body.action} }}",
+        "options": {}
+      },
+      "id": "05d5e748-d79c-4aeb-9934-ca508df5830d",
+      "name": "Error Response",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [
+        -128,
+        256
+      ]
+    }
+  ],
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1",
+    "availableInMCP": true
+  },
+  "shared": [
+    {
+      "updatedAt": "2025-12-18T00:11:48.998Z",
+      "createdAt": "2025-12-18T00:11:48.998Z",
+      "role": "workflow:owner",
+      "workflowId": "z3t193uaegbMwgum",
+      "projectId": "K5c2PqoZjXPELHVa"
+    }
+  ],
+  "staticData": null,
+  "tags": [],
+  "triggerCount": 1,
+  "updatedAt": "2025-12-18T16:06:49.079Z",
+  "versionId": "a1dd1ad2-bfa7-4212-ba40-f1958116e3fa"
+}
